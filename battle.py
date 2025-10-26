@@ -1,6 +1,6 @@
 import asyncio
 from poke_env.player import Player, RandomPlayer
-import MCTS_GEMINI as MCTS
+import MCTS as MCTS
 
 # Player 클래스를 상속받아 나만의 플레이어를 만듭니다.
 class MCTSPlayer(Player):
