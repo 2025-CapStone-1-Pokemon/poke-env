@@ -4,9 +4,8 @@ from poke_env.player import Player
 import math
 
 class MCTSNode:
-    def __init__(self, state, parent=None, action=None):
+    def __init__(self, state, parent=None):
         self.state = state                    # 현재 상태
-        self.action = action                  # 이 노드에 도달하기 위한 행동
         self.parent = parent                  # 부모 노드
         self.children = []                    # 자식 노드 목록
         self.visits = 0                       # 방문 횟수

@@ -18,6 +18,7 @@ async def main():
     mcts_player = MCTSPlayer(
         battle_format="gen8randombattle"
     )
+    
     random_player = RandomPlayer(
         battle_format="gen8randombattle"
     )
