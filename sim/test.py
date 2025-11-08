@@ -27,47 +27,7 @@ class CustomPlayer(Player):
         if my_pokemons:
             print("\n[내 팀 첫 번째 포켓몬]")
             p = my_pokemons[0]
-            print(f"  종류(species): {p.species}")
-            print(f"  레벨(level): {p.level}")
-            print(f"  성별(gender): {p.gender}")
-            print(f"  HP: {p.current_hp}/{p.max_hp} ({p.current_hp_fraction:.2%})")
-            print(f"  기절 여부(fainted): {p.fainted}")
-            print(f"  상태이상(status): {p.status}")
-            print(f"  활성 여부(active): {p.active}")
-            print(f"  특성(ability): {p.ability}")
-            print(f"  아이템(item): {p.item}")
-            print(f"  타입(types): {p.types}")
-            print(f"  능력치 변화(boosts): {p.boosts}")
-            print(f"  스탯(stats): {p.stats}")
-            print(f"  기본 스탯(base_stats): {p.base_stats}")
-            print(f"  기술 수(moves): {len(p.moves)}개")
-            if p.moves:
-                print(f"  기술 목록: {list(p.moves.keys())}")
-            print(f"  효과(effects): {p.effects}")
-        
-        # 상대 포켓몬 확인
-        if opponent_pokemons:
-            print("\n[상대 팀 첫 번째 포켓몬]")
-            p = opponent_pokemons[0]
-            print(f"  종류(species): {p.species}")
-            print(f"  레벨(level): {p.level}")
-            print(f"  성별(gender): {p.gender}")
-            print(f"  HP: {p.current_hp}/{p.max_hp} ({p.current_hp_fraction:.2%})")
-            print(f"  기절 여부(fainted): {p.fainted}")
-            print(f"  상태이상(status): {p.status}")
-            print(f"  활성 여부(active): {p.active}")
-            print(f"  특성(ability): {p.ability}")
-            print(f"  아이템(item): {p.item}")
-            print(f"  타입(types): {p.types}")
-            print(f"  능력치 변화(boosts): {p.boosts}")
-            print(f"  스탯(stats): {p.stats}")
-            print(f"  기본 스탯(base_stats): {p.base_stats}")
-            print(f"  기술 수(moves): {len(p.moves)}개")
-            if p.moves:
-                print(f"  기술 목록: {list(p.moves.keys())}")
-            print(f"  효과(effects): {p.effects}")
-        
-        print("\n" + "="*60 + "\n")
+            p.print_summary()
         
         # 랜덤으로 행동 선택
         return self.choose_random_move(battle)

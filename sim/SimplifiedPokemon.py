@@ -8,58 +8,117 @@ from poke_env.battle.move import SPECIAL_MOVES, Move
 # 포켓몬 성별 객체
 from poke_env.battle.pokemon_gender import PokemonGender
 
-# 포켓몬 객체
-class SimplifiedPokemon:
+from supporting.PokemonStatus import Status
+from SimplifiedMove import SimplifiedMove
 
-    # poke_env에 있는 Pokemon 객체를 통해서 만듬
+class SimplifiedPokemon:
     def __init__(self, poke_env_pokemon: Pokemon):
         # 기본 정보
         self.species = poke_env_pokemon.species
         self.level = poke_env_pokemon.level
-        self.gender: PokemonGender = poke_env_pokemon.gender
-
-        # HP 관련
-        self.current_hp: int = poke_env_pokemon.current_hp or 0
-        self.max_hp: int = poke_env_pokemon.max_hp or 0
-        self.current_hp_fraction: float = poke_env_pokemon.current_hp_fraction
-        self.fainted: bool = poke_env_pokemon.fainted
-
-        # 상태
-        self.status: Optional[str] = poke_env_pokemon.status.name if poke_env_pokemon.status else None
-        self.active: bool = poke_env_pokemon.active
-
-        # 특성 및 아이템
-        self.ability: Optional[str] = poke_env_pokemon.ability
-        self.item: Optional[str] = poke_env_pokemon.item
+        self.gender = poke_env_pokemon.gender
 
         # 타입
-        self.types: Tuple[PokemonType, ...] = poke_env_pokemon.types
+        self.type_1 = poke_env_pokemon.type_1
+        self.type_2 = poke_env_pokemon.type_2
+        self.types = poke_env_pokemon.types.copy()  # List
+
+        # HP
+        self.current_hp = poke_env_pokemon.current_hp
+        self.max_hp = poke_env_pokemon.max_hp
+
+        # 상태이상
+        self.status = poke_env_pokemon.status
+        self.status_counter = poke_env_pokemon.status_counter
 
         # 스탯
-        self.stats: Dict[str, int] = poke_env_pokemon.stats.copy() if poke_env_pokemon.stats else {}
-        self.base_stats: Dict[str, int] = poke_env_pokemon.base_stats.copy() if poke_env_pokemon.base_stats else {}
-
-        # 능력치 변화
-        self.boosts: Dict[str, int] = poke_env_pokemon.boosts.copy()
+        self.base_stats = poke_env_pokemon.base_stats.copy()
+        self.stats = poke_env_pokemon.stats.copy()
+        self.boosts = poke_env_pokemon.boosts.copy()
 
         # 기술
-        self.moves: Dict[str, Move] = copy.deepcopy(poke_env_pokemon.moves)
+        self.moves = [SimplifiedMove(move) for move in poke_env_pokemon.moves.values()]
+
+        # 특성 및 아이템
+        self.ability = poke_env_pokemon.ability
+        self.item = poke_env_pokemon.item
 
         # 효과
-        self.effects: Dict = poke_env_pokemon.effects.copy()
+        self.effects = poke_env_pokemon.effects.copy()
 
-    # 메서드
-    def switch_in(self, details: str) -> None:       # 교체 들어올 때
-        pass
+        # 배틀 상태
+        self.active = poke_env_pokemon.active
+        self.first_turn = poke_env_pokemon.first_turn
+        self.must_recharge = poke_env_pokemon.must_recharge
+        self.protect_counter = poke_env_pokemon.protect_counter
 
-    def switch_out(self) -> None:                     # 교체 나갈 때
-        pass
+    def damage(self, amount: int):
+        """데미지 받기"""
+        self.current_hp = max(0, self.current_hp - amount)
+        if self.current_hp == 0:
+            self.faint()
 
-    def set_hp_status(self, hp_status: str) -> None: # HP 상태 설정
-        pass
+    def heal(self, amount: int):
+        """회복"""
+        self.current_hp = min(self.max_hp, self.current_hp + amount)
 
-    def clear_boosts(self) -> None:                   # 능력치 변화 초기화
-        pass
+    def faint(self):
+        """기절"""
+        self.current_hp = 0
+        self.status = Status.FNT
 
-    def available_moves_from_request(self, request) -> None:  # 요청에서 사용 가능한 기술 파싱
-        pass
+    def boost(self, stat: str, amount: int):
+        """능력치 변화"""
+        current = self.boosts.get(stat, 0)
+        self.boosts[stat] = max(-6, min(6, current + amount))
+
+    def damage_multiplier(self, move_type: PokemonType) -> float:
+        """타입 상성 계산"""
+        from poke_env.data import GenData
+
+        data = GenData.from_gen(9)  # 9세대 데이터
+
+        multiplier = 1.0
+        for poke_type in self.types:
+            multiplier *= poke_type.damage_multiplier(
+                move_type,
+                type_chart=data.type_chart
+            )
+
+        return multiplier
+
+    def get_effective_stat(self, stat_name: str) -> float:
+        """능력치 변화 반영한 실제 스탯"""
+        base = self.stats.get(stat_name, 0)
+        boost = self.boosts.get(stat_name, 0)
+
+        if boost >= 0:
+            multiplier = (2 + boost) / 2
+        else:
+            multiplier = 2 / (2 - boost)
+
+        # 상태이상 보정
+        if stat_name == 'atk' and self.status == Status.BRN:
+            multiplier *= 0.5
+        if stat_name == 'spe' and self.status == Status.PAR:
+            multiplier *= 0.5
+
+        return base * multiplier
+    
+    def print_summary(self):
+        """포켓몬 정보 출력"""
+        
+        print("Pokemon Summary:")
+        print(f" Species: {self.species}")
+        print(f" Level: {self.level}")
+        print(f" Gender: {self.gender}")
+        print(f" Types: {[t.name for t in self.types]}")
+        print(f" HP: {self.current_hp}/{self.max_hp}")
+        print(f" Status: {self.status}")
+        print(f" Stats: {self.stats}")
+        print(f" Boosts: {self.boosts}")
+        print(f" Ability: {self.ability}")
+        print(f" Item: {self.item}")
+        print(" Moves:")
+        for move in self.moves:
+            print(move.id , move.current_pp, move.max_pp)
