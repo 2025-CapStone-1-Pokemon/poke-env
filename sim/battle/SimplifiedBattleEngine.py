@@ -224,6 +224,9 @@ class SimplifiedBattleEngine:
         move: SimplifiedMove
     ) -> bool:
         """명중 판정"""
+        # 임시: 명중률 테스트를 위해 항상 명중
+        return True
+        
         # 필중 기술
         if move.accuracy is None or move.accuracy >= 100:
             return True

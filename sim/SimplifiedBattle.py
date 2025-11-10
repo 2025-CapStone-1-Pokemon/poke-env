@@ -58,9 +58,19 @@ class SimplifiedBattle:
         from SimplifiedMove import SimplifiedMove
         
         # 1. 기존 공개된 포켓몬의 기술이 없으면 랜덤 기술 생성
-        for pokemon in self.opponent_team.values():
+        for pokemon_id, pokemon in self.opponent_team.items():
             if not pokemon.moves or len(pokemon.moves) == 0:
                 pokemon.moves = self._generate_random_moves(pokemon)
+            # 스탯이 없으면 기본값으로 설정
+            if pokemon.stats is None or not pokemon.stats or any(v is None for v in pokemon.stats.values()):
+                pokemon.stats = {
+                    'hp': pokemon.max_hp,
+                    'atk': 150,
+                    'def': 150,
+                    'spa': 150,
+                    'spd': 150,
+                    'spe': 150
+                }
         
         # 2. 상대 팀이 6마리 미만이면 미공개 포켓몬을 랜덤으로 추가
         if len(self.opponent_team) < 6:
@@ -110,7 +120,7 @@ class SimplifiedBattle:
                 self.type_1 = ptype
                 self.type_2 = None
                 self.types = [ptype]
-                self.current_hp = 0  # 아직 등장하지 않은 포켓몬
+                self.current_hp = max_hp  # 풀 HP로 시작 (아직 등장하지 않았지만 살아있음)
                 self.max_hp = max_hp
                 self.status = None
                 self.status_counter = 0

@@ -171,9 +171,7 @@ class SimulationAccuracyTester:
         
         for _ in range(num_simulations):
             # 전체 배틀 시뮬레이션 (승패가 날 때까지)
-            # 첫 번째 시뮬레이션만 verbose로 디버깅
-            verbose = (_ == 0 and num_simulations == 1)
-            result = self.engine.simulate_full_battle(battle, max_turns=100, verbose=verbose)
+            result = self.engine.simulate_full_battle(battle, max_turns=100, verbose=False)
             
             # 팀 전체 HP 합계 (SimplifiedBattle.team은 dict)
             player_total_hp = sum(p.current_hp for p in result.team.values())
@@ -378,25 +376,7 @@ async def main():
     await player1.battle_against(player2, n_battles=num_battles)
     
     print(f"\n총 {len(player1.turn_snapshots)}개의 턴 스냅샷 수집 완료 (실제 전투 완료)")
-    
-    # 디버깅: 첫 턴에서 시뮬레이션 1번만 verbose로 실행
-    if player1.turn_snapshots:
-        first_snapshot = player1.turn_snapshots[0]
-        print(f"\n[디버그] 턴 {first_snapshot['turn']}에서 시뮬레이션 1회 실행 (verbose):")
-        engine = SimplifiedBattleEngine()
-        result = engine.simulate_full_battle(
-            first_snapshot['simplified_battle'],
-            max_turns=20,
-            verbose=True
-        )
-        print(f"\n시뮬레이션 결과:")
-        print(f"  - 완료 여부: {result.finished}")
-        print(f"  - 승자: {'플레이어' if result.won else '상대' if result.finished else '무승부'}")
-        print(f"  - 플레이어 생존: {sum(1 for p in result.team.values() if p.current_hp > 0)}")
-        print(f"  - 상대 생존: {sum(1 for p in result.opponent_team.values() if p.current_hp > 0)}")
-        input("\n계속하려면 Enter를 누르세요...")
-    
-    print("\n이제 각 턴에 대해 시뮬레이션 정확도를 테스트합니다...\n")
+    print("이제 각 턴에 대해 시뮬레이션 정확도를 테스트합니다...\n")
     
     # 배틀별로 스냅샷 그룹화
     battles = {}
@@ -417,7 +397,7 @@ async def main():
     
     for i, (tag, snapshots) in enumerate(battles.items(), 1):
         print(f"배틀 {i}/{len(battles)}: {len(snapshots)}턴")
-        result = tester.test_single_battle(snapshots, num_simulations=5)
+        result = tester.test_single_battle(snapshots, num_simulations=10)
         results.append(result)
         
         # 배틀 결과 출력
