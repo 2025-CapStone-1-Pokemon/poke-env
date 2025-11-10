@@ -1,9 +1,28 @@
 import math
 import random
+import sys
+import os
+
+# SimplifiedBattle 시뮬레이터 import
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sim'))
+from SimplifiedBattle import SimplifiedBattle
+from battle.SimplifiedBattleEngine import SimplifiedBattleEngine
 
 class MCTSNode:
-    def __init__(self, state, parent=None, action=None):
-        self.state = state                    # 현재 상태
+    def __init__(self, state, parent=None, action=None, is_simplified=False):
+        """
+        Args:
+            state: Battle 객체 또는 SimplifiedBattle 객체
+            parent: 부모 노드
+            action: 이 노드로 오게 한 액션
+            is_simplified: state가 이미 SimplifiedBattle인지 여부
+        """
+        # state가 Battle 객체면 SimplifiedBattle로 변환, 아니면 그대로 사용
+        if not is_simplified and hasattr(state, 'team'):  # Battle 객체 확인
+            self.state = SimplifiedBattle(state, fill_unknown_data=True)
+        else:
+            self.state = state
+            
         self.parent = parent                  # 부모 노드
         self.children = []                    # 자식 노드 목록
         self.visits = 0                       # 방문 횟수
@@ -31,16 +50,45 @@ class MCTSNode:
         return len(self.untried_actions) == 0
 
     def expand(self):
-        # 새로운 자식 노드를 생성하고 추가하는 로직을 구현합니다.
+        """새로운 자식 노드를 생성하고 추가"""
         if not self.untried_actions:
             return None
             
         action = self.untried_actions.pop()
         
-        # 새로운 상태 시뮬레이션 (실제로는 Battle 객체를 복사할 수 없으므로 개념적으로)
-        child_node = MCTSNode(self.state, parent=self, action=action)
-        self.children.append(child_node)
-        return child_node
+        try:
+            # 현재 상태에서 action을 적용한 1턴 시뮬레이션
+            engine = SimplifiedBattleEngine()
+            
+            # action을 move_idx로 변환
+            player_move_idx = None
+            if hasattr(action, 'id'):  # Move 객체인 경우
+                # active_pokemon의 moves에서 action의 인덱스 찾기
+                if self.state.active_pokemon and self.state.active_pokemon.moves:
+                    for idx, move in enumerate(self.state.active_pokemon.moves):
+                        if move.id == action.id:
+                            player_move_idx = idx
+                            break
+            
+            # 1턴 시뮬레이션 (상대는 랜덤)
+            new_state = engine.simulate_turn(
+                self.state,
+                player_move_idx=player_move_idx,
+                opponent_move_idx=None  # 상대는 랜덤
+            )
+            
+            # 새로운 노드 생성 (SimplifiedBattle을 그대로 사용)
+            child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
+            self.children.append(child_node)
+            return child_node
+            
+        except Exception as e:
+            # 시뮬레이션 실패 시 현재 상태 복사
+            import copy
+            new_state = copy.deepcopy(self.state)
+            child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
+            self.children.append(child_node)
+            return child_node
 
     def update(self, reward):
         # 노드의 방문 횟수와 가치를 업데이트하는 로직을 구현합니다.
@@ -53,7 +101,42 @@ class MCTSNode:
         return self.state.finished
 
     def rollout(self):
-        # 더 정교한 휴리스틱 평가를 사용한 시뮬레이션
+        """배틀 시뮬레이터를 사용한 rollout"""
+        
+        # 이미 종료된 상태면 즉시 반환
+        if self.is_terminal():
+            if self.state.won:
+                return 1.0
+            elif self.state.lost:
+                return 0.0
+            else:
+                return 0.5
+        
+        try:
+            # 시뮬레이션 엔진 생성
+            engine = SimplifiedBattleEngine()
+            
+            # 배틀 시뮬레이션 실행 (최대 100턴)
+            # self.state는 이미 SimplifiedBattle 객체임
+            result = engine.simulate_full_battle(self.state, max_turns=100, verbose=False)
+            
+            # 결과 평가
+            if result.finished:
+                if result.won:
+                    return 1.0  # 승리
+                else:
+                    return 0.0  # 패배
+            else:
+                # 무승부인 경우
+                return 0.5
+                
+        except Exception as e:
+            # 시뮬레이션 실패 시 휴리스틱 평가로 fallback
+            print(f"[MCTS] 시뮬레이션 실패: {e}, 휴리스틱 평가 사용")
+            return self._heuristic_evaluation()
+    
+    def _heuristic_evaluation(self):
+        """휴리스틱 기반 평가 (fallback용)"""
         
         if self.is_terminal():
             if self.state.won:

@@ -13,9 +13,10 @@ class SimplifiedBattle:
 
         # === 기본 정보 ===
         self.turn = poke_env_battle.turn
-        self.gen = poke_env_battle._gen
+        self.gen = getattr(poke_env_battle, '_gen', 9)  # 기본값 9
         self.finished = poke_env_battle.finished
-        self.won = poke_env_battle.won
+        self.won = poke_env_battle.won if hasattr(poke_env_battle, 'won') else False
+        self.lost = poke_env_battle.lost if hasattr(poke_env_battle, 'lost') else False
 
         # === 팀 (SimplifiedPokemon으로 변환) ===
         self.team = {
@@ -48,8 +49,8 @@ class SimplifiedBattle:
         self.opponent_side_conditions = poke_env_battle.opponent_side_conditions.copy()
 
         # === 턴 관련 ===
-        self.available_moves = poke_env_battle.available_moves.copy()
-        self.available_switches = poke_env_battle.available_switches.copy()
+        self.available_moves = list(poke_env_battle.available_moves) if hasattr(poke_env_battle, 'available_moves') else []
+        self.available_switches = list(poke_env_battle.available_switches) if hasattr(poke_env_battle, 'available_switches') else []
     
     def _fill_opponent_team_data(self):
         """상대 팀의 부족한 정보를 랜덤으로 채우기"""
