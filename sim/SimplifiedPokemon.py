@@ -89,7 +89,16 @@ class SimplifiedPokemon:
 
     def get_effective_stat(self, stat_name: str) -> float:
         """능력치 변화 반영한 실제 스탯"""
-        base = self.stats.get(stat_name, 0)
+        base = self.stats.get(stat_name)
+        
+        # stats가 None이면 base_stats에서 가져오기
+        if base is None:
+            base = self.base_stats.get(stat_name, 100)  # 기본값 100
+        
+        # 여전히 None이면 기본값 사용
+        if base is None:
+            base = 100
+        
         boost = self.boosts.get(stat_name, 0)
 
         if boost >= 0:

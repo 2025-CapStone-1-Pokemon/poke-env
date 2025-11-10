@@ -4,6 +4,7 @@ import asyncio
 from poke_env.player import Player
 from poke_env.battle import Battle
 from SimplifiedPokemon import SimplifiedPokemon
+from SimplifiedBattle import SimplifiedBattle
 
 class CustomPlayer(Player):
     def choose_move(self, battle: Battle):
@@ -32,9 +33,19 @@ class CustomPlayer(Player):
         # 랜덤으로 행동 선택
         return self.choose_random_move(battle)
 
+class CustomPlayer2(Player):
+    def choose_move(self, battle: Battle):
+        
+        simplified_battle = SimplifiedBattle(battle)
+        simplified_battle.print_summary()
+
+        # 랜덤으로 행동 선택
+        return self.choose_random_move(battle)
+
+
 async def main():
-    player1 = CustomPlayer(battle_format="gen8randombattle")
-    player2 = CustomPlayer(battle_format="gen8randombattle")
+    player1 = CustomPlayer2(battle_format="gen8randombattle")
+    player2 = CustomPlayer2(battle_format="gen8randombattle")
 
     # 5번 배틀 (디버깅용)
     await player1.battle_against(player2, n_battles=1)
