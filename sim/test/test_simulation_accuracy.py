@@ -59,10 +59,22 @@ class BattleRecorder(GreedyPlayer):
         return super().choose_move(battle)
     
     def _create_snapshot(self, battle) -> Dict:
-        """배틀 스냅샷 생성 - 턴 시작 시 한 번만 저장"""
+        """배틀 스냅샷 생성"""
+        # 팀 전체 HP 합계 계산
+        # poke-env의 Pokemon 객체는 current_hp_fraction을 제공
+        player_total_hp = sum(int(p.current_hp_fraction * p.max_hp) for p in battle.team.values())
+        player_total_max_hp = sum(p.max_hp for p in battle.team.values())
+        opponent_total_hp = sum(int(p.current_hp_fraction * p.max_hp) for p in battle.opponent_team.values())
+        opponent_total_max_hp = sum(p.max_hp for p in battle.opponent_team.values())
+        
         return {
             'turn': battle.turn,
             'battle_tag': battle.battle_tag,
+            'simplified_battle': SimplifiedBattle(battle),
+            'player_total_hp': player_total_hp,
+            'player_total_max_hp': player_total_max_hp,
+            'opponent_total_hp': opponent_total_hp,
+            'opponent_total_max_hp': opponent_total_max_hp,
             'player_team_alive': sum(1 for p in battle.team.values() if not p.fainted),
             'opponent_team_alive': sum(1 for p in battle.opponent_team.values() if not p.fainted),
         }
@@ -345,14 +357,11 @@ class SimulationAccuracyTester:
 async def main():
     """메인 테스트 함수"""
     print("="*70)
-    print("="*70)
-    print("시뮬레이션 정확도 테스트 (승패 예측 정확도)")
+    print("시뮬레이션 정확도 테스트 시작")
     print("="*70)
     
-    num_battles = 10
-    
-    print(f"\n{num_battles}개의 배틀 진행 중...\n")
-    player1 = GreedyPlayer(
+    # 플레이어 생성
+    player1 = BattleRecorder(
         battle_format="gen9randombattle",
         max_concurrent_battles=1
     )
@@ -361,45 +370,44 @@ async def main():
         max_concurrent_battles=1
     )
     
+    # 여러 배틀 진행
+    num_battles = 1
+    print(f"\n{num_battles}개의 배틀 진행 중...")
     await player1.battle_against(player2, n_battles=num_battles)
     
-    print(f"\n총 {num_battles}개의 배틀 완료\n")
+    print(f"\n총 {len(player1.turn_snapshots)}개의 턴 스냅샷 수집 완료 (실제 전투 완료)")
+    print("이제 각 턴에 대해 시뮬레이션 정확도를 테스트합니다...\n")
     
-    # 배틀별 결과
-    print("="*70)
-    print("배틀별 결과")
-    print("="*70)
+    # 배틀별로 스냅샷 그룹화
+    battles = {}
+    for snapshot in player1.turn_snapshots:
+        tag = snapshot['battle_tag']
+        if tag not in battles:
+            battles[tag] = []
+        battles[tag].append(snapshot)
     
-    player1_wins = 0
-    for i, (battle_tag, battle) in enumerate(sorted(player1.battles.items()), 1):
-        winner = "Player1" if battle.won else "Player2"
-        if battle.won:
-            player1_wins += 1
+    print(f"총 {len(battles)}개의 배틀 데이터")
+    
+    # 정확도 테스트
+    tester = SimulationAccuracyTester()
+    results = []
+    
+    print("\n각 배틀에 대해 시뮬레이션 정확도 테스트 중...")
+    print("(각 턴에서 최종 배틀 결과 예측)\n")
+    
+    for i, (tag, snapshots) in enumerate(battles.items(), 1):
+        print(f"배틀 {i}/{len(battles)}: {len(snapshots)}턴")
+        result = tester.test_single_battle(snapshots, num_simulations=10)
+        results.append(result)
         
-        # 배틀 정보
-        player_team = ", ".join([p.species for p in battle.team.values()])[:50]
-        opponent_team = ", ".join([p.species for p in battle.opponent_team.values()])[:50]
-        
-        print(f"배틀 {i}: {winner} 승리 ({battle.turn}턴)")
-        print(f"  Player: {player_team}")
-        print(f"  Opponent: {opponent_team}")
+        # 배틀 결과 출력
+        actual = result['actual_result']
+        winner = actual['winner']
+        print(f"  → 실제 결과: {winner} 승리")
+        print()
     
-    print("\n" + "="*70)
-    print("전체 요약")
-    print("="*70)
-    print(f"총 배틀: {num_battles}")
-    print(f"Player1 승수: {player1_wins}승")
-    print(f"Player2 승수: {num_battles - player1_wins}승")
-    
-    if player1_wins == num_battles:
-        print("\n⚠️ Player1이 모든 배틀을 이겼습니다 (팀 운이 있거나 누군가 더 강함)")
-    elif player1_wins == 0:
-        print("\n⚠️ Player2가 모든 배틀을 이겼습니다 (팀 운이 있거나 누군가 더 강함)")
-    else:
-        fairness = (min(player1_wins, num_battles - player1_wins) / num_battles) * 100
-        print(f"\n○ 합리적인 배분 ({fairness:.0f}% 공정함)")
-    
-    print("="*70)
+    # 결과 분석
+    tester.analyze_results(results)
 
 
 if __name__ == "__main__":
