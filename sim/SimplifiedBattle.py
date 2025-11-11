@@ -1,10 +1,14 @@
 from poke_env.battle import Battle
+from typing import Dict
 from SimplifiedPokemon import SimplifiedPokemon
+from SimplifiedMove import SimplifiedMove
 import random
 
-# TODO 포켓몬 유추하기
+# 기본 기술 개수
+DEFAULT_MOVES = 4
+
 class SimplifiedBattle:
-    def __init__(self, poke_env_battle: Battle, fill_unknown_data: bool = True):
+    def __init__(self, poke_env_battle: Battle, fill_unknown_data: bool = True, gen : int = 9):
         """
         Args:
             poke_env_battle: poke-env의 Battle 객체
@@ -53,146 +57,233 @@ class SimplifiedBattle:
         self.available_switches = list(poke_env_battle.available_switches) if hasattr(poke_env_battle, 'available_switches') else []
     
     def _fill_opponent_team_data(self):
-        """상대 팀의 부족한 정보를 랜덤으로 채우기"""
-        from poke_env.battle.pokemon_type import PokemonType
-        from poke_env.battle.move_category import MoveCategory
-        from SimplifiedMove import SimplifiedMove
+        """상대 팀의 부족한 정보를 pokedex 데이터 기반으로 채우기"""
+        from poke_env.data import GenData
+        
+        data = GenData.from_gen(self.gen)
         
         # 1. 기존 공개된 포켓몬의 기술이 없으면 랜덤 기술 생성
         for pokemon_id, pokemon in self.opponent_team.items():
             if not pokemon.moves or len(pokemon.moves) == 0:
-                pokemon.moves = self._generate_random_moves(pokemon)
-            # 스탯이 없으면 기본값으로 설정
-            if pokemon.stats is None or not pokemon.stats or any(v is None for v in pokemon.stats.values()):
-                pokemon.stats = {
-                    'hp': pokemon.max_hp,
-                    'atk': 150,
-                    'def': 150,
-                    'spa': 150,
-                    'spd': 150,
-                    'spe': 150
-                }
+                # 부족한 기술 개수만큼 채우기
+                pokemon.moves = self._generate_random_moves(pokemon, DEFAULT_MOVES - len(pokemon.moves))
         
         # 2. 상대 팀이 6마리 미만이면 미공개 포켓몬을 랜덤으로 추가
         if len(self.opponent_team) < 6:
-            # 일반적인 랜덤 배틀 포켓몬 풀 (간단한 예시)
-            common_pokemon = [
-                ('pikachu', PokemonType.ELECTRIC, 250),
-                ('charizard', PokemonType.FIRE, 266),
-                ('blastoise', PokemonType.WATER, 268),
-                ('venusaur', PokemonType.GRASS, 270),
-                ('gengar', PokemonType.GHOST, 230),
-                ('machamp', PokemonType.FIGHTING, 280),
-                ('alakazam', PokemonType.PSYCHIC, 220),
-                ('dragonite', PokemonType.DRAGON, 281),
-                ('gyarados', PokemonType.WATER, 291),
-                ('snorlax', PokemonType.NORMAL, 380),
-            ]
-            
-            # 이미 존재하는 포켓몬 이름 확인
+            # 이미 존재하는 포켓몬 종류 확인
             existing_species = {p.species.lower() for p in self.opponent_team.values()}
             
-            # 중복되지 않는 포켓몬만 추가
-            available_pokemon = [p for p in common_pokemon if p[0] not in existing_species]
-            
+            # 추가할 포켓몬 개수
             num_to_add = 6 - len(self.opponent_team)
+            
+            # pokedex에서 랜덤으로 포켓몬 선택 (기존 포켓몬 제외)
+            available_species = [s for s in data.pokedex.keys() if s not in existing_species]
+            
+            if not available_species:
+                # 사용 가능한 포켓몬이 없으면 중단
+                return
+            
             for i in range(num_to_add):
-                if not available_pokemon:
-                    # 더 이상 추가할 포켓몬이 없으면 중단
+                if not available_species:
                     break
-                species, ptype, hp = random.choice(available_pokemon)
-                available_pokemon.remove((species, ptype, hp))  # 선택한 포켓몬 제거
                 
-                dummy_id = f"p2: {species}{i}"
-                dummy_pokemon = self._create_dummy_pokemon(species, ptype, hp)
-                # 더미 포켓몬에 기술 생성
+                # 랜덤 포켓몬 선택
+                species = random.choice(available_species)
+                available_species.remove(species)
+                
+                # 더미 포켓몬 생성
+                dummy_pokemon = self._create_dummy_pokemon(species)
+                
+                # 기술 생성 및 설정
                 dummy_pokemon.moves = self._generate_random_moves(dummy_pokemon)
+                
+                # 팀에 추가
+                dummy_id = f"p2: {species}_{i}"
                 self.opponent_team[dummy_id] = dummy_pokemon
     
-    def _create_dummy_pokemon(self, species: str, ptype, max_hp: int):
-        """더미 포켓몬 생성"""
-        from poke_env.battle.move_category import MoveCategory
+    def _create_dummy_pokemon_list(self, exisiting_species, num_to_add, gen):
+        """랜덤 포켓몬 생성 리스트"""
+
+        # Dict[str, Any] 의 형태임
+        from poke_env.data import GenData
+        data = GenData.from_gen(self.gen)
+
+        # TODO 베이즈 추론등을 활용하여, 공개된 포켓몬으로 추정 가능한 포켓몬 생성하기
+
+        # 개수 만큼 생성
+        pokemon_list = []
+
+        possible_species_name = [
+                species for species in data.pokedex.keys()
+                if species not in exisiting_species
+            ]
+
+        for _ in range(num_to_add):
+            # 중복되지 않는 포켓몬 선택
+            random_species = random.choice(possible_species_name)
+            pokemon_list.append(self._create_dummy_pokemon(data.pokedex[random_species]))
         
-        class DummyPokemon:
-            def __init__(self):
-                self.species = species
-                self.level = 50
-                self.gender = None
-                self.type_1 = ptype
-                self.type_2 = None
-                self.types = [ptype]
-                self.current_hp = max_hp  # 풀 HP로 시작 (아직 등장하지 않았지만 살아있음)
-                self.max_hp = max_hp
-                self.status = None
-                self.status_counter = 0
-                self.base_stats = {'hp': 100, 'atk': 100, 'def': 100, 'spa': 100, 'spd': 100, 'spe': 100}
-                self.stats = {'hp': max_hp, 'atk': 150, 'def': 150, 'spa': 150, 'spd': 150, 'spe': 150}
-                self.boosts = {}
-                self.moves = {}  # 빈 딕셔너리로 초기화
-                self.ability = None
-                self.item = None
-                self.effects = set()
-                self.active = False
-                self.first_turn = False
-                self.must_recharge = False
-                self.protect_counter = 0
-        
-        return SimplifiedPokemon(DummyPokemon())
+        return pokemon_list
     
-    def _generate_random_moves(self, pokemon):
-        """포켓몬에 맞는 랜덤 기술 4개 생성"""
-        from poke_env.battle.move_category import MoveCategory
-        from SimplifiedMove import SimplifiedMove
+    def _create_dummy_pokemon(self, species: str = None):
+        """pokedex 데이터를 기반으로 더미 포켓몬 생성"""
+        from poke_env.data import GenData
+        from poke_env.battle.pokemon_type import PokemonType
         
-        # 타입에 맞는 기본 기술들
-        type_moves = {
-            'NORMAL': [('tackle', 40, MoveCategory.PHYSICAL), ('body-slam', 85, MoveCategory.PHYSICAL)],
-            'FIRE': [('flamethrower', 90, MoveCategory.SPECIAL), ('fire-blast', 110, MoveCategory.SPECIAL)],
-            'WATER': [('surf', 90, MoveCategory.SPECIAL), ('hydro-pump', 110, MoveCategory.SPECIAL)],
-            'ELECTRIC': [('thunderbolt', 90, MoveCategory.SPECIAL), ('thunder', 110, MoveCategory.SPECIAL)],
-            'GRASS': [('energy-ball', 90, MoveCategory.SPECIAL), ('solar-beam', 120, MoveCategory.SPECIAL)],
-            'ICE': [('ice-beam', 90, MoveCategory.SPECIAL), ('blizzard', 110, MoveCategory.SPECIAL)],
-            'FIGHTING': [('close-combat', 120, MoveCategory.PHYSICAL), ('brick-break', 75, MoveCategory.PHYSICAL)],
-            'POISON': [('sludge-bomb', 90, MoveCategory.SPECIAL), ('gunk-shot', 120, MoveCategory.PHYSICAL)],
-            'GROUND': [('earthquake', 100, MoveCategory.PHYSICAL), ('earth-power', 90, MoveCategory.SPECIAL)],
-            'FLYING': [('air-slash', 75, MoveCategory.SPECIAL), ('brave-bird', 120, MoveCategory.PHYSICAL)],
-            'PSYCHIC': [('psychic', 90, MoveCategory.SPECIAL), ('psyshock', 80, MoveCategory.SPECIAL)],
-            'BUG': [('bug-buzz', 90, MoveCategory.SPECIAL), ('x-scissor', 80, MoveCategory.PHYSICAL)],
-            'ROCK': [('stone-edge', 100, MoveCategory.PHYSICAL), ('rock-slide', 75, MoveCategory.PHYSICAL)],
-            'GHOST': [('shadow-ball', 80, MoveCategory.SPECIAL), ('phantom-force', 90, MoveCategory.PHYSICAL)],
-            'DRAGON': [('draco-meteor', 130, MoveCategory.SPECIAL), ('outrage', 120, MoveCategory.PHYSICAL)],
-            'DARK': [('dark-pulse', 80, MoveCategory.SPECIAL), ('knock-off', 65, MoveCategory.PHYSICAL)],
-            'STEEL': [('flash-cannon', 80, MoveCategory.SPECIAL), ('iron-head', 80, MoveCategory.PHYSICAL)],
-            'FAIRY': [('moonblast', 95, MoveCategory.SPECIAL), ('play-rough', 90, MoveCategory.PHYSICAL)],
-        }
+        # 데이터 로드
+        data = GenData.from_gen(self.gen)
         
+        # species 랜덤 선택 (없으면)
+        if species is None:
+            species = random.choice(list(data.pokedex.keys()))
+        
+        pokedex_data = data.pokedex.get(species.lower(), {})
+        
+        # SimplifiedPokemon 객체 생성
+        dummy_pokemon = SimplifiedPokemon.__new__(SimplifiedPokemon)
+        
+        # 기본 정보
+        dummy_pokemon.species = pokedex_data.get('baseSpecies', species).lower()
+        dummy_pokemon.level = 50  # 기본 레벨 50
+        dummy_pokemon.gender = None
+        
+        # 타입 설정
+        types_list = pokedex_data.get('types', [])
+        type_1_str = types_list[0].upper() if types_list else 'NORMAL'
+        type_2_str = types_list[1].upper() if len(types_list) > 1 else None
+        
+        dummy_pokemon.type_1 = PokemonType[type_1_str] if type_1_str else PokemonType.NORMAL
+        dummy_pokemon.type_2 = PokemonType[type_2_str] if type_2_str else None
+        dummy_pokemon.types = [PokemonType[t.upper()] for t in types_list] if types_list else [PokemonType.NORMAL]
+        
+        # HP 설정
+        base_stats = pokedex_data.get('baseStats', {'hp': 100, 'atk': 100, 'def': 100, 'spa': 100, 'spd': 100, 'spe': 100})
+        base_hp = base_stats.get('hp', 100)
+        dummy_pokemon.max_hp = int(((base_hp * 2 + 31 + 85) * 50) / 100) + 50 + 10
+        dummy_pokemon.current_hp = dummy_pokemon.max_hp
+        
+        # 상태이상
+        dummy_pokemon.status = None
+        dummy_pokemon.status_counter = 0
+        
+        # 스탯 설정
+        dummy_pokemon.base_stats = base_stats.copy()
+        dummy_pokemon.stats = {}
+        for stat_name, base in dummy_pokemon.base_stats.items():
+            if stat_name == 'hp':
+                dummy_pokemon.stats[stat_name] = int(((base * 2 + 31 + 85) * 50) / 100) + 50 + 10
+            else:
+                dummy_pokemon.stats[stat_name] = int(((base * 2 + 31 + 5) * 50) / 100) + 5
+        
+        # 부스트 설정
+        dummy_pokemon.boosts = {stat: 0 for stat in ['atk', 'def', 'spa', 'spd', 'spe']}
+        
+        # 기술 설정 (나중에 _generate_random_moves에서 채워짐)
+        dummy_pokemon.moves = []
+        
+        # 특성 및 아이템 설정
+        abilities = pokedex_data.get('abilities', {})
+        # 일반 특성 우선, 없으면 숨은 특성, 둘 다 없으면 'unknown'
+        dummy_pokemon.ability = abilities.get('0', abilities.get('H', 'unknown'))
+        dummy_pokemon.item = None
+        
+        # 효과 설정
+        dummy_pokemon.effects = {}
+        
+        # 배틀 상태 설정
+        dummy_pokemon.active = False
+        dummy_pokemon.first_turn = True
+        dummy_pokemon.must_recharge = False
+        dummy_pokemon.protect_counter = 0
+        
+        return dummy_pokemon
+    
+    def _generate_random_moves(self, pokemon, num_to_add=4):
+        """포켓몬의 기술 4개 생성"""
+        
+        # 일단 fallback 메서드로 기술 생성
+        return self._generate_random_moves_fallback(pokemon, num_to_add)
+    
+    def _generate_random_moves_fallback(self, pokemon, num_to_add=4):
+        """포켓몬에 맞는 랜덤 기술 생성 (실제 pokedex 데이터 사용)"""
+        from poke_env.data import GenData
+        from poke_env.battle.pokemon_type import PokemonType
+        
+        data = GenData.from_gen(self.gen)
         moves = []
-        ptype_name = pokemon.type_1.name if pokemon.type_1 else 'NORMAL'
         
-        # 타입에 맞는 기술 2개 선택
-        if ptype_name in type_moves:
-            for move_data in random.sample(type_moves[ptype_name], min(2, len(type_moves[ptype_name]))):
-                moves.append(self._create_move(move_data[0], move_data[1], pokemon.type_1, move_data[2]))
+        # 포켓몬 타입과 일치하는 기술들 필터링
+        type_moves = []
+        normal_moves = []
         
-        # 나머지는 노말 타입 기술로 채우기
-        while len(moves) < 4:
-            from poke_env.battle.pokemon_type import PokemonType
-            moves.append(self._create_move('tackle', 40, PokemonType.NORMAL, MoveCategory.PHYSICAL))
+        for move_id, move_data in data.moves.items():
+            move_type = move_data.get('type', 'Normal')
+            base_power = move_data.get('basePower', 0)
+            
+            # 위력이 있는 기술만 선택 (상태 기술 제외)
+            if base_power > 0:
+                if move_type == pokemon.type_1.name.upper() or move_type == (pokemon.type_2.name.upper() if pokemon.type_2 else None):
+                    type_moves.append((move_id, move_data))
+                elif move_type == 'Normal':
+                    normal_moves.append((move_id, move_data))
+        
+        # 기술 선택 우선순위
+        selected_moves = []
+        
+        # 1. 타입 기술 우선
+        if type_moves:
+            selected_moves.extend(random.sample(type_moves, min(2, len(type_moves), num_to_add - len(selected_moves))))
+        
+        # 2. 일반 기술로 채우기
+        if len(selected_moves) < num_to_add and normal_moves:
+            remaining = num_to_add - len(selected_moves)
+            selected_moves.extend(random.sample(normal_moves, min(remaining, len(normal_moves))))
+        
+        # 3. 여전히 부족하면 모든 기술에서 선택
+        if len(selected_moves) < num_to_add:
+            all_moves = list(data.moves.items())
+            remaining = num_to_add - len(selected_moves)
+            selected_moves.extend(random.sample(all_moves, min(remaining, len(all_moves))))
+        
+        # SimplifiedMove로 변환
+        for move_id, move_data in selected_moves[:num_to_add]:
+            move = self._create_move_from_pokedex(move_id, move_data)
+            moves.append(move)
         
         return moves
-    
-    def _create_move(self, move_id: str, base_power: int, move_type, category):
-        """기술 객체 생성"""
-        from SimplifiedMove import SimplifiedMove
+
+    def _create_move_from_pokedex(self, move_id: str, move_data: dict):
+        """pokedex 데이터에서 기술 객체 생성"""
+        from poke_env.battle.pokemon_type import PokemonType
+        from poke_env.battle.move_category import MoveCategory
+        
+        # 기술 데이터 추출
+        base_power = move_data.get('basePower', 0)
+        accuracy = move_data.get('accuracy', 100)
+        category = move_data.get('category', 'Physical')
+        move_type = move_data.get('type', 'Normal')
+        priority = move_data.get('priority', 0)
+        
+        # 타입 변환
+        try:
+            move_type_enum = PokemonType[move_type.upper()]
+        except KeyError:
+            move_type_enum = PokemonType.NORMAL
+        
+        # 카테고리 변환
+        try:
+            category_enum = MoveCategory[category.upper()]
+        except KeyError:
+            category_enum = MoveCategory.PHYSICAL
         
         class DummyMove:
             def __init__(self):
                 self.id = move_id
-                self.base_power = base_power
-                self.type = move_type
-                self.category = category
-                self.accuracy = 100
-                self.priority = 0
+                self.base_power = base_power if base_power else 0
+                self.type = move_type_enum
+                self.category = category_enum
+                self.accuracy = accuracy if accuracy else 100
+                self.priority = priority
                 self.current_pp = 16
                 self.max_pp = 16
                 self.boosts = None
@@ -206,7 +297,7 @@ class SimplifiedBattle:
                 self.flags = set()
                 self.breaks_protect = False
                 self.is_protect_move = False
-        
+    
         return SimplifiedMove(DummyMove())
 
     def print_summary(self):
@@ -229,4 +320,4 @@ class SimplifiedBattle:
         print(f"Opponent Side Conditions: {self.opponent_side_conditions}")
         print(f"\n--- Available Actions ---")
         print(f"Available Moves: {[move._id for move in self.available_moves]}")
-        print(f"Available Switches: {[poke.species for poke in self.available_switches]}")  
+        print(f"Available Switches: {[poke.species for poke in self.available_switches]}")

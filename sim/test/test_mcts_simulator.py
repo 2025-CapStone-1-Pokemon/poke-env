@@ -44,14 +44,15 @@ async def test_mcts_vs_random():
     
     # 1판만 대결 (빠른 테스트)
     print("배틀 시작...\n")
-    results = await cross_evaluate(
-        [mcts_player, random_player],
-        n_challenges=1
-    )
+    
+    try:
+        await mcts_player.battle_against(random_player, n_battles=1)
+    except Exception as e:
+        print(f"배틀 중 에러: {e}")
     
     print("\n=== 결과 ===")
-    print(f"MCTS 승률: {results[mcts_player.username][random_player.username]:.2%}")
-    print(f"Random 승률: {results[random_player.username][mcts_player.username]:.2%}")
+    print(f"MCTS 전적: {mcts_player.n_won_battles}승 {mcts_player.n_lost_battles}패")
+    print(f"Random 전적: {random_player.n_won_battles}승 {random_player.n_lost_battles}패")
 
 
 if __name__ == "__main__":

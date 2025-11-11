@@ -100,7 +100,7 @@ class MCTSNode:
         # 게임이 종료되었는지 확인
         return self.state.finished
 
-    def rollout(self):
+    def ㄹrollout(self):
         """배틀 시뮬레이터를 사용한 rollout"""
         
         # 이미 종료된 상태면 즉시 반환
@@ -148,8 +148,9 @@ class MCTSNode:
         
         try:
             # 포켓몬 상태 분석
-            my_team = list(self.state.team.values())
-            opp_team = list(self.state.opponent_team.values())
+            # SimplifiedBattle의 team과 opponent_team은 이미 리스트임
+            my_team = self.state.team if isinstance(self.state.team, list) else list(self.state.team.values())
+            opp_team = self.state.opponent_team if isinstance(self.state.opponent_team, list) else list(self.state.opponent_team.values())
             
             # 살아있는 포켓몬 수
             my_alive = sum(1 for p in my_team if not p.fainted)
