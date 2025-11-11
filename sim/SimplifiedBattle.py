@@ -355,52 +355,6 @@ class SimplifiedBattle:
                 self.is_protect_move = False
         
         return SimplifiedMove(DummyMove())
-        """포켓몬에 맞는 랜덤 기술 생성 (실제 pokedex 데이터 사용)"""
-        from poke_env.data import GenData
-        from poke_env.battle.pokemon_type import PokemonType
-        
-        data = GenData.from_gen(self.gen)
-        moves = []
-        
-        # 포켓몬 타입과 일치하는 기술들 필터링
-        type_moves = []
-        normal_moves = []
-        
-        for move_id, move_data in data.moves.items():
-            move_type = move_data.get('type', 'Normal')
-            base_power = move_data.get('basePower', 0)
-            
-            # 위력이 있는 기술만 선택 (상태 기술 제외)
-            if base_power > 0:
-                if move_type == pokemon.type_1.name.upper() or move_type == (pokemon.type_2.name.upper() if pokemon.type_2 else None):
-                    type_moves.append((move_id, move_data))
-                elif move_type == 'Normal':
-                    normal_moves.append((move_id, move_data))
-        
-        # 기술 선택 우선순위
-        selected_moves = []
-        
-        # 1. 타입 기술 우선
-        if type_moves:
-            selected_moves.extend(random.sample(type_moves, min(2, len(type_moves), num_to_add - len(selected_moves))))
-        
-        # 2. 일반 기술로 채우기
-        if len(selected_moves) < num_to_add and normal_moves:
-            remaining = num_to_add - len(selected_moves)
-            selected_moves.extend(random.sample(normal_moves, min(remaining, len(normal_moves))))
-        
-        # 3. 여전히 부족하면 모든 기술에서 선택
-        if len(selected_moves) < num_to_add:
-            all_moves = list(data.moves.items())
-            remaining = num_to_add - len(selected_moves)
-            selected_moves.extend(random.sample(all_moves, min(remaining, len(all_moves))))
-        
-        # SimplifiedMove로 변환
-        for move_id, move_data in selected_moves[:num_to_add]:
-            move = self._create_move_from_pokedex(move_id, move_data)
-            moves.append(move)
-        
-        return moves
 
     def _create_move_from_pokedex(self, move_id: str, move_data: dict):
         """pokedex 데이터에서 기술 객체 생성"""

@@ -1,5 +1,6 @@
 import math
 import random
+import copy
 import sys
 import os
 
@@ -17,11 +18,12 @@ class MCTSNode:
             action: 이 노드로 오게 한 액션
             is_simplified: state가 이미 SimplifiedBattle인지 여부
         """
-        # state가 Battle 객체면 SimplifiedBattle로 변환, 아니면 그대로 사용
-        if not is_simplified and hasattr(state, 'team'):  # Battle 객체 확인
-            self.state = SimplifiedBattle(state, fill_unknown_data=True)
-        else:
+        # state가 이미 SimplifiedBattle이면 그대로 사용, 아니면 변환
+        if isinstance(state, SimplifiedBattle):
             self.state = state
+        else:
+            # Battle 객체면 SimplifiedBattle로 변환
+            self.state = SimplifiedBattle(state, fill_unknown_data=True)
             
         self.parent = parent                  # 부모 노드
         self.children = []                    # 자식 노드 목록
@@ -54,9 +56,14 @@ class MCTSNode:
         if not self.untried_actions:
             return None
             
-        action = self.untried_actions.pop()
+        # pop() 대신 random.choice()를 사용하여 순서 편향 제거
+        action = random.choice(self.untried_actions)
+        self.untried_actions.remove(action)
         
         try:
+            # 현재 상태를 복사 (simulate_turn이 in-place 수정하므로)
+            new_state = copy.deepcopy(self.state)
+            
             # 현재 상태에서 action을 적용한 1턴 시뮬레이션
             engine = SimplifiedBattleEngine()
             
@@ -64,15 +71,15 @@ class MCTSNode:
             player_move_idx = None
             if hasattr(action, 'id'):  # Move 객체인 경우
                 # active_pokemon의 moves에서 action의 인덱스 찾기
-                if self.state.active_pokemon and self.state.active_pokemon.moves:
-                    for idx, move in enumerate(self.state.active_pokemon.moves):
+                if new_state.active_pokemon and new_state.active_pokemon.moves:
+                    for idx, move in enumerate(new_state.active_pokemon.moves):
                         if move.id == action.id:
                             player_move_idx = idx
                             break
             
-            # 1턴 시뮬레이션 (상대는 랜덤)
-            new_state = engine.simulate_turn(
-                self.state,
+            # 1턴 시뮬레이션 (상대는 랜덤) - new_state를 직접 수정
+            engine.simulate_turn(
+                new_state,
                 player_move_idx=player_move_idx,
                 opponent_move_idx=None  # 상대는 랜덤
             )
@@ -83,8 +90,8 @@ class MCTSNode:
             return child_node
             
         except Exception as e:
-            # 시뮬레이션 실패 시 현재 상태 복사
-            import copy
+            # 시뮬레이션 실패 시 현재 상태 복사 (fallback)
+            print(f"[MCTS] Expand 실패: {e}, deepcopy fallback")
             new_state = copy.deepcopy(self.state)
             child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
             self.children.append(child_node)
@@ -100,143 +107,56 @@ class MCTSNode:
         # 게임이 종료되었는지 확인
         return self.state.finished
 
-    def ㄹrollout(self):
+    def rollout(self, engine=None, verbose=False):
         """배틀 시뮬레이터를 사용한 rollout"""
         
         # 이미 종료된 상태면 즉시 반환
         if self.is_terminal():
             if self.state.won:
+                if verbose:
+                    print(f"[Rollout] 이미 종료: 승리")
                 return 1.0
             elif self.state.lost:
+                if verbose:
+                    print(f"[Rollout] 이미 종료: 패배")
                 return 0.0
             else:
+                if verbose:
+                    print(f"[Rollout] 이미 종료: 무승부")
                 return 0.5
         
-        try:
-            # 시뮬레이션 엔진 생성
+        # 엔진이 없으면 생성
+        if engine is None:
             engine = SimplifiedBattleEngine()
-            
-            # 배틀 시뮬레이션 실행 (최대 100턴)
-            # self.state는 이미 SimplifiedBattle 객체임
-            result = engine.simulate_full_battle(self.state, max_turns=100, verbose=False)
-            
-            # 결과 평가
-            if result.finished:
-                if result.won:
-                    return 1.0  # 승리
-                else:
-                    return 0.0  # 패배
-            else:
-                # 무승부인 경우
-                return 0.5
-                
-        except Exception as e:
-            # 시뮬레이션 실패 시 휴리스틱 평가로 fallback
-            print(f"[MCTS] 시뮬레이션 실패: {e}, 휴리스틱 평가 사용")
-            return self._heuristic_evaluation()
-    
-    def _heuristic_evaluation(self):
-        """휴리스틱 기반 평가 (fallback용)"""
         
-        if self.is_terminal():
-            if self.state.won:
-                return 1.0
-            elif self.state.lost:
-                return 0.0
-            else:
-                return 0.5
+        if verbose:
+            # 상대 팀 상태 확인
+            opponent_alive = sum(1 for p in self.state.opponent_team.values() if p.current_hp > 0)
+            print(f"[Rollout] 시뮬레이션 시작 - 상대 팀: {opponent_alive}/{len(self.state.opponent_team)} 생존")
         
-        try:
-            # 포켓몬 상태 분석
-            # SimplifiedBattle의 team과 opponent_team은 이미 리스트임
-            my_team = self.state.team if isinstance(self.state.team, list) else list(self.state.team.values())
-            opp_team = self.state.opponent_team if isinstance(self.state.opponent_team, list) else list(self.state.opponent_team.values())
-            
-            # 살아있는 포켓몬 수
-            my_alive = sum(1 for p in my_team if not p.fainted)
-            opp_alive = sum(1 for p in opp_team if not p.fainted)
-            
-            # 기본 승패 판정
-            if my_alive == 0:
-                return 0.0
-            elif opp_alive == 0:
-                return 1.0
-            
-            score = 0.5  # 기본 점수
-            
-            # 1. 포켓몬 수 우세도 (40% 가중치)
-            pokemon_advantage = (my_alive - opp_alive) / 6.0  # 최대 6마리
-            score += pokemon_advantage * 0.4
-            
-            # 2. HP 우세도 (30% 가중치)
-            my_total_hp = sum(p.current_hp_fraction for p in my_team if not p.fainted)
-            opp_total_hp = sum(p.current_hp_fraction for p in opp_team if not p.fainted)
-            
-            if my_alive > 0 and opp_alive > 0:
-                my_avg_hp = my_total_hp / my_alive
-                opp_avg_hp = opp_total_hp / opp_alive
-                hp_advantage = (my_avg_hp - opp_avg_hp)
-                score += hp_advantage * 0.3
-            
-            # 3. 현재 활성 포켓몬 HP 비교 (20% 가중치)
-            if (hasattr(self.state, 'active_pokemon') and self.state.active_pokemon and
-                hasattr(self.state, 'opponent_active_pokemon') and self.state.opponent_active_pokemon):
-                
-                my_active_hp = self.state.active_pokemon.current_hp_fraction
-                opp_active_hp = self.state.opponent_active_pokemon.current_hp_fraction
-                active_hp_diff = my_active_hp - opp_active_hp
-                score += active_hp_diff * 0.2
-            
-            # 4. 타입 상성 간단 평가 (10% 가중치)
-            type_bonus = self.simple_type_evaluation()
-            score += type_bonus * 0.1
-            
-            # 점수를 0-1 범위로 제한
-            return max(0.1, min(0.9, score))  # 극단값 방지
-            
-        except Exception as e:
-            # 오류 발생시 중립적 평가
+        # 배틀 시뮬레이션 실행 (최대 100턴)
+        result = engine.simulate_full_battle(self.state, max_turns=100, verbose=False)
+        
+        if verbose:
+            opponent_alive_after = sum(1 for p in result.opponent_team.values() if p.current_hp > 0)
+            print(f"[Rollout] 시뮬레이션 완료: finished={result.finished}, won={result.won}, turn={result.turn}, 상대 생존={opponent_alive_after}")
+        
+        # 결과 평가
+        if result.finished:
+            if result.won:
+                return 1.0  # 승리
+            else:
+                return 0.0  # 패배
+        else:
+            # 무승부인 경우
             return 0.5
-
+    
     def backpropagate(self, result):
         # 결과를 바탕으로 노드와 그 부모 노드들의 값을 업데이트하는 로직을 구현합니다.
         self.visits += 1
         self.wins += result
         if self.parent:
             self.parent.backpropagate(1 - result)  # 부모는 반대 플레이어이므로 1-result
-
-    def simple_type_evaluation(self):
-        """타입 상성에 기반한 간단한 평가"""
-        try:
-            if (not hasattr(self.state, 'active_pokemon') or not self.state.active_pokemon or
-                not hasattr(self.state, 'opponent_active_pokemon') or not self.state.opponent_active_pokemon):
-                return 0.0
-            
-            my_pokemon = self.state.active_pokemon
-            opp_pokemon = self.state.opponent_active_pokemon
-            
-            # 내가 상대에게 줄 수 있는 피해량 추정
-            my_damage_multiplier = 1.0
-            for move in self.state.available_moves:
-                if hasattr(move, 'type') and hasattr(move.type, 'damage_multiplier'):
-                    try:
-                        multiplier = move.type.damage_multiplier(
-                            opp_pokemon.type_1,
-                            opp_pokemon.type_2 if hasattr(opp_pokemon, 'type_2') else None
-                        )
-                        my_damage_multiplier = max(my_damage_multiplier, multiplier)
-                    except:
-                        continue
-            
-            # 상대가 나에게 줄 수 있는 피해량 추정 (보수적으로)
-            opp_damage_multiplier = 1.5  # 기본값을 약간 높게 설정
-            
-            # 타입 우세도 계산 (-0.3 ~ 0.3)
-            type_advantage = (my_damage_multiplier - opp_damage_multiplier) / 3.0
-            return max(-0.3, min(0.3, type_advantage))
-            
-        except Exception:
-            return 0.0
 
     def get_actions(self):
         # 현재 상태에서 가능한 모든 이동을 반환하는 로직을 구현합니다.
@@ -251,12 +171,19 @@ class MCTSNode:
             return [None]
 
 # 여기서 root_state는 최초의 battle 객체를 의미한다.
-def mcts_search(root_state, iterations=1000):
+def mcts_search(root_state, iterations=30, verbose=False):
     """개선된 MCTS 검색 알고리즘"""
     root = MCTSNode(root_state)
     
     # 최소한의 exploration을 보장
     min_visits_per_child = max(1, iterations // 50)
+    
+    # 엔진 한 번만 생성
+    engine = SimplifiedBattleEngine()
+    
+    if verbose:
+        print(f"[MCTS] 검색 시작 (iterations={iterations})")
+        print(f"[MCTS] Root actions: {len(root.available_actions)}")
 
     for i in range(iterations):
         node = root
@@ -276,16 +203,32 @@ def mcts_search(root_state, iterations=1000):
                 continue
 
         # Simulation - 게임 끝까지 시뮬레이션
-        result = node.rollout()
+        result = node.rollout(engine=engine, verbose=verbose)
+        
+        if verbose and i % 10 == 0:
+            print(f"[MCTS] Iteration {i+1}/{iterations}: result={result}, children={len(root.children)}")
 
         # Backpropagation - 결과를 부모 노드들에게 전파
         if node:
             node.backpropagate(result)
 
     # 최적의 행동 선택 - 가장 많이 방문된 노드 선택 (더 안정적)
+    if verbose:
+        print(f"\n[MCTS] 최종 통계:")
+        print(f"  Root children: {len(root.children)}")
+        if root.children:
+            sorted_children = sorted(root.children, key=lambda c: c.visits, reverse=True)
+            for idx, child in enumerate(sorted_children[:5]):
+                win_rate = (child.wins / child.visits * 100) if child.visits > 0 else 0
+                print(f"  {idx+1}. visits={child.visits}, wins={child.wins}, rate={win_rate:.1f}%, action={child.action}")
+    
     if root.children:
         # 방문 횟수 기준으로 선택 (exploitation)
         best_child = max(root.children, key=lambda child: child.visits)
+        
+        if verbose:
+            best_rate = (best_child.wins / best_child.visits * 100) if best_child.visits > 0 else 0
+            print(f"[MCTS] 선택된 행동: visits={best_child.visits}, rate={best_rate:.1f}%")
         
         # 승률도 고려한 혼합 선택
         if best_child.visits >= min_visits_per_child:
@@ -295,10 +238,17 @@ def mcts_search(root_state, iterations=1000):
             viable_children = [child for child in root.children if child.visits > 0]
             if viable_children:
                 best_child = max(viable_children, key=lambda child: child.wins / child.visits)
+                if verbose:
+                    best_rate = (best_child.wins / best_child.visits * 100) if best_child.visits > 0 else 0
+                    print(f"[MCTS] 재선택 (낮은 탐색): rate={best_rate:.1f}%")
                 return best_child.action
     
     # 대안: 사용 가능한 행동 중 랜덤 선택
     if root.available_actions:
+        if verbose:
+            print(f"[MCTS] 랜덤 선택 (no children)")
         return random.choice(root.available_actions)
     
+    if verbose:
+        print(f"[MCTS] None 반환 (no actions available)")
     return None

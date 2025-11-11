@@ -11,6 +11,8 @@ from poke_env.battle.pokemon_gender import PokemonGender
 from supporting.PokemonStatus import Status
 from SimplifiedMove import SimplifiedMove
 
+_GEN_DATA_CACHE = {}
+
 class SimplifiedPokemon:
     def __init__(self, poke_env_pokemon: Pokemon):
         # 기본 정보
@@ -36,8 +38,12 @@ class SimplifiedPokemon:
         self.stats = poke_env_pokemon.stats.copy()
         self.boosts = poke_env_pokemon.boosts.copy()
 
-        # 기술
-        self.moves = [SimplifiedMove(move) for move in poke_env_pokemon.moves.values()]
+        # 기술 (moves가 dict 또는 list일 수 있음)
+        if isinstance(poke_env_pokemon.moves, dict):
+            self.moves = [SimplifiedMove(move) for move in poke_env_pokemon.moves.values()]
+        else:
+            # list인 경우 그대로 사용
+            self.moves = [SimplifiedMove(move) for move in poke_env_pokemon.moves]
 
         # 특성 및 아이템
         self.ability = poke_env_pokemon.ability
@@ -51,6 +57,9 @@ class SimplifiedPokemon:
         self.first_turn = poke_env_pokemon.first_turn
         self.must_recharge = poke_env_pokemon.must_recharge
         self.protect_counter = poke_env_pokemon.protect_counter
+        
+        # 성능 최적화: get_effective_stat() 캐싱
+        self._stat_cache = {}
 
     def damage(self, amount: int):
         """데미지 받기"""
@@ -76,8 +85,11 @@ class SimplifiedPokemon:
         """타입 상성 계산"""
         from poke_env.data import GenData
 
-        data = GenData.from_gen(9)  # 9세대 데이터
-
+        if 9 not in self._GEN_DATA_CACHE:
+            self._GEN_DATA_CACHE[9] = GenData.from_gen(9)
+        
+        data = self._GEN_DATA_CACHE[9]
+        
         multiplier = 1.0
         for poke_type in self.types:
             multiplier *= poke_type.damage_multiplier(

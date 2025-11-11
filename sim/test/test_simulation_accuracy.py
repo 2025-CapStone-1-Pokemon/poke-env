@@ -23,10 +23,23 @@ from battle.SimplifiedBattleEngine import SimplifiedBattleEngine
 class GreedyPlayer(Player):
     """가장 위력이 높은 기술을 선택하는 플레이어"""
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.move_choices = []  # 기술 선택 기록
+    
     def choose_move(self, battle: Battle):
         # 사용 가능한 기술 중 위력이 가장 높은 것 선택
         if battle.available_moves:
             best_move = max(battle.available_moves, key=lambda move: move.base_power)
+            
+            # 디버깅: 기술 선택 기록
+            self.move_choices.append({
+                'turn': battle.turn,
+                'chosen': best_move.id,
+                'power': best_move.base_power,
+                'available_count': len(battle.available_moves)
+            })
+            
             return self.create_order(best_move)
         
         # 기술이 없으면 교체
@@ -365,15 +378,18 @@ async def main():
         battle_format="gen9randombattle",
         max_concurrent_battles=1
     )
-    player2 = GreedyPlayer(
+    player2 = BattleRecorder(
         battle_format="gen9randombattle",
         max_concurrent_battles=1
     )
     
     # 여러 배틀 진행
-    num_battles = 1
-    print(f"\n{num_battles}개의 배틀 진행 중...")
+    num_battles = 5  # 5개씩만 (빠른 테스트)
+    print(f"\n[배틀 세트 1] Player1 vs Player2 (Player1이 먼저 이동) - {num_battles}개 배틀")
     await player1.battle_against(player2, n_battles=num_battles)
+    
+    print(f"\n[배틀 세트 2] Player2 vs Player1 (Player2가 먼저 이동) - {num_battles}개 배틀")
+    await player2.battle_against(player1, n_battles=num_battles)
     
     print(f"\n총 {len(player1.turn_snapshots)}개의 턴 스냅샷 수집 완료 (실제 전투 완료)")
     print("이제 각 턴에 대해 시뮬레이션 정확도를 테스트합니다...\n")
@@ -387,6 +403,30 @@ async def main():
         battles[tag].append(snapshot)
     
     print(f"총 {len(battles)}개의 배틀 데이터")
+    
+    # 전적 집계
+    print("\n=== 실제 배틀 전적 ===")
+    player1_wins = 0
+    player2_wins = 0
+    for tag, snapshots in battles.items():
+        final_snapshot = snapshots[-1]
+        winner = final_snapshot['battle_tag']
+        if final_snapshot['player_team_alive'] > 0 and final_snapshot['opponent_team_alive'] == 0:
+            player1_wins += 1
+            print(f"배틀 {tag[-1]}: Player1 승리")
+        elif final_snapshot['opponent_team_alive'] > 0 and final_snapshot['player_team_alive'] == 0:
+            player2_wins += 1
+            print(f"배틀 {tag[-1]}: Player2 승리")
+        else:
+            print(f"배틀 {tag[-1]}: 무승부")
+    
+    print(f"\n최종 전적: Player1 {player1_wins}승 - Player2 {player2_wins}승")
+    if player1_wins == player2_wins:
+        print("✓ 동등한 전적 (Greedy 전략이 균형있음)")
+    else:
+        leader = "Player1" if player1_wins > player2_wins else "Player2"
+        diff = abs(player1_wins - player2_wins)
+        print(f"⚠️  {leader}이 {diff}승 더 많음 (순서 편향 의심)")
     
     # 정확도 테스트
     tester = SimulationAccuracyTester()

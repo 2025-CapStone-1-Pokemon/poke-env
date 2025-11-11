@@ -56,7 +56,7 @@ class SimplifiedBattleEngine:
     
     def simulate_turn(
         self,
-        battle: SimplifiedBattle,
+        new_battle: SimplifiedBattle,
         player_move_idx: Optional[int] = None,
         opponent_move_idx: Optional[int] = None
     ) -> SimplifiedBattle:
@@ -71,8 +71,7 @@ class SimplifiedBattleEngine:
         Returns:
             새로운 SimplifiedBattle 객체 (원본 유지)
         """
-        # 1. 배틀 상태 복사 (deepcopy로 완전 독립)
-        new_battle = copy.deepcopy(battle)
+        # 1. 배틀 턴수 증가 TODO new battle 수정하기
         new_battle.turn += 1
         
         # 2. 활성 포켓몬 확인
@@ -426,7 +425,7 @@ class SimplifiedBattleEngine:
                 print(f"\n--- 턴 {turn_count} ---")
             
             # 1턴 시뮬레이션
-            current_battle = self.simulate_turn(current_battle)
+            self.simulate_turn(current_battle)  # 수정
             
             if verbose:
                 self._print_turn_result(current_battle, turn_count)
