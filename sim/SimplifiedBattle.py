@@ -152,9 +152,25 @@ class SimplifiedBattle:
         type_1_str = types_list[0].upper() if types_list else 'NORMAL'
         type_2_str = types_list[1].upper() if len(types_list) > 1 else None
         
-        dummy_pokemon.type_1 = PokemonType[type_1_str] if type_1_str else PokemonType.NORMAL
-        dummy_pokemon.type_2 = PokemonType[type_2_str] if type_2_str else None
-        dummy_pokemon.types = [PokemonType[t.upper()] for t in types_list] if types_list else [PokemonType.NORMAL]
+        # PokemonType enum에 존재하는지 확인
+        try:
+            dummy_pokemon.type_1 = PokemonType[type_1_str] if type_1_str else PokemonType.NORMAL
+        except KeyError:
+            dummy_pokemon.type_1 = PokemonType.NORMAL
+            
+        try:
+            dummy_pokemon.type_2 = PokemonType[type_2_str] if type_2_str else None
+        except (KeyError, TypeError):
+            dummy_pokemon.type_2 = None
+            
+        # types 리스트 설정
+        types_converted = []
+        for t in types_list:
+            try:
+                types_converted.append(PokemonType[t.upper()])
+            except KeyError:
+                types_converted.append(PokemonType.NORMAL)
+        dummy_pokemon.types = types_converted if types_converted else [PokemonType.NORMAL]
         
         # HP 설정
         base_stats = pokedex_data.get('baseStats', {'hp': 100, 'atk': 100, 'def': 100, 'spa': 100, 'spd': 100, 'spe': 100})
@@ -205,6 +221,140 @@ class SimplifiedBattle:
         return self._generate_random_moves_fallback(pokemon, num_to_add)
     
     def _generate_random_moves_fallback(self, pokemon, num_to_add=4):
+        """포켓몬에 맞는 랜덤 기술 생성 (learnset 데이터 사용)"""
+        from poke_env.data import GenData
+        from poke_env.battle.pokemon_type import PokemonType
+        
+        data = GenData.from_gen(self.gen)
+        moves = []
+        
+        # 포켓몬이 배울 수 있는 기술들 가져오기
+        pokedex_species = pokemon.species.lower()
+        learnable_moves = []
+        
+        if pokedex_species in data.learnset and 'learnset' in data.learnset[pokedex_species]:
+            learnable_moves = list(data.learnset[pokedex_species]['learnset'].keys())
+        
+        # 포켓몬 타입과 일치하는 기술들 필터링
+        type_moves = []      # 포켓몬 타입 기술
+        strong_coverage = [] # 위력 80 이상 상성 극복
+        medium_coverage = [] # 위력 60-79 상성 극복
+        weak_coverage = []   # 위력 50-59 상성 극복
+        
+        for move_id in learnable_moves:
+            move_data = data.moves.get(move_id, {})
+            move_type = move_data.get('type', 'Normal').upper()
+            base_power = move_data.get('basePower', 0)
+            
+            # 위력이 있는 기술만 선택 (상태 기술 제외)
+            if base_power > 0:
+                pokemon_types = [t.name.upper() for t in pokemon.types]
+                
+                if move_type in pokemon_types:
+                    # 1. 포켓몬 타입과 일치하는 기술 (STAB)
+                    type_moves.append((move_id, move_data))
+                elif base_power >= 80:
+                    # 2-1. 위력 80 이상 상성 극복 (우선)
+                    strong_coverage.append((move_id, move_data))
+                elif base_power >= 60:
+                    # 2-2. 위력 60-79 상성 극복
+                    medium_coverage.append((move_id, move_data))
+                elif base_power >= 50:
+                    # 2-3. 위력 50-59 상성 극복
+                    weak_coverage.append((move_id, move_data))
+        
+        # 기술 선택 전략
+        selected_moves = []
+        
+        # 1. STAB 기술 우선 (최소 2개, 가능하면 위력 높은것)
+        if type_moves:
+            strong_stab = sorted([m for m in type_moves if m[1].get('basePower', 0) >= 70], 
+                                key=lambda x: x[1].get('basePower', 0), reverse=True)
+            if strong_stab:
+                # 최소 1개, 최대 2개의 강한 STAB 기술 (BP 70 이상)
+                stab_count = min(2, len(strong_stab), num_to_add)
+                selected_moves.extend(strong_stab[:stab_count])
+            else:
+                # BP 70 미만인 STAB 기술도 1개 추가
+                stab_count = min(1, len(type_moves), num_to_add)
+                selected_moves.extend(random.sample(type_moves, stab_count))
+        
+        # 2. 강한 상성 극복 기술 (순위 80+ > 60-79)
+        if len(selected_moves) < num_to_add:
+            remaining = num_to_add - len(selected_moves)
+            
+            # 먼저 강한 상성 극복 기술 추가
+            if strong_coverage:
+                strong_count = min(remaining, len(strong_coverage))
+                selected_moves.extend(random.sample(strong_coverage, strong_count))
+                remaining -= strong_count
+            
+            # 그 다음 중간 강도 상성 극복 기술
+            if remaining > 0 and medium_coverage:
+                medium_count = min(remaining, len(medium_coverage))
+                selected_moves.extend(random.sample(medium_coverage, medium_count))
+                remaining -= medium_count
+            
+            # 마지막으로 약한 상성 극복 기술
+            if remaining > 0 and weak_coverage:
+                weak_count = min(remaining, len(weak_coverage))
+                selected_moves.extend(random.sample(weak_coverage, weak_count))
+        
+        # 4. SimplifiedMove로 변환
+        for move_id, move_data in selected_moves[:num_to_add]:
+            move = self._create_move_from_pokedex(move_id, move_data)
+            if move:
+                moves.append(move)
+        
+        return moves
+    
+    def _create_move_from_pokedex(self, move_id: str, move_data: dict):
+        """pokedex 데이터에서 기술 객체 생성"""
+        from poke_env.battle.pokemon_type import PokemonType
+        from poke_env.battle.move_category import MoveCategory
+        
+        # 기술 데이터 추출
+        base_power = move_data.get('basePower', 0)
+        accuracy = move_data.get('accuracy', 100)
+        category = move_data.get('category', 'Physical')
+        move_type = move_data.get('type', 'Normal')
+        priority = move_data.get('priority', 0)
+        
+        # 타입 변환
+        try:
+            move_type_enum = PokemonType[move_type.upper()]
+        except (KeyError, AttributeError):
+            move_type_enum = PokemonType.NORMAL
+        
+        # 카테고리 변환
+        try:
+            category_enum = MoveCategory[category.upper()]
+        except (KeyError, AttributeError):
+            category_enum = MoveCategory.PHYSICAL
+        
+        class DummyMove:
+            def __init__(self):
+                self.id = move_id
+                self.base_power = base_power if base_power else 0
+                self.type = move_type_enum
+                self.category = category_enum
+                self.accuracy = accuracy if accuracy else 100
+                self.priority = priority if priority else 0
+                self.current_pp = 16
+                self.max_pp = 16
+                self.boosts = None
+                self.self_boost = None
+                self.status = None
+                self.secondary = None
+                self.crit_ratio = 0
+                self.expected_hits = 1
+                self.recoil = 0
+                self.drain = 0
+                self.flags = set()
+                self.breaks_protect = False
+                self.is_protect_move = False
+        
+        return SimplifiedMove(DummyMove())
         """포켓몬에 맞는 랜덤 기술 생성 (실제 pokedex 데이터 사용)"""
         from poke_env.data import GenData
         from poke_env.battle.pokemon_type import PokemonType

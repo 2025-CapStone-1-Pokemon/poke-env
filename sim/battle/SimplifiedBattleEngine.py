@@ -111,7 +111,14 @@ class SimplifiedBattleEngine:
         # 7. 턴 종료 처리
         self._end_of_turn(new_battle)
         
-        # 8. 승패 확인
+        # 8. 활성 포켓몬 기절 시 교체
+        if new_battle.active_pokemon and new_battle.active_pokemon.current_hp <= 0:
+            self._auto_switch(new_battle, is_player=True)
+        
+        if new_battle.opponent_active_pokemon and new_battle.opponent_active_pokemon.current_hp <= 0:
+            self._auto_switch(new_battle, is_player=False)
+        
+        # 9. 승패 확인
         self._check_winner(new_battle)
         
         return new_battle
@@ -119,45 +126,58 @@ class SimplifiedBattleEngine:
     def _select_random_move(self, pokemon: SimplifiedPokemon, move_idx: Optional[int] = None) -> Optional[SimplifiedMove]:
         """랜덤 기술 선택"""
         # 기술이 없으면 기본 기술 생성 (상대 포켓몬의 경우)
-        if not pokemon.moves:
-            # 기본 공격 기술 생성 (Tackle 수준)
-            class DefaultMove:
-                def __init__(self):
-                    self.id = 'tackle'
-                    self.base_power = 40
-                    self.accuracy = 100
-                    self.priority = 0
-                    self.type = pokemon.type_1 if pokemon.type_1 else PokemonType.NORMAL
-                    self.category = MoveCategory.PHYSICAL
-                    self.current_pp = 35
-                    self.max_pp = 35
-                    # 추가 효과 속성
-                    self.boosts = None
-                    self.self_boost = None
-                    self.status = None
-                    self.secondary = None
-                    # 데미지 관련 속성
-                    self.crit_ratio = 0
-                    self.expected_hits = 1
-                    self.recoil = 0
-                    self.drain = 0
-                    # 플래그 속성
-                    self.flags = set()
-                    self.breaks_protect = False
-                    self.is_protect_move = False
-            
-            default_move = SimplifiedMove(DefaultMove())
-            pokemon.moves = [default_move]  # 기본 기술 할당
-            
+        if not pokemon or not pokemon.moves or len(pokemon.moves) == 0:
+            default_move = self._create_default_move(pokemon)
+            if default_move:
+                return default_move
+            return None
+        
+        # 특정 기술 인덱스 선택
         if move_idx is not None and 0 <= move_idx < len(pokemon.moves):
             return pokemon.moves[move_idx]
             
         # PP가 남은 기술 중 랜덤 선택
         available_moves = [move for move in pokemon.moves if move.current_pp > 0]
         if not available_moves:
+            # PP가 모두 없으면 기본 기술
+            default_move = self._create_default_move(pokemon)
+            if default_move:
+                return default_move
             return None
             
         return random.choice(available_moves)
+    
+    def _create_default_move(self, pokemon: SimplifiedPokemon) -> Optional[SimplifiedMove]:
+        """포켓몬의 기본 기술 생성"""
+        if not pokemon:
+            return None
+        
+        class DefaultMove:
+            def __init__(self, pokemon):
+                self.id = 'tackle'
+                self.base_power = 40
+                self.accuracy = 100
+                self.priority = 0
+                self.type = pokemon.type_1 if pokemon.type_1 else PokemonType.NORMAL
+                self.category = MoveCategory.PHYSICAL
+                self.current_pp = 35
+                self.max_pp = 35
+                # 추가 효과 속성
+                self.boosts = None
+                self.self_boost = None
+                self.status = None
+                self.secondary = None
+                # 데미지 관련 속성
+                self.crit_ratio = 0
+                self.expected_hits = 1
+                self.recoil = 0
+                self.drain = 0
+                # 플래그 속성
+                self.flags = set()
+                self.breaks_protect = False
+                self.is_protect_move = False
+        
+        return SimplifiedMove(DefaultMove(pokemon))
     
     def _determine_order(
         self,
@@ -443,10 +463,28 @@ class SimplifiedBattleEngine:
         alive_pokemon = [p for p in team.values() if p.current_hp > 0]
         
         if not alive_pokemon:
+            # 모든 포켓몬이 기절했으면 교체 불가
+            if is_player:
+                battle.active_pokemon = None
+            else:
+                battle.opponent_active_pokemon = None
             return
         
-        # 랜덤으로 선택
-        new_active = random.choice(alive_pokemon)
+        # 현재 활성 포켓몬이 없거나 기절했으면 교체 필요
+        current_active = battle.active_pokemon if is_player else battle.opponent_active_pokemon
+        
+        if current_active and current_active.current_hp > 0:
+            # 현재 활성 포켓몬이 살아있으면 교체 불필요
+            return
+        
+        # 살아있는 포켓몬 중에서 현재 활성 포켓몬 제외하고 선택
+        available = [p for p in alive_pokemon if p != current_active]
+        
+        if not available:
+            # 살아있는 포켓몬이 현재 활성 포켓몬뿐이면 그것 선택
+            new_active = alive_pokemon[0]
+        else:
+            new_active = random.choice(available)
         
         if is_player:
             battle.active_pokemon = new_active
