@@ -6,8 +6,8 @@ import os
 
 # SimplifiedBattle 시뮬레이터 import
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'sim'))
-from SimplifiedBattle import SimplifiedBattle
-from battle.SimplifiedBattleEngine import SimplifiedBattleEngine
+from sim.SimplifiedBattle import SimplifiedBattle
+from sim.battle.SimplifiedBattleEngine import SimplifiedBattleEngine
 
 class MCTSNode:
     def __init__(self, state, parent=None, action=None, is_simplified=False):
@@ -15,7 +15,7 @@ class MCTSNode:
         Args:
             state: Battle 객체 또는 SimplifiedBattle 객체
             parent: 부모 노드
-            action: 이 노드로 오게 한 액션
+            action: 이 노드에 도달하게 한 액션 (추적용)
             is_simplified: state가 이미 SimplifiedBattle인지 여부
         """
         # state가 이미 SimplifiedBattle이면 그대로 사용, 아니면 변환
@@ -29,7 +29,7 @@ class MCTSNode:
         self.children = []                    # 자식 노드 목록
         self.visits = 0                       # 방문 횟수
         self.wins = 0                         # 승리 횟수
-        self.action = action                  # 이 노드로 오게 한 액션
+        self.action = action                  # 이 노드에 도달한 액션 (디버깅/추적용)
         self.available_actions = self.get_actions()  # 가능한 이동
         self.untried_actions = self.available_actions.copy()  # 아직 시도하지 않은 액션들
 
@@ -51,14 +51,17 @@ class MCTSNode:
         # 모든 가능한 액션이 시도되었는지 확인
         return len(self.untried_actions) == 0
 
-    def expand(self):
+    def expand(self, verbose=False):
         """새로운 자식 노드를 생성하고 추가"""
         if not self.untried_actions:
             return None
             
-        # pop() 대신 random.choice()를 사용하여 순서 편향 제거
+        # random.choice()를 사용하여 순서 편향 제거
         action = random.choice(self.untried_actions)
         self.untried_actions.remove(action)
+        
+        if verbose:
+            print(f"[Expand] Action 선택: {action}, 남은 액션: {len(self.untried_actions)}")
         
         try:
             # 현재 상태를 복사 (simulate_turn이 in-place 수정하므로)
@@ -67,8 +70,10 @@ class MCTSNode:
             # 현재 상태에서 action을 적용한 1턴 시뮬레이션
             engine = SimplifiedBattleEngine()
             
-            # action을 move_idx로 변환
+            # action을 move_idx 또는 switch_idx로 변환
             player_move_idx = None
+            player_switch_idx = None
+            
             if hasattr(action, 'id'):  # Move 객체인 경우
                 # active_pokemon의 moves에서 action의 인덱스 찾기
                 if new_state.active_pokemon and new_state.active_pokemon.moves:
@@ -76,21 +81,42 @@ class MCTSNode:
                         if move.id == action.id:
                             player_move_idx = idx
                             break
+            else:  # Pokemon 객체인 경우 (Switch)
+                # team에서 action pokemon의 인덱스 찾기
+                team_list = list(new_state.team.values())
+                for idx, pokemon in enumerate(team_list):
+                    if pokemon.identifier == action.identifier:
+                        player_switch_idx = idx
+                        break
+            
+            if verbose:
+                print(f"[Expand] player_move_idx: {player_move_idx}, player_switch_idx: {player_switch_idx}")
             
             # 1턴 시뮬레이션 (상대는 랜덤) - new_state를 직접 수정
+            # Switch 처리: switch_idx가 있으면 먼저 교체
+            if player_switch_idx is not None:
+                team_list = list(new_state.team.keys())
+                if player_switch_idx < len(team_list):
+                    new_state.active_pokemon = new_state.team[team_list[player_switch_idx]]
+            
             engine.simulate_turn(
                 new_state,
                 player_move_idx=player_move_idx,
                 opponent_move_idx=None  # 상대는 랜덤
             )
             
-            # 새로운 노드 생성 (SimplifiedBattle을 그대로 사용)
+            if verbose:
+                print(f"[Expand] 시뮬레이션 완료 - HP: {new_state.active_pokemon.current_hp if new_state.active_pokemon else 'None'}, 턴: {new_state.turn}")
+            
+            # 새로운 노드 생성 (state + action 저장)
             child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
             self.children.append(child_node)
             return child_node
             
         except Exception as e:
             # 시뮬레이션 실패 시 현재 상태 복사 (fallback)
+            if verbose:
+                print(f"[Expand] 실패: {e}, fallback 사용")
             print(f"[MCTS] Expand 실패: {e}, deepcopy fallback")
             new_state = copy.deepcopy(self.state)
             child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
@@ -153,10 +179,12 @@ class MCTSNode:
     
     def backpropagate(self, result):
         # 결과를 바탕으로 노드와 그 부모 노드들의 값을 업데이트하는 로직을 구현합니다.
+        # *** 중요: 반전하지 않음! 같은 플레이어의 선택지 비교 ***
         self.visits += 1
         self.wins += result
         if self.parent:
-            self.parent.backpropagate(1 - result)  # 부모는 반대 플레이어이므로 1-result
+            # 부모도 같은 결과로 업데이트 (플레이어 1의 성공 = 플레이어 1이 승리 진행)
+            self.parent.backpropagate(result)
 
     def get_actions(self):
         # 현재 상태에서 가능한 모든 이동을 반환하는 로직을 구현합니다.
@@ -172,7 +200,7 @@ class MCTSNode:
 
 # 여기서 root_state는 최초의 battle 객체를 의미한다.
 def mcts_search(root_state, iterations=30, verbose=False):
-    """개선된 MCTS 검색 알고리즘"""
+    """개선된 MCTS 검색 알고리즘 - state를 반환"""
     root = MCTSNode(root_state)
     
     # 최소한의 exploration을 보장
@@ -182,55 +210,45 @@ def mcts_search(root_state, iterations=30, verbose=False):
     engine = SimplifiedBattleEngine()
     
     if verbose:
-        print(f"[MCTS] 검색 시작 (iterations={iterations})")
-        print(f"[MCTS] Root actions: {len(root.available_actions)}")
+        # 현재 턴 정보만 표시
+        current_turn = root_state.turn if hasattr(root_state, 'turn') else 0
+        active_poke = root_state.active_pokemon.species if hasattr(root_state, 'active_pokemon') and root_state.active_pokemon else "Unknown"
+        print(f"\n[MCTS] 턴 {current_turn} - {active_poke}")
+        print(f"       가능한 액션: {len(root.available_actions)}개, 반복: {iterations}회")
 
     for i in range(iterations):
         node = root
 
         # Selection - UCB1을 사용한 최적 노드 선택
         while not node.is_terminal() and node.is_fully_expanded():
-            # exploration weight를 동적으로 조정
-            exploration_weight = 1.4 * (1 - i / iterations)  # 시간이 지날수록 exploitation 증가
-            node = node.best_child(exploration_weight)
-            if node is None:
+            exploration_weight = 1.4 * (1 - i / iterations)
+            next_node = node.best_child(exploration_weight)
+            if next_node is None:
                 break
+            node = next_node
 
         # Expansion - 새로운 자식 노드 생성
         if not node.is_terminal() and not node.is_fully_expanded():
-            node = node.expand()
+            node = node.expand(verbose=False)  # 상세 로그 제거
             if node is None:
                 continue
 
         # Simulation - 게임 끝까지 시뮬레이션
-        result = node.rollout(engine=engine, verbose=verbose)
-        
-        if verbose and i % 10 == 0:
-            print(f"[MCTS] Iteration {i+1}/{iterations}: result={result}, children={len(root.children)}")
+        result = node.rollout(engine=engine, verbose=False)  # 상세 로그 제거
 
         # Backpropagation - 결과를 부모 노드들에게 전파
         if node:
             node.backpropagate(result)
 
-    # 최적의 행동 선택 - 가장 많이 방문된 노드 선택 (더 안정적)
-    if verbose:
-        print(f"\n[MCTS] 최종 통계:")
-        print(f"  Root children: {len(root.children)}")
-        if root.children:
-            sorted_children = sorted(root.children, key=lambda c: c.visits, reverse=True)
-            for idx, child in enumerate(sorted_children[:5]):
-                win_rate = (child.wins / child.visits * 100) if child.visits > 0 else 0
-                print(f"  {idx+1}. visits={child.visits}, wins={child.wins}, rate={win_rate:.1f}%, action={child.action}")
-    
+    # 최적의 액션 선택 - 가장 많이 방문된 노드 선택
     if root.children:
-        # 방문 횟수 기준으로 선택 (exploitation)
         best_child = max(root.children, key=lambda child: child.visits)
         
         if verbose:
             best_rate = (best_child.wins / best_child.visits * 100) if best_child.visits > 0 else 0
-            print(f"[MCTS] 선택된 행동: visits={best_child.visits}, rate={best_rate:.1f}%")
+            print(f"       ➜ 선택: {best_child.action} | visits={best_child.visits}, wins={best_child.wins}, rate={best_rate:.1f}%")
         
-        # 승률도 고려한 혼합 선택
+        # 충분히 탐색된 경우
         if best_child.visits >= min_visits_per_child:
             return best_child.action
         else:
@@ -240,15 +258,16 @@ def mcts_search(root_state, iterations=30, verbose=False):
                 best_child = max(viable_children, key=lambda child: child.wins / child.visits)
                 if verbose:
                     best_rate = (best_child.wins / best_child.visits * 100) if best_child.visits > 0 else 0
-                    print(f"[MCTS] 재선택 (낮은 탐색): rate={best_rate:.1f}%")
+                    print(f"       ➜ 재선택: {best_child.action} | rate={best_rate:.1f}%")
                 return best_child.action
     
     # 대안: 사용 가능한 행동 중 랜덤 선택
     if root.available_actions:
+        action = random.choice(root.available_actions)
         if verbose:
-            print(f"[MCTS] 랜덤 선택 (no children)")
-        return random.choice(root.available_actions)
+            print(f"       ➜ 랜덤: {action}")
+        return action
     
     if verbose:
-        print(f"[MCTS] None 반환 (no actions available)")
+        print(f"       ➜ None (선택지 없음)")
     return None

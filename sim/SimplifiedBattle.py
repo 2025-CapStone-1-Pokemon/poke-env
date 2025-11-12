@@ -10,7 +10,7 @@ import random
 
 # 기본 기술 개수
 DEFAULT_MOVES = 4
-DEFAULT_LEVEL = 100
+DEFAULT_LEVEL = 80
 
 class SimplifiedBattle:
     def __init__(self, poke_env_battle: Battle, fill_unknown_data: bool = True, gen : int = 9, team_num: int = 6):
@@ -76,8 +76,13 @@ class SimplifiedBattle:
         self.opponent_side_conditions = poke_env_battle.opponent_side_conditions.copy()
 
         # === 턴 관련 ===
-        self.available_moves = list(poke_env_battle.available_moves) if hasattr(poke_env_battle, 'available_moves') else []
-        self.available_switches = list(poke_env_battle.available_switches) if hasattr(poke_env_battle, 'available_switches') else []
+        # available_moves를 SimplifiedMove로 변환
+        raw_moves = list(poke_env_battle.available_moves) if hasattr(poke_env_battle, 'available_moves') else []
+        self.available_moves = [SimplifiedMove(move) for move in raw_moves if move is not None]
+        
+        # available_switches를 SimplifiedPokemon으로 변환
+        raw_switches = list(poke_env_battle.available_switches) if hasattr(poke_env_battle, 'available_switches') else []
+        self.available_switches = [SimplifiedPokemon(pokemon) for pokemon in raw_switches if pokemon is not None]
     
     def _fill_opponent_team_data(self, team_num: int = 6):
         """상대 팀의 부족한 정보를 pokedex 데이터 기반으로 채우기"""

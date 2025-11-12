@@ -25,7 +25,11 @@ class SimplifiedMove:
         else:
             self.accuracy = raw_accuracy  # 이미 0-1.0 형식
         
-        self.priority = poke_env_move.priority
+        # Priority (안전한 접근 - entry에 없을 수 있음)
+        try:
+            self.priority = poke_env_move.priority
+        except (KeyError, AttributeError):
+            self.priority = 0  # 기본값: 일반 우선도
 
         # PP
         self.current_pp = poke_env_move.current_pp
@@ -44,9 +48,20 @@ class SimplifiedMove:
         self.drain = poke_env_move.drain
 
         # 플래그 (불변)
-        self.flags = poke_env_move.flags.copy()
-        self.breaks_protect = poke_env_move.breaks_protect
-        self.is_protect_move = poke_env_move.is_protect_move
+        try:
+            self.flags = poke_env_move.flags.copy() if poke_env_move.flags else {}
+        except (KeyError, AttributeError):
+            self.flags = {}
+        
+        try:
+            self.breaks_protect = poke_env_move.breaks_protect
+        except (KeyError, AttributeError):
+            self.breaks_protect = False
+        
+        try:
+            self.is_protect_move = poke_env_move.is_protect_move
+        except (KeyError, AttributeError):
+            self.is_protect_move = False
 
     def use(self):
         """PP 소모"""
