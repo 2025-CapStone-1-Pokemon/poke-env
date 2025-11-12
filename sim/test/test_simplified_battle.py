@@ -1,3 +1,5 @@
+# 랜덤으로 포켓몬을 추정했을 때, 해당 포켓몬의 추정이 약하게 되는지를 확인하는 코드
+
 """
 MCTS + SimplifiedBattle 통합 테스트
 """
@@ -10,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from player.MCTS_GEMINI import mcts_search
 from poke_env.player import Player
+from sim.SimplifiedBattle import SimplifiedBattle
 
 
 class RandomPlayer(Player):
@@ -17,26 +20,17 @@ class RandomPlayer(Player):
     def choose_move(self, battle):
         return self.choose_random_move(battle)
 
-class MCTSPlayer(Player):
-    """MCTS를 사용하는 플레이어"""
+class TestPlayer(Player):
+    """객체 변환 테스트"""
     
     def choose_move(self, battle):
-        """MCTS로 최적 행동 선택"""
-        # 기술이 없으면 교체 강제
-        if len(battle.available_moves) == 0:
-            return self.choose_random_move(battle)
+
+        if(battle.turn == 1):
+            # MCTS로 선택
+            simplified_battle = SimplifiedBattle(battle)
+            simplified_battle.print_summary()
         
-        # MCTS 검색 (100번 - 정확도와 속도 균형)
-        action = mcts_search(battle, iterations=100, verbose=True)
-        
-        if action is None:
-            return self.choose_random_move(battle)
-        
-        try:
-            order = self.create_order(action)
-            return order
-        except Exception as e:
-            return self.choose_random_move(battle)
+        return self.choose_random_move(battle)
 
 
 async def test_mcts_vs_random():
@@ -44,21 +38,21 @@ async def test_mcts_vs_random():
     print("=== MCTS vs Random Bot 테스트 ===\n")
     
     # 플레이어 생성
-    mcts_player = MCTSPlayer(
+    mcts_player = TestPlayer(
         battle_format="gen9randombattle",
-        max_concurrent_battles=3  # 3배틀 동시 진행
+        max_concurrent_battles=1  # 1배틀 동시 진행
     )
     
     random_player = RandomPlayer(
         battle_format="gen9randombattle",
-        max_concurrent_battles=3  # 3배틀 동시 진행
+        max_concurrent_battles=1  # 1배틀 동시 진행
     )
     
     # 1판만 대결 (빠른 테스트)
     print("배틀 시작...\n")
     
     try:
-        await mcts_player.battle_against(random_player, n_battles=3)
+        await mcts_player.battle_against(random_player, n_battles=1)
     except Exception as e:
         print(f"배틀 중 에러: {e}")
         import traceback

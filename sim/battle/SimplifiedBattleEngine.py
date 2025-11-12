@@ -3,6 +3,7 @@ SimplifiedBattle 시뮬레이션 엔진
 """
 import copy
 import random
+from tabnanny import verbose
 from typing import Optional, Dict, List, Tuple
 import sys
 import os
@@ -58,7 +59,8 @@ class SimplifiedBattleEngine:
         self,
         new_battle: SimplifiedBattle,
         player_move_idx: Optional[int] = None,
-        opponent_move_idx: Optional[int] = None
+        opponent_move_idx: Optional[int] = None,
+        verbose: bool = False
     ) -> SimplifiedBattle:
         """
         1턴 시뮬레이션 (완전 랜덤)
@@ -72,20 +74,34 @@ class SimplifiedBattleEngine:
             새로운 SimplifiedBattle 객체 (원본 유지)
         """
         # 1. 배틀 턴수 증가 TODO new battle 수정하기
+
+        if verbose:
+            print(f"Simulating turn {new_battle.turn}")
         new_battle.turn += 1
         
         # 2. 활성 포켓몬 확인
         if not new_battle.active_pokemon or not new_battle.opponent_active_pokemon:
+            if verbose:
+                print("One of the active Pokemon is missing. Ending simulation.")
             return new_battle
             
         if new_battle.active_pokemon.current_hp <= 0 or new_battle.opponent_active_pokemon.current_hp <= 0:
+            if verbose:
+                print("One of the active Pokemon has fainted. Ending simulation.")
             return new_battle
         
         # 3. 기술 선택 (랜덤)
-        player_move = self._select_random_move(new_battle.active_pokemon, player_move_idx)
-        opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx)
+        if verbose:
+                print("=========== [Move Selection] =================")
+        player_move = self._select_random_move(new_battle.active_pokemon, player_move_idx, verbose=verbose)
+        opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx, verbose=verbose)
+
+        if verbose:
+            print("===============================================")
         
         if not player_move or not opponent_move:
+            if verbose:
+                print("One of the selected moves is invalid. Ending simulation.")
             return new_battle
         
         # 4. 행동 순서 결정
@@ -95,17 +111,24 @@ class SimplifiedBattleEngine:
         )
         
         # 5. 선공 실행
+
+        if verbose:
+            print("=========== [Turn Execution] =================")
+
         if first_attacker == new_battle.active_pokemon:
-            self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, first_move)
+            self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, first_move, verbose=verbose)
         else:
-            self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, first_move)
+            self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, first_move, verbose=verbose)
         
         # 6. 후공 실행 (둘 다 살아있으면)
         if new_battle.active_pokemon.current_hp > 0 and new_battle.opponent_active_pokemon.current_hp > 0:
             if second_attacker == new_battle.active_pokemon:
-                self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, second_move)
+                self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, second_move, verbose=verbose)
             else:
-                self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, second_move)
+                self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, second_move, verbose=verbose)
+
+        if verbose:
+            print("===============================================")
         
         # 7. 턴 종료 처리
         self._end_of_turn(new_battle)
@@ -119,32 +142,50 @@ class SimplifiedBattleEngine:
         
         # 9. 승패 확인
         self._check_winner(new_battle)
+
+        if verbose:
+            self._print_battle_status(battle=new_battle, label=f"After Turn {new_battle.turn}")
         
         return new_battle
     
-    def _select_random_move(self, pokemon: SimplifiedPokemon, move_idx: Optional[int] = None) -> Optional[SimplifiedMove]:
+    def _select_random_move(self, pokemon: SimplifiedPokemon, move_idx: Optional[int] = None, verbose: bool = False) -> Optional[SimplifiedMove]:
         """랜덤 기술 선택"""
-        # 기술이 없으면 기본 기술 생성 (상대 포켓몬의 경우)
+
+        # 기술이 없으면 기본 기술 생성
         if not pokemon or not pokemon.moves or len(pokemon.moves) == 0:
             default_move = self._create_default_move(pokemon)
             if default_move:
+                if verbose:
+                    print(f"Pokemon has no moves. Using default move for Pokemon {pokemon.species}")
                 return default_move
             return None
         
         # 특정 기술 인덱스 선택
         if move_idx is not None and 0 <= move_idx < len(pokemon.moves):
+            if verbose:
+                print(f"move_idx is not None. Selecting {pokemon.moves[move_idx].id} for Pokemon {pokemon.species}")
             return pokemon.moves[move_idx]
             
         # PP가 남은 기술 중 랜덤 선택
         available_moves = [move for move in pokemon.moves if move.current_pp > 0]
+
         if not available_moves:
+            if verbose:
+                print(f"No available moves with PP left. Using default move for Pokemon {pokemon.species}")
             # PP가 모두 없으면 기본 기술
             default_move = self._create_default_move(pokemon)
             if default_move:
+                if verbose:
+                    print(f"Using default move for Pokemon {pokemon.species}")
                 return default_move
             return None
+        
+        random_move = random.choice(available_moves)
+        if verbose:
+            print(f"Randomly selected move {random_move.id} for Pokemon {pokemon.species}")
+            print(f" power: {random_move.base_power}, accuracy: {random_move.accuracy}, category: {random_move.category}")
             
-        return random.choice(available_moves)
+        return random_move
     
     def _create_default_move(self, pokemon: SimplifiedPokemon) -> Optional[SimplifiedMove]:
         """포켓몬의 기본 기술 생성"""
@@ -213,47 +254,69 @@ class SimplifiedBattleEngine:
         battle: SimplifiedBattle,
         attacker: SimplifiedPokemon,
         defender: SimplifiedPokemon,
-        move: SimplifiedMove
+        move: SimplifiedMove,
+        verbose: bool = False
     ):
         """기술 실행"""
+        if(verbose):
+            print(f"Attacker: {attacker.species}, Move: {move.id}, Defender: {defender.species}")
+
         # 0. PP 소모
         move.current_pp = max(0, move.current_pp - 1)
         
-        # 1. 명중 판정
-        if not self._check_accuracy(attacker, defender, move):
+        # 1. 명중 판정 (STATUS 기술은 정확도 체크 필요)
+        # STATUS 기술도 정확도가 있을 수 있으므로 체크
+        if not self._check_accuracy(attacker, defender, move, verbose=verbose):
+            if(verbose):
+                print(f"{attacker.species}'s {move.id} missed!")
             return
         
-        # 2. 급소 판정
-        crit = self._check_critical_hit(attacker, move)
+        # 2. 급소 판정 (데미지 기술만)
+        crit = False
+        if move.category != MoveCategory.STATUS:
+            crit = self._check_critical_hit(attacker, move)
+
+        if(verbose and crit):
+            print(f"Critical hit by {attacker.species} using {move.id}!")
         
         # 3. 데미지 계산 및 적용
+        damage = 0
         if move.category != MoveCategory.STATUS:
             damage = self._calculate_damage(battle, attacker, defender, move, crit)
             defender.damage(damage)
+
+            if(verbose):
+                print(f"{attacker.species} used {move.id} dealing {damage} damage to {defender.species}!")
+                print(f"{defender.species} HP is now {defender.current_hp}/{defender.max_hp}")
         
-        # 4. 추가 효과 (TODO: 나중에 구현)
-        # - 상태이상
-        # - 능력치 변화
-        # - 반동/흡혈
+        # 4. 추가 효과 적용 ✅
+        self._apply_move_effects(attacker, defender, move, damage, verbose=verbose)
+        
     
     def _check_accuracy(
         self,
         attacker: SimplifiedPokemon,
         defender: SimplifiedPokemon,
-        move: SimplifiedMove
+        move: SimplifiedMove,
+        verbose: bool = False
     ) -> bool:
         """명중 판정"""
-        # 임시: 명중률 테스트를 위해 항상 명중
-        return True
-        
-        # 필중 기술
-        if move.accuracy is None or move.accuracy >= 100:
+
+        # poke-env에서 정확도는 0-1.0 범위 (소수점) 또는 None
+        if move.accuracy is None or move.accuracy >= 1.0:
             return True
         
-        # 명중률 계산
+        # 명중률 계산 (능력치 부스트 적용)
         acc_boost = attacker.boosts.get('accuracy', 0)
         eva_boost = defender.boosts.get('evasion', 0)
+
+        if verbose:
+            print(f"acc_boost: {acc_boost}, eva_boost: {eva_boost}")
+            print(f"Base accuracy: {move.accuracy}")
         
+        # 능력치 부스트 배율 계산
+        # 공격 부스트: (3 + boost) / 3
+        # 회피 부스트: 3 / (3 + boost)
         if acc_boost >= 0:
             acc_mult = (3 + acc_boost) / 3
         else:
@@ -264,9 +327,15 @@ class SimplifiedBattleEngine:
         else:
             eva_mult = (3 - eva_boost) / 3
         
+        # 최종 명중률 = 기술 명중률 * 공격자 정확도 배율 * 방어자 회피 배율
+        # 주의: move.accuracy는 이미 0-1.0 범위의 소수점
         final_accuracy = move.accuracy * acc_mult * eva_mult
         
-        return random.random() * 100 < final_accuracy
+        # 0~1.0 범위로 정규화 (소수점)
+        final_accuracy = max(0.01, min(1.0, final_accuracy))
+        
+        # 확률 판정 (0~1.0 범위)
+        return random.random() < final_accuracy
     
     def _check_critical_hit(
         self,
@@ -284,8 +353,9 @@ class SimplifiedBattleEngine:
         if move.id in ['stoneedge', 'crosschop', 'razorleaf', 'crabhammer']:
             crit_stage += 1
         
-        # 급소율
-        crit_ratios = [1/24, 1/8, 1/2, 1/1]
+        # 급소율 (생성 9세대 기준)
+        # stage 0: 1/24, stage 1: 1/8, stage 2: 1/2, stage 3: 1/4 (max)
+        crit_ratios = [1/24, 1/8, 1/2, 1/4]
         crit_ratio = crit_ratios[min(crit_stage, 3)]
         
         return random.random() < crit_ratio
@@ -337,12 +407,97 @@ class SimplifiedBattleEngine:
     
     def _end_of_turn(self, battle: SimplifiedBattle):
         """턴 종료 처리"""
-        # 날씨 데미지
+        # 1. 능력치 타이머 업데이트 (만료된 boost 해제)
+        self._update_boost_timers(battle)
+        
+        # 2. 날씨 데미지
         self._apply_weather_damage(battle)
         
-        # 상태이상 데미지
+        # 3. 상태이상 데미지
         self._apply_status_damage(battle.active_pokemon)
         self._apply_status_damage(battle.opponent_active_pokemon)
+    
+    def _apply_move_effects(
+        self,
+        attacker: SimplifiedPokemon,
+        defender: SimplifiedPokemon,
+        move: SimplifiedMove,
+        damage: int,
+        verbose: bool = False
+    ):
+        """기술의 추가 효과 적용
+        
+        - 상태이상 (Status)
+        - 능력치 변화 (Boosts)
+        - 자신 능력치 변화 (Self Boost)
+        - 반동/흡혈 (Recoil/Drain)
+        """
+        
+        # 1️⃣ 상태이상 적용 (상대방)
+        if move.status:
+            defender.status = move.status
+            # 강독은 카운터 초기화
+            if move.status == Status.TOX:
+                defender.status_counter = 0
+        
+        # 2️⃣ 자신 능력치 강화 (self_boost)
+        # 예: Swords Dance (+2 Atk), Dragon Dance (+1 Atk +1 Spe)
+        if move.self_boost:
+            for stat, amount in move.self_boost.items():
+                # 대부분의 능력치 강화는 배틀 종료까지 유지 (turns=None)
+                attacker.set_boost_with_timer(stat, amount, turns=None)
+        
+        # 3️⃣ 상대 능력치 변화 (boosts)
+        # 예: Close Combat (-1 Def -1 SpDef), Toxic Thread (-1 Spe)
+        if move.boosts:
+            for stat, amount in move.boosts.items():
+                # 대부분은 영구지만, 일부 기술은 1턴만 지속
+                turns = self._get_boost_duration(move.id, stat)
+                defender.set_boost_with_timer(stat, amount, turns=turns)
+        
+        # 4️⃣ 반동 (Recoil)
+        # 예: Brave Bird (1/3 반동), Double-Edge (1/3 반동)
+        if move.recoil and isinstance(move.recoil, (list, tuple)) and len(move.recoil) >= 2:
+            recoil_damage = damage * move.recoil[0] // move.recoil[1]
+            attacker.damage(recoil_damage)
+        
+        # 5️⃣ 흡수 (Drain)
+        # 예: Drain Punch (1/2 흡수), Draining Kiss (1/2 흡수)
+        if move.drain and isinstance(move.drain, (list, tuple)) and len(move.drain) >= 2:
+            heal_amount = damage * move.drain[0] // move.drain[1]
+            attacker.heal(heal_amount)
+    
+    def _get_boost_duration(self, move_id: str, stat: str) -> Optional[int]:
+        """기술별 능력치 변화 지속 턴 수
+        
+        Returns:
+            None = 배틀 종료까지 영구
+            숫자 = N턴 지속
+        """
+        # 반동 효과 기술들 (1턴만 지속)
+        recoil_boosts = {
+            'closecombat': ['def', 'spd'],  # Close Combat: -1 Def -1 SpDef
+            'hammerarm': ['spe'],            # Hammer Arm: -1 Spe
+        }
+        
+        for move, boost_stats in recoil_boosts.items():
+            if move_id == move and stat in boost_stats:
+                return 1  # 1턴만 지속
+        
+        # 나머지는 모두 영구 (None)
+        return None
+    
+    def _update_boost_timers(self, battle: SimplifiedBattle):
+        """턴 종료 시 능력치 타이머 업데이트 및 만료된 boost 해제"""
+        if battle.active_pokemon:
+            if not hasattr(battle.active_pokemon, 'boost_timers'):
+                battle.active_pokemon.boost_timers = {}
+            battle.active_pokemon.decrement_boost_timers()
+        
+        if battle.opponent_active_pokemon:
+            if not hasattr(battle.opponent_active_pokemon, 'boost_timers'):
+                battle.opponent_active_pokemon.boost_timers = {}
+            battle.opponent_active_pokemon.decrement_boost_timers()
     
     def _apply_weather_damage(self, battle: SimplifiedBattle):
         """날씨 데미지"""
@@ -388,11 +543,15 @@ class SimplifiedBattleEngine:
         opponent_alive = any(p.current_hp > 0 for p in battle.opponent_team.values())
         
         if not player_alive:
+            # 플레이어 패배
             battle.finished = True
             battle.won = False
+            battle.lost = True
         elif not opponent_alive:
+            # 플레이어 승리
             battle.finished = True
             battle.won = True
+            battle.lost = False
     
     def simulate_full_battle(
         self,
@@ -425,7 +584,7 @@ class SimplifiedBattleEngine:
                 print(f"\n--- 턴 {turn_count} ---")
             
             # 1턴 시뮬레이션
-            self.simulate_turn(current_battle)  # 수정
+            self.simulate_turn(current_battle, verbose=verbose)
             
             if verbose:
                 self._print_turn_result(current_battle, turn_count)
@@ -506,11 +665,16 @@ class SimplifiedBattleEngine:
                   f"(HP: {battle.opponent_active_pokemon.current_hp}/{battle.opponent_active_pokemon.max_hp})")
         
         # 팀 상태
-        player_alive = sum(1 for p in battle.team.values() if p.current_hp > 0)
-        opponent_alive = sum(1 for p in battle.opponent_team.values() if p.current_hp > 0)
+        # player_alive = sum(1 for p in battle.team.values() if p.current_hp > 0)
+        # opponent_alive = sum(1 for p in battle.opponent_team.values() if p.current_hp > 0)
+
+        for pokemon in battle.team.values():
+            status = "기절" if pokemon.current_hp <= 0 else f"HP: {pokemon.current_hp}/{pokemon.max_hp}"
+            print(f"플레이어 팀 - {pokemon.species}: {status}")
         
-        print(f"남은 포켓몬 - 플레이어: {player_alive}/{len(battle.team)}, "
-              f"상대: {opponent_alive}/{len(battle.opponent_team)}")
+        for pokemon in battle.opponent_team.values():
+            status = "기절" if pokemon.current_hp <= 0 else f"HP: {pokemon.current_hp}/{pokemon.max_hp}"
+            print(f"상대 팀 - {pokemon.species}: {status}")
     
     def _print_turn_result(self, battle: SimplifiedBattle, turn: int):
         """턴 결과 출력"""

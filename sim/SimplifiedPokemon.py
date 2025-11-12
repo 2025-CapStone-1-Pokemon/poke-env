@@ -7,6 +7,9 @@ from poke_env.battle.pokemon_type import PokemonType
 from poke_env.battle.move import SPECIAL_MOVES, Move
 # 포켓몬 성별 객체
 from poke_env.battle.pokemon_gender import PokemonGender
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
 
 from supporting.PokemonStatus import Status
 from SimplifiedMove import SimplifiedMove
@@ -32,11 +35,16 @@ class SimplifiedPokemon:
         # 상태이상
         self.status = poke_env_pokemon.status
         self.status_counter = poke_env_pokemon.status_counter
+        self.toxic_counter = 0  # 강독 카운터
 
         # 스탯
         self.base_stats = poke_env_pokemon.base_stats.copy()
         self.stats = poke_env_pokemon.stats.copy()
         self.boosts = poke_env_pokemon.boosts.copy()
+        
+        # 능력치 변화 타이머 (해제될 때까지의 턴 수)
+        # None = 배틀 종료까지 유지, 숫자 = N턴 지속
+        self.boost_timers = {}  # {"atk": None, "spe": 5, ...}
 
         # 기술 (moves가 dict 또는 list일 수 있음)
         if isinstance(poke_env_pokemon.moves, dict):
@@ -75,11 +83,61 @@ class SimplifiedPokemon:
         """기절"""
         self.current_hp = 0
         self.status = Status.FNT
+        self.active = False
 
     def boost(self, stat: str, amount: int):
         """능력치 변화"""
         current = self.boosts.get(stat, 0)
         self.boosts[stat] = max(-6, min(6, current + amount))
+
+    def set_boost_with_timer(self, stat: str, amount: int, turns: Optional[int] = None):
+        """능력치 변화 (타이머 포함)
+        
+        Args:
+            stat: 능력치 ('atk', 'def', 'spe', 'spa', 'spd', 'accuracy', 'evasion')
+            amount: 변화량 (+2, -1 등)
+            turns: 지속 턴 수 (None = 배틀 종료까지 영구)
+        """
+        # deepcopy 후 boost_timers가 없으면 초기화
+        if not hasattr(self, 'boost_timers'):
+            self.boost_timers = {}
+        
+        self.boost(stat, amount)
+        if turns is None:
+            # 영구 유지 (해제하지 않음)
+            self.boost_timers[stat] = None
+        else:
+            # N턴 지속
+            self.boost_timers[stat] = turns
+
+    def decrement_boost_timers(self):
+        """턴 종료 시 능력치 타이머 감소 및 해제"""
+        # boost_timers 없으면 초기화 (호환성)
+        if not hasattr(self, 'boost_timers'):
+            self.boost_timers = {}
+        
+        stats_to_reset = []
+        
+        for stat, turns_left in self.boost_timers.items():
+            if turns_left is None:
+                # 영구 유지
+                continue
+            
+            # 턴 감소
+            turns_left -= 1
+            
+            if turns_left <= 0:
+                # 타이머 만료 → boost 해제
+                stats_to_reset.append(stat)
+            else:
+                # 남은 턴 업데이트
+                self.boost_timers[stat] = turns_left
+        
+        # 만료된 능력치 리셋
+        for stat in stats_to_reset:
+            current = self.boosts.get(stat, 0)
+            self.boosts[stat] = 0
+            del self.boost_timers[stat]
 
     def damage_multiplier(self, move_type: PokemonType) -> float:
         """타입 상성 계산"""

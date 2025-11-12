@@ -1,5 +1,9 @@
 # SimplifiedMove.py
 from poke_env.battle.move import Move
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+
 from supporting.PokemonType import PokemonType
 from supporting.PokemonMoveCategory import MoveCategory
 from typing import Dict, Optional
@@ -11,7 +15,16 @@ class SimplifiedMove:
         self.base_power = poke_env_move.base_power
         self.type = poke_env_move.type
         self.category = poke_env_move.category
-        self.accuracy = poke_env_move.accuracy
+        
+        # 정확도 정규화 (poke-env에서 0-100 또는 0-1.0으로 올 수 있음)
+        raw_accuracy = poke_env_move.accuracy
+        if raw_accuracy is None:
+            self.accuracy = None  # 100% 명중
+        elif raw_accuracy > 1:
+            self.accuracy = raw_accuracy / 100.0  # 0-100 형식 → 0-1.0으로 변환
+        else:
+            self.accuracy = raw_accuracy  # 이미 0-1.0 형식
+        
         self.priority = poke_env_move.priority
 
         # PP
