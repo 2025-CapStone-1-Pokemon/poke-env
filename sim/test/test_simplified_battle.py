@@ -10,7 +10,6 @@ import os
 # 상위 디렉토리들을 path에 추가
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from player.MCTS_GEMINI import mcts_search
 from poke_env.player import Player
 from sim.SimplifiedBattle import SimplifiedBattle
 

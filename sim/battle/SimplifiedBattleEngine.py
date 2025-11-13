@@ -3,12 +3,10 @@ SimplifiedBattle 시뮬레이션 엔진
 """
 import copy
 import random
-from tabnanny import verbose
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Tuple
 import sys
 import os
 
-# 상위 디렉토리(sim)를 경로에 추가
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from SimplifiedBattle import SimplifiedBattle
@@ -77,6 +75,7 @@ class SimplifiedBattleEngine:
 
         if verbose:
             print(f"Simulating turn {new_battle.turn}")
+            
         new_battle.turn += 1
         
         # 2. 활성 포켓몬 확인

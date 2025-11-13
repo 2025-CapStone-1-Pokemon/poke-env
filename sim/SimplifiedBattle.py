@@ -10,7 +10,7 @@ import random
 
 # 기본 기술 개수
 DEFAULT_MOVES = 4
-DEFAULT_LEVEL = 80
+DEFAULT_LEVEL = 100
 
 class SimplifiedBattle:
     def __init__(self, poke_env_battle: Battle, fill_unknown_data: bool = True, gen : int = 9, team_num: int = 6):
@@ -536,7 +536,7 @@ class SimplifiedBattle:
         print(f"Side Conditions: {self.side_conditions}")
         print(f"Opponent Side Conditions: {self.opponent_side_conditions}")
         print(f"\n--- Available Actions ---")
-        print(f"Available Moves: {[move._id for move in self.available_moves]}")
+        print(f"Available Moves: {[move.id for move in self.available_moves]}")
         print(f"Available Switches: {[poke.species for poke in self.available_switches]}")
     
     def get_alive_team(self):

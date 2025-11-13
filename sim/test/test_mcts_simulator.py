@@ -75,7 +75,7 @@ class MCTSPlayer(Player):
             return self.choose_random_move(battle)
         
         # MCTS 검색 - SimplifiedAction 반환
-        simplified_action = mcts_search(battle, iterations=100, verbose=True, n_workers=4)
+        simplified_action = mcts_search(battle, iterations=1, verbose=False, n_workers=5)
 
         if simplified_action is None:
             return self.choose_random_move(battle)
@@ -109,22 +109,22 @@ async def test_mcts_vs_random():
     
     # 플레이어 생성 (고정 팀)
     mcts_player = MCTSPlayer(
-        battle_format="gen9ou",
+        battle_format="gen9randombattle",
         max_concurrent_battles=10,
-        team=TEAM_MCTS_PACKED
+        #team=TEAM_MCTS_PACKED
     )
     
     random_player = RandomPlayer(
-        battle_format="gen9ou",
+        battle_format="gen9randombattle",
         max_concurrent_battles=10,
-        team=TEAM_MCTS_PACKED
+        #team=TEAM_MCTS_PACKED
     )
     
     # 1판만 대결 (빠른 테스트)
     print("배틀 시작...\n")
     
     try:
-        await mcts_player.battle_against(random_player, n_battles=10)
+        await mcts_player.battle_against(random_player, n_battles=100)
     except Exception as e:
         print(f"배틀 중 에러: {e}")
         import traceback
