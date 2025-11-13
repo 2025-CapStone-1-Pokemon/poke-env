@@ -17,7 +17,7 @@ from SimplifiedMove import SimplifiedMove
 _GEN_DATA_CACHE = {}
 
 class SimplifiedPokemon:
-    def __init__(self, poke_env_pokemon: Pokemon):
+    def __init__(self, poke_env_pokemon: Pokemon, is_percentage_hp: bool = False):
         # 기본 정보
         self.species = poke_env_pokemon.species
         self.level = poke_env_pokemon.level
@@ -29,8 +29,17 @@ class SimplifiedPokemon:
         self.types = poke_env_pokemon.types.copy()  # List
 
         # HP
-        self.current_hp = poke_env_pokemon.current_hp
-        self.max_hp = poke_env_pokemon.max_hp
+        if is_percentage_hp:
+            # poke_env_pokemon.current_hp가 백분율인 경우 레벨 기반으로 계산
+            base_hp = poke_env_pokemon.base_stats.get('hp', 100)
+            max_hp_calculated = (2 * base_hp * poke_env_pokemon.level / 100) + poke_env_pokemon.level + 26
+            self.max_hp = int(max_hp_calculated)
+            # current_hp가 백분율이면 max_hp 기준으로 계산
+            self.current_hp = int(poke_env_pokemon.current_hp * self.max_hp / 100)
+        else:
+            # 실제 HP 값인 경우 그대로 사용
+            self.current_hp = poke_env_pokemon.current_hp
+            self.max_hp = poke_env_pokemon.max_hp
 
         # 상태이상
         self.status = poke_env_pokemon.status

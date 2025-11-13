@@ -53,8 +53,9 @@ class SimplifiedBattle:
                     self.active_pokemon = pokemon
                     break
         
+        # 상대 포켓몬의 hp는 백분율로 표시될 수 있으므로 is_percentage_hp=True로 설정
         if poke_env_battle.opponent_active_pokemon:
-            self.opponent_active_pokemon = SimplifiedPokemon(poke_env_battle.opponent_active_pokemon)
+            self.opponent_active_pokemon = SimplifiedPokemon(poke_env_battle.opponent_active_pokemon, is_percentage_hp=True)
         else:
             # 활성 포켓몬이 없으면 팀에서 첫 번째 살아있는 포켓몬 찾기
             self.opponent_active_pokemon = None

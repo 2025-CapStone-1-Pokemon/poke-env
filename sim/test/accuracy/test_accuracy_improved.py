@@ -17,6 +17,17 @@ from collections import defaultdict
 from typing import Optional, Dict
 from poke_env.battle.pokemon import Pokemon
 from datetime import datetime
+import importlib.util
+
+# 경로 추가 (먼저 경로 설정)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+test_dir = os.path.dirname(current_dir)  # test/
+sim_dir = os.path.dirname(test_dir)      # sim/
+poke_env_dir = os.path.dirname(sim_dir)  # poke-env/
+player_dir = os.path.join(poke_env_dir, 'player')
+
+sys.path.insert(0, poke_env_dir)
+sys.path.insert(0, sim_dir)
 
 # 배틀 데이터 저장 관련 함수 import
 from battle_data_saver import (
@@ -28,14 +39,12 @@ from battle_data_saver import (
     print_turn_result
 )
 
-# 경로 추가
-current_dir = os.path.dirname(os.path.abspath(__file__))
-test_dir = os.path.dirname(current_dir)  # test/
-sim_dir = os.path.dirname(test_dir)      # sim/
-poke_env_dir = os.path.dirname(sim_dir)  # poke-env/
-
-sys.path.insert(0, poke_env_dir)
-sys.path.insert(0, sim_dir)
+# BattleLogMixin import (battle_logger.py에서 동적 로드)
+battle_logger_path = os.path.join(player_dir, 'battle_logger.py')
+spec = importlib.util.spec_from_file_location("battle_logger", battle_logger_path)
+battle_logger_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(battle_logger_module)
+BattleLogMixin = battle_logger_module.BattleLogMixin
 
 from poke_env.player import Player
 from poke_env.battle import Battle
@@ -44,15 +53,15 @@ from sim.battle.SimplifiedBattleEngine import SimplifiedBattleEngine
 
 # 스냅샷 구조체 정의
 class BattleSnapshot:
-    def __init__(self, turn: int, battle_tag: str, battle, 
+    def __init__(self, turn: int, battle, 
                  active_pokemon: Optional[Pokemon], 
                  active_opponent_pokemon: Optional[Pokemon], 
                  team: Dict, opponent_team: Dict, 
                  order_type: Optional[str] = None, 
                  move_idx: Optional[int] = None, 
-                 switch_to: Optional[Pokemon] = None):
+                 switch_to: Optional[Pokemon] = None,
+                 opponent_action_info: Optional[Dict] = None):
         self.turn = turn
-        self.battle_tag = battle_tag
         self.battle = battle
         self.active_pokemon = active_pokemon
         self.active_opponent_pokemon = active_opponent_pokemon
@@ -61,6 +70,7 @@ class BattleSnapshot:
         self.order_type = order_type
         self.move_idx = move_idx
         self.switch_to = switch_to
+        self.opponent_action_info = opponent_action_info or {}
 
 
 # === 시뮬레이션 함수 (병렬 처리용) ===
@@ -71,6 +81,16 @@ def _simulate_turn(args):
     # ✅ 튜플 언팩
     i, turn, current_battle_state, player_action_info, opponent_action_info, actual_next_snapshot = args
     
+    # 🔴 디버깅: 첫 턴에만 opponent_action_info 상세 출력
+    if i == 0 and turn == 1:
+        print(f"\n【 디버깅: opponent_action_info 구조 확인 】")
+        print(f"  opponent_action_info: {opponent_action_info}")
+        print(f"  - order_type: {opponent_action_info.get('order_type')}")
+        print(f"  - move_idx: {opponent_action_info.get('move_idx')} (타입: {type(opponent_action_info.get('move_idx'))})")
+        print(f"  - move_name: {opponent_action_info.get('move_name')}")
+        print(f"  - switch_to: {opponent_action_info.get('switch_to')}")
+        print()
+    
     # 플레이어 move_idx 추출
     player_move_idx = None
     if player_action_info.get('order_type') == 'move':
@@ -80,6 +100,16 @@ def _simulate_turn(args):
     opponent_move_idx = None
     if opponent_action_info.get('order_type') == 'move':
         opponent_move_idx = opponent_action_info.get('move_idx')
+        
+        # 🔴 디버깅: opponent_move_idx 상세 정보
+        if i == 0 and turn == 1:
+            print(f"【 디버깅: move_idx 추출 결과 】")
+            print(f"  player_move_idx: {player_move_idx} (타입: {type(player_move_idx).__name__})")
+            print(f"  opponent_move_idx: {opponent_move_idx} (타입: {type(opponent_move_idx).__name__})")
+            if opponent_move_idx is None:
+                print(f"  ⚠️ opponent_move_idx가 None입니다!")
+                print(f"    -> move_name: {opponent_action_info.get('move_name')}")
+            print()
     
     # 현재 상태에서 1턴 시뮬레이션 (실제 선택한 기술로)
     engine = SimplifiedBattleEngine(gen=9)
@@ -174,54 +204,6 @@ def test_battle_simulation(n_battles: int = 100, battle_format: str = "gen9rando
     
     # 전투 기록을 저장할 리스트
     battle_records = []
-    
-    # 플레이어 클래스 정의
-    class RecordingPlayer(Player):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.turn_snapshots = []  # 각 턴의 스냅샷 저장
-            
-        def choose_move(self, battle : Battle):
-            # print(f"✓ choose_move 호출됨! [배틀 {battle.battle_tag}] Turn {battle.turn}")
-            # print(f"  [배틀 {battle.battle_tag}] 턴 {battle.turn} 스냅샷 기록 중...")
-
-            if battle.turn > 0:
-                # 각 턴의 스냅샷 저장
-
-                # print(f"  [배틀 {battle.battle_tag}] 턴 {battle.turn} 스냅샷 기록 중...")
-
-                snapshot = BattleSnapshot(
-                    turn=battle.turn,
-                    battle_tag=battle.battle_tag,
-                    battle=SimplifiedBattle(battle, fill_unknown_data=True),
-                    active_pokemon=battle.active_pokemon,
-                    active_opponent_pokemon=battle.opponent_active_pokemon,
-                    team=battle.team,
-                    opponent_team=battle.opponent_team
-                )
-
-                if battle.available_moves:
-                    move = random.choice(battle.available_moves)
-                    move_idx = battle.available_moves.index(move)
-                    order = self.create_order(move)
-                    
-                    snapshot.order_type = 'move'
-                    snapshot.move_idx = move_idx
-                    self.turn_snapshots.append(snapshot)
-                    return order
-                
-                elif battle.available_switches:
-                    switch_to = random.choice(battle.available_switches)
-                    order = self.create_order(switch_to)
-                    
-                    snapshot.order_type = 'switch'
-                    snapshot.switch_to = switch_to
-                    self.turn_snapshots.append(snapshot)
-                    return order
-                else:
-                    snapshot.order_type = 'unknown'
-                    self.turn_snapshots.append(snapshot)
-                    return self.choose_random_move(battle)
     
     # 비동기 테스트 실행
     async def run_battles():
@@ -392,6 +374,51 @@ def test_battle_simulation(n_battles: int = 100, battle_format: str = "gen9rando
     return results
 
 
+# === RecordingPlayer 클래스 (전역) ===
+class RecordingPlayer(BattleLogMixin, Player):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.turn_snapshots = []  # 각 턴의 스냅샷 저장
+        
+    def choose_move(self, battle : Battle):
+        # 🔴 battle_tag와 turn을 BattleLogMixin에 제공 (opponent 행동 수집용)
+        self._current_battle_tag = battle.battle_tag
+        self._current_battle_turn = battle.turn
+        
+        # 모든 턴에서 snapshot 생성
+        snapshot = BattleSnapshot(
+            turn=battle.turn,
+            battle=SimplifiedBattle(battle, fill_unknown_data=True),
+            active_pokemon=battle.active_pokemon,
+            active_opponent_pokemon=battle.opponent_active_pokemon,
+            team=battle.team,
+            opponent_team=battle.opponent_team
+        )
+
+        if battle.available_moves:
+            move = random.choice(battle.available_moves)
+            move_idx = battle.available_moves.index(move)
+            order = self.create_order(move)
+            
+            snapshot.order_type = 'move'
+            snapshot.move_idx = move_idx
+            self.turn_snapshots.append(snapshot)
+            return order
+        
+        elif battle.available_switches:
+            switch_to = random.choice(battle.available_switches)
+            order = self.create_order(switch_to)
+            
+            snapshot.order_type = 'switch'
+            snapshot.switch_to = switch_to
+            self.turn_snapshots.append(snapshot)
+            return order
+        else:
+            snapshot.order_type = 'unknown'
+            self.turn_snapshots.append(snapshot)
+            return self.choose_random_move(battle)
+
+
 if __name__ == "__main__":
     # 테스트 실행 (병렬 처리: 10개 워커)
     # results = test_battle_simulation(n_battles=10, battle_format="gen9randombattle", n_workers=5)
@@ -400,61 +427,6 @@ if __name__ == "__main__":
     print("=" * 70)
     print("1배틀 Turn-by-Turn 비교 모드")
     print("=" * 70)
-    
-    class RecordingPlayer(Player):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.turn_snapshots = []
-            
-        def choose_move(self, battle : Battle):
-
-            # 디버그: 상대 HP 정보 확인
-            opponent_hp_int = battle.opponent_active_pokemon.current_hp
-            opponent_max_hp_int = battle.opponent_active_pokemon.max_hp
-            opponent_hp_fraction = battle.opponent_active_pokemon.current_hp_fraction if hasattr(battle.opponent_active_pokemon, 'current_hp_fraction') else None
-            
-            # print(f"\n【 Turn {battle.turn} - choose_move 호출 】")
-            # print(f"  플레이어: {battle.active_pokemon.species} | HP: {battle.active_pokemon.current_hp}/{battle.active_pokemon.max_hp}")
-            # print(f"  상대: {battle.opponent_active_pokemon.species}")
-            # print(f"    - current_hp (정수): {opponent_hp_int}")
-            # print(f"    - max_hp (정수): {opponent_max_hp_int}")
-            # print(f"    - current_hp_fraction (백분율): {opponent_hp_fraction}")
-            # if opponent_max_hp_int > 0:
-            #     print(f"    - 계산 백분율: {opponent_hp_int / opponent_max_hp_int:.2%}")
-            
-            # 모든 턴에서 snapshot 생성
-            snapshot = BattleSnapshot(
-                turn=battle.turn,
-                battle_tag=battle.battle_tag,
-                battle=SimplifiedBattle(battle, fill_unknown_data=True),
-                active_pokemon=battle.active_pokemon,
-                active_opponent_pokemon=battle.opponent_active_pokemon,
-                team=battle.team,
-                opponent_team=battle.opponent_team
-            )
-
-            if battle.available_moves:
-                move = random.choice(battle.available_moves)
-                move_idx = battle.available_moves.index(move)
-                order = self.create_order(move)
-                
-                snapshot.order_type = 'move'
-                snapshot.move_idx = move_idx
-                self.turn_snapshots.append(snapshot)
-                return order
-            
-            elif battle.available_switches:
-                switch_to = random.choice(battle.available_switches)
-                order = self.create_order(switch_to)
-                
-                snapshot.order_type = 'switch'
-                snapshot.switch_to = switch_to
-                self.turn_snapshots.append(snapshot)
-                return order
-            else:
-                snapshot.order_type = 'unknown'
-                self.turn_snapshots.append(snapshot)
-                return self.choose_random_move(battle)
     
     async def run_single_battle():
         player1 = RecordingPlayer(battle_format="gen9randombattle", max_concurrent_battles=1)
@@ -466,9 +438,60 @@ if __name__ == "__main__":
         # 완료된 배틀 가져오기
         for battle_tag, battle in player1._battles.items():
             if battle.finished:
-                battle_snapshots = [s for s in player1.turn_snapshots if s.battle_tag == battle_tag]
+                # 모든 스냅샷을 가져옴 (battle_tag 필터링 없음)
+                battle_snapshots = player1.turn_snapshots
                 
-                print(f"✓ 배틀 완료! 총 {len(battle_snapshots)}턴 진행\n")
+                # 🔴 opponent_action_store에서 일괄적으로 스냅샷에 opponent 행동 추가
+                # 모든 스냅샷에 대해 처리
+                for snapshot in battle_snapshots:
+                    turn = snapshot.turn
+                    
+                    # opponent_action_store에서 현재 턴의 상대 행동 찾기
+                    # 모든 배틀의 opponent_action_store를 검색
+                    action = None
+                    for stored_battle_tag, action_dict in player1.opponent_action_store.items():
+                        if turn in action_dict:
+                            action = action_dict[turn].copy()
+                            break
+                    
+                    if action:
+                        
+                        # move_name이 있으면 move_idx로 변환
+                        if action.get('move_name') and action.get('move_idx') is None:
+                            move_name = action['move_name']
+                            # snapshot.battle (SimplifiedBattle)의 opponent_active_pokemon에서 move_idx 찾기
+                            if snapshot.battle and snapshot.battle.opponent_active_pokemon:
+                                opponent_pokemon = snapshot.battle.opponent_active_pokemon
+                                if hasattr(opponent_pokemon, 'moves') and opponent_pokemon.moves:
+                                    # 정규화된 move_name (공백 및 하이픈 제거, 소문자 변환)
+                                    normalized_move_name = move_name.lower().replace(' ', '').replace('-', '')
+                                    
+                                    # moves는 SimplifiedMove 객체의 리스트
+                                    for idx, move in enumerate(opponent_pokemon.moves):
+                                        # move.id는 소문자 move name (예: "swordsdance")
+                                        normalized_move_id = move.id.lower().replace(' ', '').replace('-', '')
+                                        
+                                        if normalized_move_id == normalized_move_name:
+                                            action['move_idx'] = idx
+                                            break
+                        
+                        # opponent_action_info에 저장
+                        snapshot.opponent_action_info = action
+                    else:
+                        # turn이 없으면 빈 dict 저장
+                        snapshot.opponent_action_info = {}
+                
+                print(f"✓ 배틀 완료! 총 {len(battle_snapshots)}턴 진행")
+                
+                # 상대 행동 로그 출력
+                # 모든 배틀의 move_log 수집
+                all_move_logs = []
+                for stored_battle_tag in player1.opponent_move_log:
+                    all_move_logs.extend(player1.get_opponent_move_log(stored_battle_tag))
+                
+                move_log = all_move_logs
+                print(f"📋 상대 행동 로그 (총 {len(move_log)}개)")
+                print(f"   opponent_action_store 개수: {sum(len(v) for v in player1.opponent_action_store.values())}\n")
                 
                 print("=" * 70)
                 print("Turn-by-Turn 비교 결과")
@@ -477,6 +500,9 @@ if __name__ == "__main__":
                 # 🔴 턴 데이터 저장을 위한 리스트 초기화
                 turn_inputs = []
                 turn_results = []
+                
+                # 시뮬레이션 엔진 생성 (모든 턴에서 재사용하고 통계 누적)
+                engine = SimplifiedBattleEngine(gen=9)
                 
                 # 각 턴 비교
                 for j in range(len(battle_snapshots) - 1):
@@ -490,32 +516,61 @@ if __name__ == "__main__":
                     player_action_info = {
                         'order_type': current_snapshot.order_type,
                         'move_idx': current_snapshot.move_idx,
+                        'move_name': None,  # ← 추가
                         'switch_to': current_snapshot.switch_to,
                     }
                     
-                    opponent_action_info = {
+                    # 플레이어 move_name 추출 (현재 상태의 available_moves에서)
+                    if current_snapshot.order_type == 'move' and current_snapshot.move_idx is not None:
+                        if current_battle_state.available_moves and current_snapshot.move_idx < len(current_battle_state.available_moves):
+                            player_action_info['move_name'] = current_battle_state.available_moves[current_snapshot.move_idx].id
+                    
+                    # 🔴 opponent_action_info는 snapshot에서 가져옴
+                    opponent_action_info = current_snapshot.opponent_action_info or {
                         'order_type': 'move',
                         'move_idx': None,
+                        'move_name': None,
                         'switch_to': None,
                     }
-                    
-                    # 시뮬레이션 실행
-                    engine = SimplifiedBattleEngine(gen=9)
                     
                     player_move_idx = None
                     if player_action_info.get('order_type') == 'move':
                         player_move_idx = player_action_info.get('move_idx')
                     
                     opponent_move_idx = None
+                    opponent_move_name = None
+                    if opponent_action_info.get('order_type') == 'move':
+                        opponent_move_name = opponent_action_info.get('move_name')
+                    
+                    # 🔴 디버깅: 첫 턴에만 opponent_action_info 상세 출력
+                    if j == 0 and turn == 1:
+                        print(f"\n【 디버깅: opponent_action_info 구조 확인 】")
+                        print(f"  opponent_action_info: {opponent_action_info}")
+                        print(f"  - order_type: {opponent_action_info.get('order_type')}")
+                        print(f"  - move_idx: {opponent_action_info.get('move_idx')} (타입: {type(opponent_action_info.get('move_idx')).__name__})")
+                        print(f"  - move_name: {opponent_action_info.get('move_name')}")
+                        print(f"  - switch_to: {opponent_action_info.get('switch_to')}")
+                        
+                        # move_name을 사용하는 경우
+                        if opponent_move_name:
+                            print(f"\n  ✅ opponent_move_name 사용: '{opponent_move_name}'")
+                            print(f"  -> 시뮬레이션에서 opponent_move_name으로 정확한 기술 선택 시도")
+                        elif opponent_action_info.get('move_idx') is None and opponent_action_info.get('move_name'):
+                            print(f"\n  ⚠️ move_idx를 찾을 수 없음 (SimplifiedBattle의 opponent_active_pokemon.moves에 없음)")
+                            print(f"  -> 시뮬레이션에서는 opponent_move_idx=None으로 랜덤 기술 선택됨")
+                        print()
                     
                     # 100번 시뮬레이션
                     sim_results = []
-                    for _ in range(100):
+                    for _ in range(1):
+                        # 첫 턴에만 verbose=True로 설정해서 opponent_move_name 매칭 디버깅
+                        verbose_mode = (j == 0 and turn == 1)
                         result = engine.simulate_turn(
                             copy.deepcopy(current_battle_state),
                             player_move_idx=player_move_idx,
                             opponent_move_idx=opponent_move_idx,
-                            verbose=False
+                            opponent_move_name=opponent_move_name,
+                            verbose=verbose_mode
                         )
                         sim_results.append(result)
                     
@@ -594,14 +649,35 @@ if __name__ == "__main__":
                     
                     # 플레이어 행동 상세 정보
                     action_str = f"{player_action_info.get('order_type')}"
-                    if player_action_info.get('order_type') == 'move' and player_move_idx is not None:
-                        if current_battle_state_at_turn_start.available_moves and player_move_idx < len(current_battle_state_at_turn_start.available_moves):
-                            move_name = current_battle_state_at_turn_start.available_moves[player_move_idx].id
-                            action_str += f" ({move_name})"
+                    if player_action_info.get('order_type') == 'move':
+                        if player_action_info.get('move_name'):
+                            action_str += f" ({player_action_info.get('move_name')})"
+                        elif player_move_idx is not None:
+                            if current_battle_state_at_turn_start.available_moves and player_move_idx < len(current_battle_state_at_turn_start.available_moves):
+                                move_name = current_battle_state_at_turn_start.available_moves[player_move_idx].id
+                                action_str += f" ({move_name})"
                     elif player_action_info.get('order_type') == 'switch' and player_action_info.get('switch_to'):
-                        action_str += f" ({player_action_info.get('switch_to').species})"
+                        switch_to = player_action_info.get('switch_to')
+                        # switch_to가 객체인 경우 .species, 문자열인 경우 그대로 사용
+                        switch_to_name = switch_to.species if hasattr(switch_to, 'species') else switch_to
+                        action_str += f" ({switch_to_name})"
                     
                     print(f"  플레이어 행동: {action_str}")
+                    
+                    # 상대 행동 상세 정보
+                    opponent_action_str = f"{opponent_action_info.get('order_type')}"
+                    if opponent_action_info.get('order_type') == 'move':
+                        if opponent_action_info.get('move_name'):
+                            opponent_action_str += f" ({opponent_action_info.get('move_name')})"
+                        elif opponent_action_info.get('move_idx') is not None:
+                            opponent_action_str += f" (move_idx: {opponent_action_info.get('move_idx')})"
+                    elif opponent_action_info.get('order_type') == 'switch' and opponent_action_info.get('switch_to'):
+                        switch_to = opponent_action_info.get('switch_to')
+                        # switch_to가 객체인 경우 .species, 문자열인 경우 그대로 사용
+                        switch_to_name = switch_to.species if hasattr(switch_to, 'species') else switch_to
+                        opponent_action_str += f" ({switch_to_name})"
+                    
+                    print(f"  상대의 행동: {opponent_action_str}")
                     print(f"\n  【 현재 상태 】")
                     print(f"    플레이어: {current_player_poke} | HP: {current_player_hp_fraction:.1%} | 상태: {current_player_status}")
                     print(f"    상대: {current_opponent_poke} | HP: {current_opponent_hp_fraction:.1%} | 상태: {current_opponent_status}")
@@ -647,6 +723,15 @@ if __name__ == "__main__":
                     turn_results.append(result_turn_data)
                 
                 break
+        
+        # 📊 opponent_move_name 매칭 통계
+        print(f"\n【 opponent_move_name 매칭 통계 】")
+        print(f"  성공: {getattr(engine, '_move_name_match_success', 0)}회")
+        print(f"  실패 (fallback): {getattr(engine, '_move_name_match_failure', 0)}회")
+        total_matches = getattr(engine, '_move_name_match_success', 0) + getattr(engine, '_move_name_match_failure', 0)
+        if total_matches > 0:
+            success_rate = (getattr(engine, '_move_name_match_success', 0) / total_matches) * 100
+            print(f"  성공률: {success_rate:.1f}%")
         
         # 배틀 완료 후 입력값과 결과값 분리 저장
         if turn_inputs:

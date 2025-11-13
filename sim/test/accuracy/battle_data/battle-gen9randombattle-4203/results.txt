@@ -1,0 +1,600 @@
+【 Turn 1 】
+  플레이어 행동: move (haze)
+  상대의 행동: move (U-turn)
+
+  【 현재 상태 】
+    플레이어: altaria | HP: 278/278 | 상태: None
+    상대: gumshoos | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: altaria | HP: 231/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: altaria | HP: 242/278 | 상태: None
+    상대: gumshoos | HP: 100/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 4.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: altaria → altaria (일치: True)
+    상대 포켓몬: magcargo → gumshoos (일치: False)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 2 】
+  플레이어 행동: move (defog)
+  상대의 행동: move (Power Gem)
+
+  【 현재 상태 】
+    플레이어: altaria | HP: 231/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: altaria | HP: 69/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: altaria | HP: 190/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 43.5%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: altaria → altaria (일치: True)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 3 】
+  플레이어 행동: move (roost)
+  상대의 행동: move (Shell Smash)
+
+  【 현재 상태 】
+    플레이어: altaria | HP: 69/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: altaria | HP: 208/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: altaria | HP: 69/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 50.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: altaria → altaria (일치: True)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 4 】
+  플레이어 행동: move (roost)
+  상대의 행동: move (Power Gem)
+
+  【 현재 상태 】
+    플레이어: altaria | HP: 208/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: altaria | HP: 0/278 | 상태: FNT
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: altaria | HP: 79/278 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 28.4%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: altaria → altaria (일치: True)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 4 】
+  플레이어 행동: switch (hariyama)
+  상대의 행동: move (Power Gem)
+
+  【 현재 상태 】
+    플레이어: altaria | HP: 0/278 | 상태: FNT
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: hariyama | HP: 392/392 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: altaria | HP: 0/278 | 상태: FNT
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: hariyama → altaria (일치: False)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 5 】
+  플레이어 행동: move (knockoff)
+  상대의 행동: move (Power Gem)
+
+  【 현재 상태 】
+    플레이어: hariyama | HP: 392/392 | 상태: None
+    상대: magcargo | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: hariyama | HP: 271/392 | 상태: BRN
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: hariyama | HP: 392/392 | 상태: None
+    상대: silvally | HP: 382/382 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 30.9%
+    상대 HP 오차: 31.0%
+    플레이어 포켓몬: hariyama → hariyama (일치: True)
+    상대 포켓몬: magcargo → silvally (일치: False)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 6 】
+  플레이어 행동: move (facade)
+  상대의 행동: move (Fire Blast)
+
+  【 현재 상태 】
+    플레이어: hariyama | HP: 271/392 | 상태: BRN
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: hariyama | HP: 0/392 | 상태: FNT
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: hariyama | HP: 247/392 | 상태: BRN
+    상대: magcargo | HP: 19/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 63.0%
+    상대 HP 오차: 50.0%
+    플레이어 포켓몬: hariyama → hariyama (일치: True)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 6 】
+  플레이어 행동: switch (zoroarkhisui)
+  상대의 행동: move (Fire Blast)
+
+  【 현재 상태 】
+    플레이어: hariyama | HP: 0/392 | 상태: FNT
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: zoroarkhisui | HP: 219/219 | 상태: None
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: hariyama | HP: 0/392 | 상태: FNT
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: zoroarkhisui → hariyama (일치: False)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 7 】
+  플레이어 행동: move (hypervoice)
+  상대의 행동: move (Fire Blast)
+
+  【 현재 상태 】
+    플레이어: zoroarkhisui | HP: 219/219 | 상태: None
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: zoroarkhisui | HP: 0/219 | 상태: FNT
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: zoroarkhisui | HP: 219/219 | 상태: None
+    상대: gumshoos | HP: 317/317 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 31.0%
+    플레이어 포켓몬: zoroarkhisui → zoroarkhisui (일치: True)
+    상대 포켓몬: magcargo → gumshoos (일치: False)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 7 】
+  플레이어 행동: switch (hitmonlee)
+  상대의 행동: move (Fire Blast)
+
+  【 현재 상태 】
+    플레이어: zoroarkhisui | HP: 0/219 | 상태: FNT
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: hitmonlee | HP: 223/223 | 상태: None
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: zoroarkhisui | HP: 0/219 | 상태: FNT
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: hitmonlee → zoroarkhisui (일치: False)
+    상대 포켓몬: magcargo → magcargo (일치: True)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 8 】
+  플레이어 행동: move (stoneedge)
+  상대의 행동: move (Earth Power)
+
+  【 현재 상태 】
+    플레이어: hitmonlee | HP: 223/223 | 상태: None
+    상대: magcargo | HP: 69/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: hitmonlee | HP: 98/223 | 상태: None
+    상대: gumshoos | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: hitmonlee | HP: 223/223 | 상태: None
+    상대: carnivine | HP: 333/333 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 56.1%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: hitmonlee → hitmonlee (일치: True)
+    상대 포켓몬: gumshoos → carnivine (일치: False)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 9 】
+  플레이어 행동: move (stoneedge)
+  상대의 행동: move (Double-Edge)
+
+  【 현재 상태 】
+    플레이어: hitmonlee | HP: 98/223 | 상태: None
+    상대: gumshoos | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: hitmonlee | HP: 0/223 | 상태: FNT
+    상대: gumshoos | HP: 43/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: hitmonlee | HP: 98/223 | 상태: None
+    상대: fezandipiti | HP: 354/354 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 43.9%
+    상대 HP 오차: 57.0%
+    플레이어 포켓몬: hitmonlee → hitmonlee (일치: True)
+    상대 포켓몬: gumshoos → fezandipiti (일치: False)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 9 】
+  플레이어 행동: switch (dugtrioalola)
+  상대의 행동: move (Double-Edge)
+
+  【 현재 상태 】
+    플레이어: hitmonlee | HP: 0/223 | 상태: FNT
+    상대: gumshoos | HP: 43/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: dugtrioalola | HP: 196/196 | 상태: None
+    상대: gumshoos | HP: 43/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: hitmonlee | HP: 0/223 | 상태: FNT
+    상대: gumshoos | HP: 43/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: dugtrioalola → hitmonlee (일치: False)
+    상대 포켓몬: gumshoos → gumshoos (일치: True)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 10 】
+  플레이어 행동: move (suckerpunch)
+  상대의 행동: move (Double-Edge)
+
+  【 현재 상태 】
+    플레이어: dugtrioalola | HP: 196/196 | 상태: None
+    상대: gumshoos | HP: 43/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: dugtrioalola | HP: 0/196 | 상태: FNT
+    상대: gumshoos | HP: 2/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: dugtrioalola | HP: 196/196 | 상태: None
+    상대: woobat | HP: 320/320 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 98.0%
+    플레이어 포켓몬: dugtrioalola → dugtrioalola (일치: True)
+    상대 포켓몬: gumshoos → woobat (일치: False)
+    플레이어 상태 일치: False
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 10 】
+  플레이어 행동: unknown
+  상대의 행동: move (Double-Edge)
+
+  【 현재 상태 】
+    플레이어: dugtrioalola | HP: 0/196 | 상태: FNT
+    상대: gumshoos | HP: 2/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 330/330 | 상태: FNT
+    상대: gumshoos | HP: 2/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: dugtrioalola | HP: 0/196 | 상태: FNT
+    상대: gumshoos | HP: 2/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 100.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: stonjourner → dugtrioalola (일치: False)
+    상대 포켓몬: gumshoos → gumshoos (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 11 】
+  플레이어 행동: move (earthquake)
+  상대의 행동: switch (Swanna)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 330/330 | 상태: FNT
+    상대: gumshoos | HP: 2/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 330/330 | 상태: FNT
+    상대: wormadam | HP: 282/282 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 10.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: swanna → wormadam (일치: False)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 12 】
+  플레이어 행동: move (earthquake)
+  상대의 행동: move (Roost)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 278/330 | 상태: FNT
+    상대: swanna | HP: 99/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 5.8%
+    상대 HP 오차: 1.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: swanna → swanna (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 13 】
+  플레이어 행동: move (earthquake)
+  상대의 행동: move (Roost)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 99/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 0.0%
+    상대 HP 오차: 1.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: swanna → swanna (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 14 】
+  플레이어 행동: move (rockpolish)
+  상대의 행동: move (Roost)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 0.0%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: swanna → swanna (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 15 】
+  플레이어 행동: move (earthquake)
+  상대의 행동: move (Brave Bird)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 254/330 | 상태: FNT
+    상대: swanna | HP: 95/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 297/330 | 상태: FNT
+    상대: swanna | HP: 99/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 13.0%
+    상대 HP 오차: 4.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: swanna → swanna (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 16 】
+  플레이어 행동: move (stoneedge)
+  상대의 행동: switch (Dachsbun)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 254/330 | 상태: FNT
+    상대: swanna | HP: 95/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 221/330 | 상태: FNT
+    상대: dachsbun | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 236/330 | 상태: FNT
+    상대: swanna | HP: 95/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 4.5%
+    상대 HP 오차: 5.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: dachsbun → swanna (일치: False)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 17 】
+  플레이어 행동: move (stoneedge)
+  상대의 행동: move (Play Rough)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 221/330 | 상태: FNT
+    상대: dachsbun | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 160/330 | 상태: FNT
+    상대: dachsbun | HP: 100/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 221/330 | 상태: FNT
+    상대: gardevoir | HP: 294/294 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 18.5%
+    상대 HP 오차: 0.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: dachsbun → gardevoir (일치: False)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 18 】
+  플레이어 행동: move (earthquake)
+  상대의 행동: move (Stomping Tantrum)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 160/330 | 상태: FNT
+    상대: dachsbun | HP: 100/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 19/330 | 상태: FNT
+    상대: dachsbun | HP: 78/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 160/330 | 상태: FNT
+    상대: dachsbun | HP: 255/255 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 42.7%
+    상대 HP 오차: 22.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: dachsbun → dachsbun (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+
+【 Turn 19 】
+  플레이어 행동: move (heatcrash)
+  상대의 행동: move (Play Rough)
+
+  【 현재 상태 】
+    플레이어: stonjourner | HP: 19/330 | 상태: FNT
+    상대: dachsbun | HP: 78/100 | 상태: None
+
+  【 실제 결과 】
+    플레이어: stonjourner | HP: 19/330 | 상태: FNT
+    상대: dachsbun | HP: 84/100 | 상태: None
+
+  【 시뮬 결과 (1회) 】
+    플레이어: stonjourner | HP: 19/330 | 상태: FNT
+    상대: dachsbun | HP: 78/100 | 상태: None
+
+  【 차이 】
+    플레이어 HP 오차: 0.0%
+    상대 HP 오차: 6.0%
+    플레이어 포켓몬: stonjourner → stonjourner (일치: True)
+    상대 포켓몬: dachsbun → dachsbun (일치: True)
+    플레이어 상태 일치: True
+    상대 상태 일치: True
+----------------------------------------------------------------------
+

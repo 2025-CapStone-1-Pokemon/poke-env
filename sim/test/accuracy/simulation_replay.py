@@ -133,17 +133,69 @@ class SimulationReplay:
         pokemon.boosts = pokemon_dict.get('boosts', {}).copy() if pokemon_dict.get('boosts') else {}
         pokemon.boost_timers = pokemon_dict.get('boost_timers', {}).copy() if pokemon_dict.get('boost_timers') else {}
         
-        # 기술
+        # 기술 - 저장된 move 딕셔너리에서 SimplifiedMove 복원
         moves_data = pokemon_dict.get('moves', [])
         pokemon.moves = []
         try:
-            gen_data = GenData.from_gen(9)
-            for move_id in moves_data:
-                move_obj = gen_data.moves.get(move_id)
-                if move_obj:
-                    pokemon.moves.append(SimplifiedMove(move_obj))
-        except:
-            pass
+            for move_data in moves_data:
+                if isinstance(move_data, dict) and 'id' in move_data:
+                    # SimplifiedMove 객체를 직접 생성 (저장된 데이터에서)
+                    move = SimplifiedMove.__new__(SimplifiedMove)
+                    move.id = move_data.get('id')
+                    move.base_power = move_data.get('base_power')
+                    
+                    # Type 객체 복원
+                    type_str = move_data.get('type')
+                    if type_str:
+                        try:
+                            from poke_env.battle.pokemon_type import PokemonType
+                            move.type = PokemonType[type_str] if isinstance(type_str, str) else type_str
+                        except:
+                            move.type = type_str
+                    
+                    # Category 객체 복원
+                    category_str = move_data.get('category')
+                    if category_str:
+                        try:
+                            from poke_env.battle.move_category import MoveCategory
+                            move.category = MoveCategory[category_str] if isinstance(category_str, str) else category_str
+                        except:
+                            move.category = category_str
+                    
+                    move.accuracy = move_data.get('accuracy')
+                    move.priority = move_data.get('priority', 0)
+                    move.current_pp = move_data.get('current_pp', 0)
+                    move.max_pp = move_data.get('max_pp', 0)
+                    move.boosts = move_data.get('boosts')
+                    move.self_boost = move_data.get('self_boost')
+                    
+                    # Status 객체 복원
+                    status_str = move_data.get('status')
+                    if status_str:
+                        try:
+                            move.status = Status[status_str] if isinstance(status_str, str) else status_str
+                        except:
+                            move.status = status_str
+                    else:
+                        move.status = None
+                    
+                    move.crit_ratio = move_data.get('crit_ratio', 0)
+                    move.recoil = move_data.get('recoil', 0)
+                    move.drain = move_data.get('drain', 0)
+                    move.secondary = None
+                    move.expected_hits = 1
+                    move.flags = {}
+                    move.breaks_protect = False
+                    move.is_protect_move = False
+                    
+                    pokemon.moves.append(move)
+                elif isinstance(move_data, str):
+                    # 이전 형식 호환성 (문자열만 저장된 경우)
+                    print(f"⚠️ Legacy move format (string only): {move_data}")
+        except Exception as e:
+            print(f"❌ Error loading moves for {pokemon_dict.get('species')}: {e}")
+            import traceback
+            traceback.print_exc()
         
         # 특성 및 아이템
         pokemon.ability = pokemon_dict.get('ability')
@@ -305,9 +357,12 @@ class SimulationReplay:
         
         print(f"\n플레이어 행동: {player_action_info.get('order_type')}")
         if player_action_info.get('order_type') == 'move':
+            move_name = player_action_info.get('move_name')
             move_idx = player_action_info.get('move_idx')
             available_move_ids = turn_data.get('current_battle_state', {}).get('available_moves', [])
-            if move_idx is not None and move_idx < len(available_move_ids):
+            if move_name:
+                print(f"  - 기술: {move_name}")
+            elif move_idx is not None and move_idx < len(available_move_ids):
                 print(f"  - 기술: {available_move_ids[move_idx]}")
             else:
                 print(f"  - 기술 인덱스: {move_idx}")
@@ -316,15 +371,18 @@ class SimulationReplay:
         
         print(f"\n상대 행동: {opponent_action_info.get('order_type')}")
         if opponent_action_info.get('order_type') == 'move':
+            move_name = opponent_action_info.get('move_name')
             move_idx = opponent_action_info.get('move_idx')
             opp_moves = turn_data.get('current_battle_state', {}).get('opponent_active_pokemon', {}).get('moves', [])
-            if move_idx is not None and move_idx < len(opp_moves):
+            if move_name:
+                print(f"  - 기술: {move_name}")
+            elif move_idx is not None and move_idx < len(opp_moves):
                 print(f"  - 기술: {opp_moves[move_idx]}")
             elif move_idx is not None:
                 print(f"  - 기술 인덱스: {move_idx}")
             else:
                 # None은 실제 배틀에서 상대 행동이 노출되지 않음을 의미
-                print(f"  - 기술: (서버에서 숨김)")
+                print(f"  - 기술: (미확인)")
         elif opponent_action_info.get('order_type') == 'switch':
             print(f"  - 교체 대상: {opponent_action_info.get('switch_to')}")
         
@@ -338,19 +396,22 @@ class SimulationReplay:
         # 행동에서 기술 인덱스 추출
         player_move_idx = None
         opponent_move_idx = None
+        opponent_move_name = None
         
         if player_action_info.get('order_type') == 'move':
             player_move_idx = player_action_info.get('move_idx')
         
         if opponent_action_info.get('order_type') == 'move':
             opponent_move_idx = opponent_action_info.get('move_idx')
+            opponent_move_name = opponent_action_info.get('move_name')  # ← 추가
         
         # 시뮬레이션 실행
         simulated_battle = engine.simulate_turn(
             new_battle=battle_copy,
             player_move_idx=player_move_idx,
             opponent_move_idx=opponent_move_idx,
-            verbose=False
+            opponent_move_name=opponent_move_name,  # ← 추가
+            verbose=True
         )
         
         print(f"\n【 시뮬레이션 결과 】")
@@ -431,29 +492,142 @@ class SimulationReplay:
         }
 
 
+def select_battle_data():
+    """배틀 데이터 디렉토리 선택 메뉴"""
+    battle_data_dir = Path(__file__).parent / "battle_data"
+    
+    if not battle_data_dir.exists():
+        print(f"❌ battle_data 디렉토리를 찾을 수 없습니다: {battle_data_dir}")
+        return None
+    
+    # 배틀 데이터 디렉토리 목록 (최신순)
+    battle_dirs = sorted(
+        [d for d in battle_data_dir.iterdir() if d.is_dir()],
+        key=lambda x: x.stat().st_mtime,
+        reverse=True
+    )
+    
+    if not battle_dirs:
+        print("❌ 저장된 배틀 데이터가 없습니다")
+        return None
+    
+    print("\n" + "="*70)
+    print("📂 저장된 배틀 데이터")
+    print("="*70)
+    
+    for idx, battle_dir in enumerate(battle_dirs, 1):
+        # inputs.json에서 총 턴 수 확인
+        inputs_file = battle_dir / "inputs.json"
+        total_turns = "?"
+        if inputs_file.exists():
+            try:
+                with open(inputs_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    total_turns = data.get('total_turns', 0)
+            except:
+                pass
+        
+        print(f"{idx}. {battle_dir.name} (총 {total_turns}턴)")
+    
+    print(f"{len(battle_dirs) + 1}. 종료")
+    
+    while True:
+        try:
+            choice = int(input("\n선택 (번호 입력): "))
+            if choice == len(battle_dirs) + 1:
+                return None
+            if 1 <= choice <= len(battle_dirs):
+                return str(battle_dirs[choice - 1])
+            print("❌ 잘못된 선택입니다")
+        except ValueError:
+            print("❌ 숫자를 입력하세요")
+
+
+def select_turn(replay: SimulationReplay):
+    """턴 선택 메뉴"""
+    available_turns = replay.list_available_turns()
+    
+    print("\n" + "="*70)
+    print(f"📋 사용 가능한 턴 (총 {len(available_turns)}개)")
+    print("="*70)
+    
+    # 턴을 여러 줄에 나열 (한 줄에 10개)
+    for i, turn in enumerate(available_turns, 1):
+        if i % 10 == 1:
+            print()
+        print(f"{turn:3d}", end=" ")
+    
+    print(f"\n{len(available_turns) + 1}. 이전 메뉴")
+    
+    while True:
+        try:
+            choice = int(input("\n턴 번호 입력: "))
+            if choice == len(available_turns) + 1:
+                return None
+            if choice in available_turns:
+                return choice
+            print("❌ 잘못된 턴 번호입니다")
+        except ValueError:
+            print("❌ 숫자를 입력하세요")
+
+
 if __name__ == "__main__":
-    # 사용 예제
+    # 명령줄 인자로 전달된 경우 그대로 사용
     import sys
     
-    if len(sys.argv) < 2:
-        print("사용법: python simulation_replay.py <battle_data_dir> [turn_number]")
-        print("예: python simulation_replay.py ./battle_data/20250113_120000 5")
-        sys.exit(1)
-    
-    battle_dir = sys.argv[1]
-    turn_num = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-    
-    try:
-        replay = SimulationReplay(battle_dir)
-        print(f"배틀 ID: {replay.battle_id}")
-        print(f"총 턴 수: {replay.total_turns}")
-        print(f"사용 가능한 턴: {replay.list_available_turns()}\n")
+    if len(sys.argv) >= 2:
+        # 레거시 지원: python simulation_replay.py <battle_dir> [turn]
+        battle_dir = sys.argv[1]
+        turn_num = int(sys.argv[2]) if len(sys.argv) > 2 else 1
         
-        # 특정 턴 재현
-        simulated_battle, error_metrics = replay.replay_turn(turn_num)
-        print(f"\n✅ Turn {turn_num} 재현 완료")
+        try:
+            replay = SimulationReplay(battle_dir)
+            print(f"배틀 ID: {replay.battle_id}")
+            print(f"총 턴 수: {replay.total_turns}")
+            print(f"사용 가능한 턴: {replay.list_available_turns()}\n")
+            
+            # 특정 턴 재현
+            simulated_battle, error_metrics = replay.replay_turn(turn_num)
+            print(f"\n✅ Turn {turn_num} 재현 완료")
+            
+        except Exception as e:
+            print(f"❌ 오류: {e}")
+            import traceback
+            traceback.print_exc()
+    else:
+        # 메뉴 기반 모드
+        print("\n" + "="*70)
+        print("🎮 배틀 시뮬레이션 재현 도구")
+        print("="*70)
         
-    except Exception as e:
-        print(f"❌ 오류: {e}")
-        import traceback
-        traceback.print_exc()
+        while True:
+            battle_dir = select_battle_data()
+            if battle_dir is None:
+                print("\n👋 종료합니다")
+                break
+            
+            try:
+                replay = SimulationReplay(battle_dir)
+                
+                while True:
+                    turn_num = select_turn(replay)
+                    if turn_num is None:
+                        break
+                    
+                    try:
+                        simulated_battle, error_metrics = replay.replay_turn(turn_num)
+                        print(f"\n✅ Turn {turn_num} 재현 완료")
+                        
+                        # 다시 실행 여부 확인
+                        again = input("\n다른 턴을 보시겠습니까? (y/n): ").lower().strip()
+                        if again != 'y':
+                            break
+                    except Exception as e:
+                        print(f"❌ Turn {turn_num} 재현 오류: {e}")
+                        import traceback
+                        traceback.print_exc()
+                
+            except Exception as e:
+                print(f"❌ 오류: {e}")
+                import traceback
+                traceback.print_exc()

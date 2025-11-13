@@ -58,6 +58,7 @@ class SimplifiedBattleEngine:
         new_battle: SimplifiedBattle,
         player_move_idx: Optional[int] = None,
         opponent_move_idx: Optional[int] = None,
+        opponent_move_name: Optional[str] = None,
         verbose: bool = False
     ) -> SimplifiedBattle:
         """
@@ -67,6 +68,7 @@ class SimplifiedBattleEngine:
             battle: SimplifiedBattle 객체
             player_move_idx: 플레이어 기술 인덱스 (None이면 랜덤)
             opponent_move_idx: 상대 기술 인덱스 (None이면 랜덤)
+            opponent_move_name: 상대 기술 이름 (opponent_move_idx 대신 사용 가능)
             
         Returns:
             새로운 SimplifiedBattle 객체 (원본 유지)
@@ -93,7 +95,12 @@ class SimplifiedBattleEngine:
         if verbose:
                 print("=========== [Move Selection] =================")
         player_move = self._select_random_move(new_battle.active_pokemon, player_move_idx, verbose=verbose)
-        opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx, verbose=verbose)
+        
+        # 상대 기술 선택: opponent_move_name이 있으면 우선 사용, 없으면 opponent_move_idx 사용
+        if opponent_move_name:
+            opponent_move = self._select_move_by_name(new_battle.opponent_active_pokemon, opponent_move_name, verbose=verbose)
+        else:
+            opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx, verbose=verbose)
 
         if verbose:
             print("===============================================")
@@ -185,6 +192,52 @@ class SimplifiedBattleEngine:
             print(f" power: {random_move.base_power}, accuracy: {random_move.accuracy}, category: {random_move.category}")
             
         return random_move
+    
+    def _select_move_by_name(self, pokemon: SimplifiedPokemon, move_name: str, verbose: bool = False) -> Optional[SimplifiedMove]:
+        """
+        기술 이름으로 기술 선택
+        
+        Args:
+            pokemon: 포켓몬 객체
+            move_name: 기술 이름 (예: "Earthquake", "Sunny Day")
+            verbose: 상세 출력 여부
+            
+        Returns:
+            선택된 기술 객체 (찾지 못하면 랜덤 선택)
+        """
+        # 기술이 없으면 기본 기술 생성
+        if not pokemon or not pokemon.moves or len(pokemon.moves) == 0:
+            default_move = self._create_default_move(pokemon)
+            if default_move:
+                if verbose:
+                    print(f"Pokemon has no moves. Using default move for Pokemon {pokemon.species}")
+                return default_move
+            return None
+        
+        # move_name과 일치하는 기술 찾기
+        # 공백, 하이픈 제거하고 소문자로 정규화하여 비교
+        normalized_name = move_name.lower().replace(' ', '').replace('-', '')
+        
+        # 🔍 디버깅: 가용한 기술 목록 확인
+        available_moves = [move.id for move in pokemon.moves]
+        
+        for move in pokemon.moves:
+            normalized_id = move.id.lower().replace(' ', '').replace('-', '')
+            if normalized_id == normalized_name:
+                if verbose:
+                    print(f"✅ Found move by name '{move_name}' -> {move.id} for Pokemon {pokemon.species}")
+                # 성공 통계 기록
+                self._move_name_match_success = getattr(self, '_move_name_match_success', 0) + 1
+                return move
+        
+        # 찾지 못하면 랜덤 선택
+        if verbose:
+            print(f"❌ Move '{move_name}' not found for Pokemon {pokemon.species}.")
+            print(f"   Available moves: {available_moves}")
+            print(f"   Selecting random move instead.")
+        # 실패 통계 기록
+        self._move_name_match_failure = getattr(self, '_move_name_match_failure', 0) + 1
+        return self._select_random_move(pokemon, move_idx=None, verbose=verbose)
     
     def _create_default_move(self, pokemon: SimplifiedPokemon) -> Optional[SimplifiedMove]:
         """포켓몬의 기본 기술 생성"""

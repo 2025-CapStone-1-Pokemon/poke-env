@@ -8,6 +8,31 @@ from pathlib import Path
 from datetime import datetime
 
 
+# === SimplifiedMove를 JSON-직렬화 가능한 딕셔너리로 변환 ===
+
+def simplified_move_to_dict(move):
+    """SimplifiedMove의 모든 정보를 딕셔너리로 변환"""
+    if not move:
+        return None
+    
+    return {
+        'id': move.id,
+        'base_power': move.base_power,
+        'type': move.type.name if hasattr(move.type, 'name') else str(move.type),
+        'category': move.category.name if hasattr(move.category, 'name') else str(move.category),
+        'accuracy': move.accuracy,
+        'priority': move.priority if hasattr(move, 'priority') else 0,
+        'current_pp': move.current_pp,
+        'max_pp': move.max_pp,
+        'boosts': move.boosts if hasattr(move, 'boosts') else None,
+        'self_boost': move.self_boost if hasattr(move, 'self_boost') else None,
+        'status': move.status.name if move.status and hasattr(move.status, 'name') else (str(move.status) if hasattr(move, 'status') else None),
+        'crit_ratio': move.crit_ratio if hasattr(move, 'crit_ratio') else 0,
+        'recoil': move.recoil if hasattr(move, 'recoil') else 0,
+        'drain': move.drain if hasattr(move, 'drain') else 0,
+    }
+
+
 # === SimplifiedBattle을 JSON-직렬화 가능한 딕셔너리로 변환 ===
 
 def simplified_pokemon_to_dict(pokemon):
@@ -41,8 +66,8 @@ def simplified_pokemon_to_dict(pokemon):
         'boosts': pokemon.boosts.copy() if pokemon.boosts else {},
         'boost_timers': pokemon.boost_timers.copy() if hasattr(pokemon, 'boost_timers') and pokemon.boost_timers else {},
         
-        # 기술
-        'moves': [m.id for m in pokemon.moves] if pokemon.moves else [],
+        # 기술 - SimplifiedMove 객체 저장
+        'moves': [simplified_move_to_dict(m) for m in pokemon.moves] if pokemon.moves else [],
         
         # 특성 및 아이템
         'ability': pokemon.ability,
@@ -131,11 +156,13 @@ def save_turn_simulation_data(battle_id, turn, current_battle_state, player_acti
         'player_action_info': {
             'order_type': player_action_info.get('order_type'),
             'move_idx': player_action_info.get('move_idx'),
+            'move_name': player_action_info.get('move_name'),  # ← 추가
             'switch_to': player_action_info.get('switch_to').species if hasattr(player_action_info.get('switch_to'), 'species') else player_action_info.get('switch_to'),
         },
         'opponent_action_info': {
             'order_type': opponent_action_info.get('order_type'),
             'move_idx': opponent_action_info.get('move_idx'),
+            'move_name': opponent_action_info.get('move_name'),  # ← 추가
             'switch_to': opponent_action_info.get('switch_to').species if hasattr(opponent_action_info.get('switch_to'), 'species') else opponent_action_info.get('switch_to'),
         },
         # 결과값도 포함
@@ -150,6 +177,18 @@ def save_turn_simulation_data(battle_id, turn, current_battle_state, player_acti
     result_turn_data = {
         'turn': turn,
         'action': player_action_info.get('order_type'),
+        'player_action_info': {
+            'order_type': player_action_info.get('order_type'),
+            'move_idx': player_action_info.get('move_idx'),
+            'move_name': player_action_info.get('move_name'),  # ← 추가
+            'switch_to': player_action_info.get('switch_to').species if hasattr(player_action_info.get('switch_to'), 'species') else player_action_info.get('switch_to'),
+        },
+        'opponent_action_info': {
+            'order_type': opponent_action_info.get('order_type'),
+            'move_idx': opponent_action_info.get('move_idx'),
+            'move_name': opponent_action_info.get('move_name'),  # ← 추가
+            'switch_to': opponent_action_info.get('switch_to').species if hasattr(opponent_action_info.get('switch_to'), 'species') else opponent_action_info.get('switch_to'),
+        },
         'current_state': simplified_battle_to_dict(current_battle_state),
         'result': {
             'actual': simplified_battle_to_dict(actual_result_state),
@@ -218,7 +257,8 @@ def save_battle_turn_results(battle_id, turn_results_list):
     with open(filepath, 'w', encoding='utf-8') as f:
         for turn_result in turn_results_list:
             turn = turn_result['turn']
-            action = turn_result['action']
+            player_action_info = turn_result.get('player_action_info', {})
+            opponent_action_info = turn_result.get('opponent_action_info', {})
             current = turn_result['current_state']
             result = turn_result['result']
             error = turn_result['error_metrics']
@@ -227,10 +267,26 @@ def save_battle_turn_results(battle_id, turn_results_list):
             f.write(f"【 Turn {turn} 】\n")
             
             # 플레이어 행동
-            f.write(f"  플레이어 행동: {action}\n")
+            player_action_str = f"{player_action_info.get('order_type', 'unknown')}"
+            if player_action_info.get('order_type') == 'move':
+                if player_action_info.get('move_name'):
+                    player_action_str += f" ({player_action_info.get('move_name')})"
+                elif player_action_info.get('move_idx') is not None:
+                    player_action_str += f" (move_idx: {player_action_info.get('move_idx')})"
+            elif player_action_info.get('order_type') == 'switch' and player_action_info.get('switch_to'):
+                player_action_str += f" ({player_action_info.get('switch_to')})"
+            f.write(f"  플레이어 행동: {player_action_str}\n")
             
-            # 상대 행동 (서버 fog of war 때문에 실시간 정보 불가)
-            f.write(f"  상대 행동: (서버에서 숨김)\n")
+            # 상대 행동
+            opponent_action_str = f"{opponent_action_info.get('order_type', 'unknown')}"
+            if opponent_action_info.get('order_type') == 'move':
+                if opponent_action_info.get('move_name'):
+                    opponent_action_str += f" ({opponent_action_info.get('move_name')})"
+                elif opponent_action_info.get('move_idx') is not None:
+                    opponent_action_str += f" (move_idx: {opponent_action_info.get('move_idx')})"
+            elif opponent_action_info.get('order_type') == 'switch' and opponent_action_info.get('switch_to'):
+                opponent_action_str += f" ({opponent_action_info.get('switch_to')})"
+            f.write(f"  상대의 행동: {opponent_action_str}\n")
             
             # 현재 상태
             f.write(f"\n  【 현재 상태 】\n")
