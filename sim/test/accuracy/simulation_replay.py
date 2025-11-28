@@ -392,25 +392,44 @@ class SimulationReplay:
         # 배틀 상태를 복사해서 시뮬레이션 (원본 유지)
         import copy
         battle_copy = copy.deepcopy(current_battle_state)
+
+
+        snorlax = battle_copy.opponent_team.get('p2: Zekrom')
+        snorlax.species = "mismagius"
         
         # 행동에서 기술 인덱스 추출
         player_move_idx = None
         opponent_move_idx = None
         opponent_move_name = None
         
+        # 교체인 경우
+        player_switch_to = None
+        opponent_switch_to = None
+        if player_action_info.get('order_type') == 'switch':
+            player_switch_to = player_action_info.get('switch_to')
+            print(f"\n플레이어가 {player_switch_to}로 교체합니다.")
+        if opponent_action_info.get('order_type') == 'switch':
+            opponent_switch_to = opponent_action_info.get('switch_to')
+            print(f"\n상대가 {opponent_switch_to}로 교체합니다.")
+
+        # 기술인 경우
         if player_action_info.get('order_type') == 'move':
             player_move_idx = player_action_info.get('move_idx')
         
         if opponent_action_info.get('order_type') == 'move':
             opponent_move_idx = opponent_action_info.get('move_idx')
-            opponent_move_name = opponent_action_info.get('move_name')  # ← 추가
+            opponent_move_name = opponent_action_info.get('move_name')  
+
+        print(f"\n시뮬레이션을 시작합니다...")
         
         # 시뮬레이션 실행
         simulated_battle = engine.simulate_turn(
             new_battle=battle_copy,
             player_move_idx=player_move_idx,
             opponent_move_idx=opponent_move_idx,
-            opponent_move_name=opponent_move_name,  # ← 추가
+            opponent_move_name=opponent_move_name, 
+            player_switch_to=player_switch_to,
+            opponent_switch_to=opponent_switch_to,
             verbose=True
         )
         

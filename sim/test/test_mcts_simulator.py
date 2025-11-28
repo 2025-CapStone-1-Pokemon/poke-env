@@ -1,12 +1,8 @@
-"""
-MCTS + SimplifiedBattle 통합 테스트 (병렬 처리)
-"""
 import asyncio
 import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
 
-# 상위 디렉토리들을 path에 추가
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'player', 'mcts'))
 
@@ -75,7 +71,7 @@ class MCTSPlayer(Player):
             return self.choose_random_move(battle)
         
         # MCTS 검색 - SimplifiedAction 반환
-        simplified_action = mcts_search(battle, iterations=1, verbose=False, n_workers=5)
+        simplified_action = mcts_search(battle, iterations=100, verbose=False, n_workers=5)
 
         if simplified_action is None:
             return self.choose_random_move(battle)
@@ -86,13 +82,6 @@ class MCTSPlayer(Player):
             
             if original_action is None:
                 return self.choose_random_move(battle)
-            
-            # 액션 타입 표시
-            # action_class_name = simplified_action.__class__.__name__
-            # if action_class_name == "SimplifiedMove":
-            #     print(f"[MCTSPlayer] 선택: 기술 - {original_action.id}")
-            # elif action_class_name == "SimplifiedPokemon":
-            #     print(f"[MCTSPlayer] 선택: 포켓몬 교체 - {original_action.species}")
             
             order = self.create_order(original_action)
             return order
@@ -107,7 +96,6 @@ async def test_mcts_vs_random():
     """MCTS vs Random 테스트"""
     print("=== MCTS vs Random Bot 테스트 ===\n")
     
-    # 플레이어 생성 (고정 팀)
     mcts_player = MCTSPlayer(
         battle_format="gen9randombattle",
         max_concurrent_battles=10,

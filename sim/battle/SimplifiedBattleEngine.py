@@ -59,6 +59,8 @@ class SimplifiedBattleEngine:
         player_move_idx: Optional[int] = None,
         opponent_move_idx: Optional[int] = None,
         opponent_move_name: Optional[str] = None,
+        player_switch_to: Optional[str] = None,
+        opponent_switch_to: Optional[str] = None,
         verbose: bool = False
     ) -> SimplifiedBattle:
         """
@@ -85,22 +87,58 @@ class SimplifiedBattleEngine:
             if verbose:
                 print("One of the active Pokemon is missing. Ending simulation.")
             return new_battle
+        else:
+            if verbose:
+                print(f"Player's active Pokemon: {new_battle.active_pokemon.species} "
+                      f"(HP: {new_battle.active_pokemon.current_hp}/{new_battle.active_pokemon.max_hp})")
+                print(f"Opponent's active Pokemon: {new_battle.opponent_active_pokemon.species} "
+                      f"(HP: {new_battle.opponent_active_pokemon.current_hp}/{new_battle.opponent_active_pokemon.max_hp})")
             
         if new_battle.active_pokemon.current_hp <= 0 or new_battle.opponent_active_pokemon.current_hp <= 0:
             if verbose:
                 print("One of the active Pokemon has fainted. Ending simulation.")
             return new_battle
         
-        # 3. 기술 선택 (랜덤)
+        # 3. 기술 혹은 교체 선택
         if verbose:
                 print("=========== [Move Selection] =================")
-        player_move = self._select_random_move(new_battle.active_pokemon, player_move_idx, verbose=verbose)
-        
-        # 상대 기술 선택: opponent_move_name이 있으면 우선 사용, 없으면 opponent_move_idx 사용
-        if opponent_move_name:
-            opponent_move = self._select_move_by_name(new_battle.opponent_active_pokemon, opponent_move_name, verbose=verbose)
+
+        # 플레이어가 교체 한 경우
+        if player_switch_to:
+            # 반복문 돌려서 이름 같은거 확인
+            for pokemon in new_battle.team.values():
+                    if pokemon.species.lower() == player_switch_to.lower() and pokemon.current_hp > 0:
+                        new_battle.active_pokemon = pokemon
+                        if verbose:
+                            print(f"Player switches to {pokemon.species}")
+                        break
+            else:
+                if verbose:
+                    print(f"Player attempted to switch to {player_switch_to}, but it's not available.")
+            # 교체했으면 기술 선택 스킵
+            player_move = "switch"
         else:
-            opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx, verbose=verbose)
+            player_move = self._select_random_move(new_battle.active_pokemon, player_move_idx, verbose=verbose)
+        
+        if opponent_switch_to:
+            # 반복문 돌려서 이름 같은거 확인
+            for pokemon in new_battle.opponent_team.values():
+                    # 대소문자 구분 없이 비교
+                    if pokemon.species.lower() == opponent_switch_to.lower() and pokemon.current_hp > 0:
+                        new_battle.opponent_active_pokemon = pokemon
+                        if verbose:
+                            print(f"Opponent switches to {pokemon.species}")
+                        break
+            else:
+                if verbose:
+                    print(f"Opponent attempted to switch to {opponent_switch_to}, but it's not available.")
+            # 교체했으면 기술 선택 스킵
+            opponent_move = "switch"
+        else:
+            if opponent_move_name:
+                opponent_move = self._select_move_by_name(new_battle.opponent_active_pokemon, opponent_move_name, verbose=verbose)
+            else:
+                opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx, verbose=verbose)
 
         if verbose:
             print("===============================================")
@@ -117,21 +155,20 @@ class SimplifiedBattleEngine:
         )
         
         # 5. 선공 실행
-
         if verbose:
             print("=========== [Turn Execution] =================")
 
         if first_attacker == new_battle.active_pokemon:
-            self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, first_move, verbose=verbose)
+            self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, first_move, switch_to=player_switch_to, verbose=verbose)
         else:
-            self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, first_move, verbose=verbose)
+            self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, first_move, switch_to=opponent_switch_to, verbose=verbose)
         
         # 6. 후공 실행 (둘 다 살아있으면)
         if new_battle.active_pokemon.current_hp > 0 and new_battle.opponent_active_pokemon.current_hp > 0:
             if second_attacker == new_battle.active_pokemon:
-                self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, second_move, verbose=verbose)
+                self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, second_move, switch_to=player_switch_to, verbose=verbose)
             else:
-                self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, second_move, verbose=verbose)
+                self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, second_move, switch_to=opponent_switch_to, verbose=verbose)
 
         if verbose:
             print("===============================================")
@@ -277,6 +314,21 @@ class SimplifiedBattleEngine:
         attacker2: SimplifiedPokemon, move2: SimplifiedMove
     ) -> Tuple[SimplifiedPokemon, SimplifiedMove, SimplifiedPokemon, SimplifiedMove]:
         """행동 순서 결정"""
+
+        # TODO 따라가때리기 구현 (pursuit)
+
+        # 0. switch 우선
+        if move1 == "switch" and move2 != "switch":
+            return attacker1, move1, attacker2, move2
+        elif move2 == "switch" and move1 != "switch":
+            return attacker2, move2, attacker1, move1
+        elif move1 == "switch" and move2 == "switch":
+            # 둘 다 교체면 랜덤 순서
+            if random.random() < 0.5:
+                return attacker1, move1, attacker2, move2
+            else:
+                return attacker2, move2, attacker1, move1
+
         # 1. 우선도 비교
         priority1 = move1.priority
         priority2 = move2.priority
@@ -307,9 +359,17 @@ class SimplifiedBattleEngine:
         attacker: SimplifiedPokemon,
         defender: SimplifiedPokemon,
         move: SimplifiedMove,
+        switch_to: Optional[str] = None,
         verbose: bool = False
     ):
         """기술 실행"""
+
+        if move == "switch":
+            self.swtich_active_pokemon(battle, pokemon_name=switch_to, is_player=(attacker == battle.active_pokemon))
+            if verbose:
+                print(f"{attacker.species} switches out!")
+            return
+        
         if(verbose):
             print(f"Attacker: {attacker.species}, Move: {move.id}, Defender: {defender.species}")
 
@@ -703,6 +763,32 @@ class SimplifiedBattleEngine:
         
         # first_turn 초기화
         new_active.first_turn = True
+
+    def swtich_active_pokemon(
+        self,
+        battle: SimplifiedBattle,
+        pokemon_name: str,
+        is_player: bool
+    ):
+        """
+        특정 포켓몬으로 교체
+        
+        Args:
+            battle: SimplifiedBattle 객체
+            pokemon_name: 교체할 포켓몬 이름
+            is_player: True면 플레이어, False면 상대
+        """
+        team = battle.team if is_player else battle.opponent_team
+        switch_pokemon = team.get(pokemon_name)
+        
+        if switch_pokemon and switch_pokemon.current_hp > 0:
+            if is_player:
+                battle.active_pokemon = switch_pokemon
+            else:
+                battle.opponent_active_pokemon = switch_pokemon
+            
+            # first_turn 초기화
+            switch_pokemon.first_turn = True
     
     def _print_battle_status(self, battle: SimplifiedBattle, label: str):
         """배틀 상태 출력"""

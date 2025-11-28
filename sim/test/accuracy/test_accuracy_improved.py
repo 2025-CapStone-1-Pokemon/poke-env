@@ -441,7 +441,7 @@ if __name__ == "__main__":
                 # 모든 스냅샷을 가져옴 (battle_tag 필터링 없음)
                 battle_snapshots = player1.turn_snapshots
                 
-                # 🔴 opponent_action_store에서 일괄적으로 스냅샷에 opponent 행동 추가
+                # opponent_action_store에서 일괄적으로 스냅샷에 opponent 행동 추가
                 # 모든 스냅샷에 대해 처리
                 for snapshot in battle_snapshots:
                     turn = snapshot.turn
@@ -497,7 +497,7 @@ if __name__ == "__main__":
                 print("Turn-by-Turn 비교 결과")
                 print("=" * 70)
                 
-                # 🔴 턴 데이터 저장을 위한 리스트 초기화
+                # 턴 데이터 저장을 위한 리스트 초기화
                 turn_inputs = []
                 turn_results = []
                 
