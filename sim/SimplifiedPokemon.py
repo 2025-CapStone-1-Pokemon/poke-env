@@ -13,15 +13,19 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from supporting.PokemonStatus import Status
 from SimplifiedMove import SimplifiedMove
-
-_GEN_DATA_CACHE = {}
+from poke_env.data import GenData
 
 class SimplifiedPokemon:
+    _GEN_DATA_CACHE = {}
+    
     def __init__(self, poke_env_pokemon: Pokemon, is_percentage_hp: bool = False):
         # 기본 정보
         self.species = poke_env_pokemon.species
         self.level = poke_env_pokemon.level
         self.gender = poke_env_pokemon.gender
+
+        # 일시적인 배틀 상태 관리
+        self.volatiles = {}
 
         # 타입
         self.type_1 = poke_env_pokemon.type_1
@@ -77,6 +81,7 @@ class SimplifiedPokemon:
         
         # 성능 최적화: get_effective_stat() 캐싱
         self._stat_cache = {}
+
 
     def damage(self, amount: int):
         """데미지 받기"""
@@ -150,29 +155,37 @@ class SimplifiedPokemon:
 
     def damage_multiplier(self, move_type: PokemonType) -> float:
         """타입 상성 계산"""
-        from poke_env.data import GenData
-
+        
+        # 캐시에서 GenData 가져오기
         if 9 not in self._GEN_DATA_CACHE:
             self._GEN_DATA_CACHE[9] = GenData.from_gen(9)
         
-        data = self._GEN_DATA_CACHE[9]
+        gen_data = self._GEN_DATA_CACHE[9]
         
+        # gen_data.type_chart 사용
         multiplier = 1.0
         for poke_type in self.types:
             multiplier *= poke_type.damage_multiplier(
                 move_type,
-                type_chart=data.type_chart
+                type_chart=gen_data.type_chart 
             )
-
+        
         return multiplier
 
+    # TODO 여기서 계산매번하는게 맞나
     def get_effective_stat(self, stat_name: str) -> float:
         """능력치 변화 반영한 실제 스탯"""
+
         base = self.stats.get(stat_name)
         
-        # stats가 None이면 base_stats에서 가져오기
+        # stats가 None이면 base_stats에서 가져오고 레벨 보정 적용
         if base is None:
             base = self.base_stats.get(stat_name, 100)  # 기본값 100
+            # 레벨 보정 공식 적용
+            if stat_name == 'hp':
+                base = int(((2 * base * self.level) / 100) + self.level + 10)
+            else:
+                base = int(((2 * base * self.level) / 100) + 5)
         
         # 여전히 None이면 기본값 사용
         if base is None:

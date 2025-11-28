@@ -1,0 +1,1271 @@
+Player initialisation finished
+SimplifiedBattleEngine 초기화 (프로세스당 한 번)
+Event logged in received in send challenge
+=== Turn 1: SimplifiedBattle 시뮬레이션 시작 ===
+SimplifiedBattleEngine.simulate_full_battle() 실행 중...
+
+=== 배틀 시뮬레이션 시작 (최대 100턴) ===
+
+[초기 상태]
+플레이어: ludicolo (HP: 290/290)
+상대: rotomwash (HP: 192/192)
+플레이어 팀 - ludicolo: HP: 290/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: HP: 211/211
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 272/272
+
+--- 턴 1 ---
+시뮬레이션 시작 : 1
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 290/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: rotomwash (HP: 211/211) 
+상대의 기술 정보 : ['hydropump', 'tackle', 'tackle', 'tackle'] 
+스탯 정보: Atk 150.0, Def 217.0, SpA 214.0, SpD 217.0, Spe 184.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotomwash, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 150.0, Defender D: 177.0 (Ratio: 0.85)
+ - Pure Base Damage: 25.05
+ - Final Damage (After Modifiers): 24.71791640187574
+ - Multiplier Applied: 0.99x
+rotomwash used tackle dealing 24 damage to ludicolo!
+ludicolo HP is now 266/290
+공격자: ludicolo, 기술: gigadrain, 방어자: rotomwash
+기술 정보 - Power: 75, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: gigadrain (BP: 75)
+ - Level: 90 (Factor: 38.0)
+ - Attacker A: 213.0, Defender D: 217.0 (Ratio: 0.98)
+ - Pure Base Damage: 57.95
+ - Final Damage (After Modifiers): 147.90796378119086
+ - Multiplier Applied: 2.55x
+ludicolo used gigadrain dealing 147 damage to rotomwash!
+rotomwash HP is now 64/211
+===============================================
+
+[After Turn 2]
+플레이어: ludicolo (HP: 266/290)
+상대: rotomwash (HP: 64/211)
+플레이어 팀 - ludicolo: HP: 266/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: HP: 64/211
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 272/272
+플레이어: ludicolo (HP: 266/290 = 91.7%)
+상대: rotomwash (HP: 64/211 = 30.3%)
+
+--- 턴 2 ---
+시뮬레이션 시작 : 2
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 266/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: rotomwash (HP: 64/211) 
+상대의 기술 정보 : ['hydropump', 'tackle', 'tackle', 'tackle'] 
+스탯 정보: Atk 150.0, Def 217.0, SpA 214.0, SpD 217.0, Spe 184.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotomwash, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+Critical hit by rotomwash using tackle!
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 150.0, Defender D: 177.0 (Ratio: 0.85)
+ - Pure Base Damage: 25.05
+ - Final Damage (After Modifiers): 34.943973752163004
+ - Multiplier Applied: 1.39x
+rotomwash used tackle dealing 34 damage to ludicolo!
+ludicolo HP is now 232/290
+공격자: ludicolo, 기술: raindance, 방어자: rotomwash
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+===============================================
+
+[After Turn 3]
+플레이어: ludicolo (HP: 232/290)
+상대: rotomwash (HP: 64/211)
+플레이어 팀 - ludicolo: HP: 232/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: HP: 64/211
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 272/272
+플레이어: ludicolo (HP: 232/290 = 80.0%)
+상대: rotomwash (HP: 64/211 = 30.3%)
+
+--- 턴 3 ---
+시뮬레이션 시작 : 3
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 232/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: rotomwash (HP: 64/211) 
+상대의 기술 정보 : ['hydropump', 'tackle', 'tackle', 'tackle'] 
+스탯 정보: Atk 150.0, Def 217.0, SpA 214.0, SpD 217.0, Spe 184.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotomwash, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 150.0, Defender D: 177.0 (Ratio: 0.85)
+ - Pure Base Damage: 25.05
+ - Final Damage (After Modifiers): 22.453350734803614
+ - Multiplier Applied: 0.90x
+rotomwash used tackle dealing 22 damage to ludicolo!
+ludicolo HP is now 210/290
+공격자: ludicolo, 기술: raindance, 방어자: rotomwash
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+===============================================
+
+[After Turn 4]
+플레이어: ludicolo (HP: 210/290)
+상대: rotomwash (HP: 64/211)
+플레이어 팀 - ludicolo: HP: 210/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: HP: 64/211
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 272/272
+플레이어: ludicolo (HP: 210/290 = 72.4%)
+상대: rotomwash (HP: 64/211 = 30.3%)
+
+--- 턴 4 ---
+시뮬레이션 시작 : 4
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 210/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: rotomwash (HP: 64/211) 
+상대의 기술 정보 : ['hydropump', 'tackle', 'tackle', 'tackle'] 
+스탯 정보: Atk 150.0, Def 217.0, SpA 214.0, SpD 217.0, Spe 184.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotomwash, 기술: hydropump, 방어자: ludicolo
+기술 정보 - Power: 110, Accuracy: 1.0, Category: SPECIAL
+Critical hit by rotomwash using hydropump!
+
+[DAMAGE DEBUG] Move: hydropump (BP: 110)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 214.0, Defender D: 231.0 (Ratio: 0.93)
+ - Pure Base Damage: 71.30
+ - Final Damage (After Modifiers): 39.2364299549191
+ - Multiplier Applied: 0.55x
+rotomwash used hydropump dealing 39 damage to ludicolo!
+ludicolo HP is now 171/290
+공격자: ludicolo, 기술: icebeam, 방어자: rotomwash
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: icebeam (BP: 90)
+ - Level: 90 (Factor: 38.0)
+ - Attacker A: 213.0, Defender D: 217.0 (Ratio: 0.98)
+ - Pure Base Damage: 69.14
+ - Final Damage (After Modifiers): 33.35848091401961
+ - Multiplier Applied: 0.48x
+ludicolo used icebeam dealing 33 damage to rotomwash!
+rotomwash HP is now 31/211
+===============================================
+
+[After Turn 5]
+플레이어: ludicolo (HP: 171/290)
+상대: rotomwash (HP: 31/211)
+플레이어 팀 - ludicolo: HP: 171/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: HP: 31/211
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 272/272
+플레이어: ludicolo (HP: 171/290 = 59.0%)
+상대: rotomwash (HP: 31/211 = 14.7%)
+
+--- 턴 5 ---
+시뮬레이션 시작 : 5
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 171/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: rotomwash (HP: 31/211) 
+상대의 기술 정보 : ['hydropump', 'tackle', 'tackle', 'tackle'] 
+스탯 정보: Atk 150.0, Def 217.0, SpA 214.0, SpD 217.0, Spe 184.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotomwash, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 150.0, Defender D: 177.0 (Ratio: 0.85)
+ - Pure Base Damage: 25.05
+ - Final Damage (After Modifiers): 22.189524732606237
+ - Multiplier Applied: 0.89x
+rotomwash used tackle dealing 22 damage to ludicolo!
+ludicolo HP is now 149/290
+공격자: ludicolo, 기술: hydropump, 방어자: rotomwash
+기술 정보 - Power: 110, Accuracy: 0.8, Category: SPECIAL
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.8
+
+[DAMAGE DEBUG] Move: hydropump (BP: 110)
+ - Level: 90 (Factor: 38.0)
+ - Attacker A: 213.0, Defender D: 217.0 (Ratio: 0.98)
+ - Pure Base Damage: 84.06
+ - Final Damage (After Modifiers): 56.958071890424804
+ - Multiplier Applied: 0.68x
+ludicolo used hydropump dealing 56 damage to rotomwash!
+rotomwash HP is now 0/211
+===============================================
+
+[After Turn 6]
+플레이어: ludicolo (HP: 149/290)
+상대: pokestarmt2 (HP: 272/272)
+플레이어 팀 - ludicolo: HP: 149/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 272/272
+플레이어: ludicolo (HP: 149/290 = 51.4%)
+상대: pokestarmt2 (HP: 272/272 = 100.0%)
+
+--- 턴 6 ---
+시뮬레이션 시작 : 6
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 149/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: pokestarmt2 (HP: 272/272) 
+상대의 기술 정보 : ['tackle'] 
+스탯 정보: Atk 189.0, Def 180.0, SpA 214.0, SpD 183.0, Spe 224.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: pokestarmt2, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 189.0, Defender D: 177.0 (Ratio: 1.07)
+ - Pure Base Damage: 31.04
+ - Final Damage (After Modifiers): 28.22392156532924
+ - Multiplier Applied: 0.91x
+pokestarmt2 used tackle dealing 28 damage to ludicolo!
+ludicolo HP is now 121/290
+공격자: ludicolo, 기술: hydropump, 방어자: pokestarmt2
+기술 정보 - Power: 110, Accuracy: 0.8, Category: SPECIAL
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.8
+
+[DAMAGE DEBUG] Move: hydropump (BP: 110)
+ - Level: 90 (Factor: 38.0)
+ - Attacker A: 213.0, Defender D: 183.0 (Ratio: 1.16)
+ - Pure Base Damage: 99.30
+ - Final Damage (After Modifiers): 127.20827385686367
+ - Multiplier Applied: 1.28x
+ludicolo used hydropump dealing 127 damage to pokestarmt2!
+pokestarmt2 HP is now 145/272
+===============================================
+
+[After Turn 7]
+플레이어: ludicolo (HP: 121/290)
+상대: pokestarmt2 (HP: 145/272)
+플레이어 팀 - ludicolo: HP: 121/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 145/272
+플레이어: ludicolo (HP: 121/290 = 41.7%)
+상대: pokestarmt2 (HP: 145/272 = 53.3%)
+
+--- 턴 7 ---
+시뮬레이션 시작 : 7
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 121/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: pokestarmt2 (HP: 145/272) 
+상대의 기술 정보 : ['tackle'] 
+스탯 정보: Atk 189.0, Def 180.0, SpA 214.0, SpD 183.0, Spe 224.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: pokestarmt2, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 189.0, Defender D: 177.0 (Ratio: 1.07)
+ - Pure Base Damage: 31.04
+ - Final Damage (After Modifiers): 31.004082759796102
+ - Multiplier Applied: 1.00x
+pokestarmt2 used tackle dealing 31 damage to ludicolo!
+ludicolo HP is now 90/290
+공격자: ludicolo, 기술: icebeam, 방어자: pokestarmt2
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: icebeam (BP: 90)
+ - Level: 90 (Factor: 38.0)
+ - Attacker A: 213.0, Defender D: 183.0 (Ratio: 1.16)
+ - Pure Base Damage: 81.61
+ - Final Damage (After Modifiers): 38.245834575504766
+ - Multiplier Applied: 0.47x
+ludicolo used icebeam dealing 38 damage to pokestarmt2!
+pokestarmt2 HP is now 107/272
+===============================================
+
+[After Turn 8]
+플레이어: ludicolo (HP: 90/290)
+상대: pokestarmt2 (HP: 107/272)
+플레이어 팀 - ludicolo: HP: 90/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: HP: 107/272
+플레이어: ludicolo (HP: 90/290 = 31.0%)
+상대: pokestarmt2 (HP: 107/272 = 39.3%)
+
+--- 턴 8 ---
+시뮬레이션 시작 : 8
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 90/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: pokestarmt2 (HP: 107/272) 
+상대의 기술 정보 : ['tackle'] 
+스탯 정보: Atk 189.0, Def 180.0, SpA 214.0, SpD 183.0, Spe 224.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: pokestarmt2, 기술: tackle, 방어자: ludicolo
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: tackle (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 189.0, Defender D: 177.0 (Ratio: 1.07)
+ - Pure Base Damage: 31.04
+ - Final Damage (After Modifiers): 28.311743128304293
+ - Multiplier Applied: 0.91x
+pokestarmt2 used tackle dealing 28 damage to ludicolo!
+ludicolo HP is now 62/290
+공격자: ludicolo, 기술: hydropump, 방어자: pokestarmt2
+기술 정보 - Power: 110, Accuracy: 0.8, Category: SPECIAL
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.8
+
+[DAMAGE DEBUG] Move: hydropump (BP: 110)
+ - Level: 90 (Factor: 38.0)
+ - Attacker A: 213.0, Defender D: 183.0 (Ratio: 1.16)
+ - Pure Base Damage: 99.30
+ - Final Damage (After Modifiers): 145.45421921109136
+ - Multiplier Applied: 1.46x
+ludicolo used hydropump dealing 145 damage to pokestarmt2!
+pokestarmt2 HP is now 0/272
+===============================================
+
+[After Turn 9]
+플레이어: ludicolo (HP: 62/290)
+상대: mimikyu (HP: 192/192)
+플레이어 팀 - ludicolo: HP: 62/290
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: ludicolo (HP: 62/290 = 21.4%)
+상대: mimikyu (HP: 192/192 = 100.0%)
+
+--- 턴 9 ---
+시뮬레이션 시작 : 9
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ludicolo (HP: 62/290) 
+스탯 정보: Atk 131.0, Def 177.0, SpA 213.0, SpD 231.0, Spe 177.0
+상대의 활성 포켓몬: mimikyu (HP: 192/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 171.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: playrough, 방어자: ludicolo
+기술 정보 - Power: 90, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: playrough (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 171.0, Defender D: 177.0 (Ratio: 0.97)
+ - Pure Base Damage: 61.13
+ - Final Damage (After Modifiers): 90.7778754755882
+ - Multiplier Applied: 1.49x
+mimikyu used playrough dealing 90 damage to ludicolo!
+ludicolo HP is now 0/290
+===============================================
+
+[After Turn 10]
+플레이어: tinkaton (HP: 274/274)
+상대: mimikyu (HP: 192/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 274/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: tinkaton (HP: 274/274 = 100.0%)
+상대: mimikyu (HP: 192/192 = 100.0%)
+
+--- 턴 10 ---
+시뮬레이션 시작 : 10
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: tinkaton (HP: 274/274) 
+스탯 정보: Atk 170.0, Def 173.0, SpA 162.0, SpD 219.0, Spe 201.0
+상대의 활성 포켓몬: mimikyu (HP: 192/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 171.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: gigaimpact, 방어자: tinkaton
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: gigaimpact (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 171.0, Defender D: 173.0 (Ratio: 0.99)
+ - Pure Base Damage: 102.82
+ - Final Damage (After Modifiers): 45.12526714727612
+ - Multiplier Applied: 0.44x
+mimikyu used gigaimpact dealing 45 damage to tinkaton!
+tinkaton HP is now 229/274
+공격자: tinkaton, 기술: swordsdance, 방어자: mimikyu
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+===============================================
+
+[After Turn 11]
+플레이어: tinkaton (HP: 229/274)
+상대: mimikyu (HP: 192/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 229/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 192/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: tinkaton (HP: 229/274 = 83.6%)
+상대: mimikyu (HP: 192/192 = 100.0%)
+
+--- 턴 11 ---
+시뮬레이션 시작 : 11
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: tinkaton (HP: 229/274) 
+스탯 정보: Atk 170.0, Def 173.0, SpA 162.0, SpD 219.0, Spe 201.0
+상대의 활성 포켓몬: mimikyu (HP: 192/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 342.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: phantomforce, 방어자: tinkaton
+기술 정보 - Power: 90, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: phantomforce (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 342.0, Defender D: 173.0 (Ratio: 1.98)
+ - Pure Base Damage: 122.98
+ - Final Damage (After Modifiers): 175.21293449690538
+ - Multiplier Applied: 1.42x
+mimikyu used phantomforce dealing 175 damage to tinkaton!
+tinkaton HP is now 54/274
+공격자: tinkaton, 기술: knockoff, 방어자: mimikyu
+기술 정보 - Power: 65, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: knockoff (BP: 65)
+ - Level: 82 (Factor: 34.8)
+ - Attacker A: 170.0, Defender D: 189.0 (Ratio: 0.90)
+ - Pure Base Damage: 42.69
+ - Final Damage (After Modifiers): 41.15277719406795
+ - Multiplier Applied: 0.96x
+tinkaton used knockoff dealing 41 damage to mimikyu!
+mimikyu HP is now 151/192
+===============================================
+
+[After Turn 12]
+플레이어: tinkaton (HP: 54/274)
+상대: mimikyu (HP: 151/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: HP: 54/274
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 151/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: tinkaton (HP: 54/274 = 19.7%)
+상대: mimikyu (HP: 151/192 = 78.6%)
+
+--- 턴 12 ---
+시뮬레이션 시작 : 12
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: tinkaton (HP: 54/274) 
+스탯 정보: Atk 170.0, Def 173.0, SpA 162.0, SpD 219.0, Spe 201.0
+상대의 활성 포켓몬: mimikyu (HP: 151/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 342.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: phantomforce, 방어자: tinkaton
+기술 정보 - Power: 90, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: phantomforce (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 342.0, Defender D: 173.0 (Ratio: 1.98)
+ - Pure Base Damage: 122.98
+ - Final Damage (After Modifiers): 163.26419365962192
+ - Multiplier Applied: 1.33x
+mimikyu used phantomforce dealing 163 damage to tinkaton!
+tinkaton HP is now 0/274
+===============================================
+
+[After Turn 13]
+플레이어: kommoo (HP: 245/245)
+상대: mimikyu (HP: 151/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 245/245
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 151/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: kommoo (HP: 245/245 = 100.0%)
+상대: mimikyu (HP: 151/192 = 78.6%)
+
+--- 턴 13 ---
+시뮬레이션 시작 : 13
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: kommoo (HP: 245/245) 
+스탯 정보: Atk 217.0, Def 240.0, SpA 201.0, SpD 209.0, Spe 178.0
+상대의 활성 포켓몬: mimikyu (HP: 151/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 342.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: thunderbolt, 방어자: kommoo
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: thunderbolt (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 131.0, Defender D: 209.0 (Ratio: 0.63)
+ - Pure Base Damage: 40.36
+ - Final Damage (After Modifiers): 18.116947082071448
+ - Multiplier Applied: 0.45x
+mimikyu used thunderbolt dealing 18 damage to kommoo!
+kommoo HP is now 227/245
+공격자: kommoo, 기술: swordsdance, 방어자: mimikyu
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+===============================================
+
+[After Turn 14]
+플레이어: kommoo (HP: 227/245)
+상대: mimikyu (HP: 151/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 227/245
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 151/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: kommoo (HP: 227/245 = 92.7%)
+상대: mimikyu (HP: 151/192 = 78.6%)
+
+--- 턴 14 ---
+시뮬레이션 시작 : 14
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: kommoo (HP: 227/245) 
+스탯 정보: Atk 217.0, Def 240.0, SpA 201.0, SpD 209.0, Spe 178.0
+상대의 활성 포켓몬: mimikyu (HP: 151/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 513.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: phantomforce, 방어자: kommoo
+기술 정보 - Power: 90, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: phantomforce (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 513.0, Defender D: 240.0 (Ratio: 2.14)
+ - Pure Base Damage: 132.81
+ - Final Damage (After Modifiers): 179.9435916060062
+ - Multiplier Applied: 1.35x
+mimikyu used phantomforce dealing 179 damage to kommoo!
+kommoo HP is now 48/245
+공격자: kommoo, 기술: ironhead, 방어자: mimikyu
+기술 정보 - Power: 80, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: ironhead (BP: 80)
+ - Level: 78 (Factor: 33.2)
+ - Attacker A: 217.0, Defender D: 189.0 (Ratio: 1.15)
+ - Pure Base Damage: 62.99
+ - Final Damage (After Modifiers): 125.37135071149808
+ - Multiplier Applied: 1.99x
+kommoo used ironhead dealing 125 damage to mimikyu!
+mimikyu HP is now 26/192
+===============================================
+
+[After Turn 15]
+플레이어: kommoo (HP: 48/245)
+상대: mimikyu (HP: 26/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: HP: 48/245
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 26/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: kommoo (HP: 48/245 = 19.6%)
+상대: mimikyu (HP: 26/192 = 13.5%)
+
+--- 턴 15 ---
+시뮬레이션 시작 : 15
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: kommoo (HP: 48/245) 
+스탯 정보: Atk 217.0, Def 240.0, SpA 201.0, SpD 209.0, Spe 178.0
+상대의 활성 포켓몬: mimikyu (HP: 26/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 513.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: phantomforce, 방어자: kommoo
+기술 정보 - Power: 90, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: phantomforce (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 513.0, Defender D: 240.0 (Ratio: 2.14)
+ - Pure Base Damage: 132.81
+ - Final Damage (After Modifiers): 186.91666237295135
+ - Multiplier Applied: 1.41x
+mimikyu used phantomforce dealing 186 damage to kommoo!
+kommoo HP is now 0/245
+===============================================
+
+[After Turn 16]
+플레이어: sunflora (HP: 312/312)
+상대: mimikyu (HP: 26/192)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 312/312
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: HP: 26/192
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: sunflora (HP: 312/312 = 100.0%)
+상대: mimikyu (HP: 26/192 = 13.5%)
+
+--- 턴 16 ---
+시뮬레이션 시작 : 16
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: sunflora (HP: 312/312) 
+스탯 정보: Atk 155.0, Def 167.0, SpA 267.0, SpD 227.0, Spe 117.0
+상대의 활성 포켓몬: mimikyu (HP: 26/192) 
+상대의 기술 정보 : ['phantomforce', 'playrough', 'gigaimpact', 'thunderbolt'] 
+스탯 정보: Atk 513.0, Def 189.0, SpA 131.0, SpD 198.0, Spe 209.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: mimikyu, 기술: gigaimpact, 방어자: sunflora
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: gigaimpact (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 513.0, Defender D: 167.0 (Ratio: 3.07)
+ - Pure Base Damage: 315.33
+ - Final Damage (After Modifiers): 297.2796149095588
+ - Multiplier Applied: 0.94x
+mimikyu used gigaimpact dealing 297 damage to sunflora!
+sunflora HP is now 15/312
+공격자: sunflora, 기술: solarbeam, 방어자: mimikyu
+기술 정보 - Power: 120, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: solarbeam (BP: 120)
+ - Level: 100 (Factor: 42.0)
+ - Attacker A: 267.0, Defender D: 198.0 (Ratio: 1.35)
+ - Pure Base Damage: 137.93
+ - Final Damage (After Modifiers): 201.30441033179045
+ - Multiplier Applied: 1.46x
+sunflora used solarbeam dealing 201 damage to mimikyu!
+mimikyu HP is now 0/192
+===============================================
+
+[After Turn 17]
+플레이어: sunflora (HP: 15/312)
+상대: articuno (HP: 275/275)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: HP: 15/312
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: sunflora (HP: 15/312 = 4.8%)
+상대: articuno (HP: 275/275 = 100.0%)
+
+--- 턴 17 ---
+시뮬레이션 시작 : 17
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: sunflora (HP: 15/312) 
+스탯 정보: Atk 155.0, Def 167.0, SpA 267.0, SpD 227.0, Spe 117.0
+상대의 활성 포켓몬: articuno (HP: 275/275) 
+상대의 기술 정보 : ['skyattack', 'bravebird', 'doubleedge', 'gigaimpact'] 
+스탯 정보: Atk 210.0, Def 176.0, SpA 187.0, SpD 226.0, Spe 148.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: articuno, 기술: doubleedge, 방어자: sunflora
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: doubleedge (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 210.0, Defender D: 167.0 (Ratio: 1.26)
+ - Pure Base Damage: 104.61
+ - Final Damage (After Modifiers): 99.43335739608644
+ - Multiplier Applied: 0.95x
+articuno used doubleedge dealing 99 damage to sunflora!
+sunflora HP is now 0/312
+===============================================
+
+[After Turn 18]
+플레이어: spiritomb (HP: 234/234)
+상대: articuno (HP: 275/275)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 234/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 275/275
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: spiritomb (HP: 234/234 = 100.0%)
+상대: articuno (HP: 275/275 = 100.0%)
+
+--- 턴 18 ---
+시뮬레이션 시작 : 18
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: spiritomb (HP: 234/234) 
+스탯 정보: Atk 215.0, Def 243.0, SpA 215.0, SpD 243.0, Spe 113.0
+상대의 활성 포켓몬: articuno (HP: 275/275) 
+상대의 기술 정보 : ['skyattack', 'bravebird', 'doubleedge', 'gigaimpact'] 
+스탯 정보: Atk 210.0, Def 176.0, SpA 187.0, SpD 226.0, Spe 148.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: spiritomb, 기술: suckerpunch, 방어자: articuno
+기술 정보 - Power: 70, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: suckerpunch (BP: 70)
+ - Level: 89 (Factor: 37.6)
+ - Attacker A: 215.0, Defender D: 176.0 (Ratio: 1.22)
+ - Pure Base Damage: 66.30
+ - Final Damage (After Modifiers): 85.84231775147022
+ - Multiplier Applied: 1.29x
+spiritomb used suckerpunch dealing 85 damage to articuno!
+articuno HP is now 190/275
+공격자: articuno, 기술: gigaimpact, 방어자: spiritomb
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: gigaimpact (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 210.0, Defender D: 243.0 (Ratio: 0.86)
+ - Pure Base Damage: 90.15
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+articuno used gigaimpact dealing 1 damage to spiritomb!
+spiritomb HP is now 233/234
+===============================================
+
+[After Turn 19]
+플레이어: spiritomb (HP: 233/234)
+상대: articuno (HP: 190/275)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 233/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 190/275
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: spiritomb (HP: 233/234 = 99.6%)
+상대: articuno (HP: 190/275 = 69.1%)
+
+--- 턴 19 ---
+시뮬레이션 시작 : 19
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: spiritomb (HP: 233/234) 
+스탯 정보: Atk 215.0, Def 243.0, SpA 215.0, SpD 243.0, Spe 113.0
+상대의 활성 포켓몬: articuno (HP: 190/275) 
+상대의 기술 정보 : ['skyattack', 'bravebird', 'doubleedge', 'gigaimpact'] 
+스탯 정보: Atk 210.0, Def 176.0, SpA 187.0, SpD 226.0, Spe 148.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: spiritomb, 기술: suckerpunch, 방어자: articuno
+기술 정보 - Power: 70, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: suckerpunch (BP: 70)
+ - Level: 89 (Factor: 37.6)
+ - Attacker A: 215.0, Defender D: 176.0 (Ratio: 1.22)
+ - Pure Base Damage: 66.30
+ - Final Damage (After Modifiers): 92.2122630093503
+ - Multiplier Applied: 1.39x
+spiritomb used suckerpunch dealing 92 damage to articuno!
+articuno HP is now 98/275
+공격자: articuno, 기술: bravebird, 방어자: spiritomb
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: bravebird (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 210.0, Defender D: 243.0 (Ratio: 0.86)
+ - Pure Base Damage: 72.52
+ - Final Damage (After Modifiers): 106.76123299538065
+ - Multiplier Applied: 1.47x
+articuno used bravebird dealing 106 damage to spiritomb!
+spiritomb HP is now 127/234
+===============================================
+
+[After Turn 20]
+플레이어: spiritomb (HP: 127/234)
+상대: articuno (HP: 98/275)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 127/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: HP: 98/275
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: spiritomb (HP: 127/234 = 54.3%)
+상대: articuno (HP: 98/275 = 35.6%)
+
+--- 턴 20 ---
+시뮬레이션 시작 : 20
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: spiritomb (HP: 127/234) 
+스탯 정보: Atk 215.0, Def 243.0, SpA 215.0, SpD 243.0, Spe 113.0
+상대의 활성 포켓몬: articuno (HP: 98/275) 
+상대의 기술 정보 : ['skyattack', 'bravebird', 'doubleedge', 'gigaimpact'] 
+스탯 정보: Atk 210.0, Def 176.0, SpA 187.0, SpD 226.0, Spe 148.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: articuno, 기술: skyattack, 방어자: spiritomb
+기술 정보 - Power: 140, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: skyattack (BP: 140)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 210.0, Defender D: 243.0 (Ratio: 0.86)
+ - Pure Base Damage: 84.27
+ - Final Damage (After Modifiers): 115.11008372056247
+ - Multiplier Applied: 1.37x
+articuno used skyattack dealing 115 damage to spiritomb!
+spiritomb HP is now 12/234
+공격자: spiritomb, 기술: foulplay, 방어자: articuno
+기술 정보 - Power: 95, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: foulplay (BP: 95)
+ - Level: 89 (Factor: 37.6)
+ - Attacker A: 215.0, Defender D: 176.0 (Ratio: 1.22)
+ - Pure Base Damage: 89.27
+ - Final Damage (After Modifiers): 130.14932898577572
+ - Multiplier Applied: 1.46x
+spiritomb used foulplay dealing 130 damage to articuno!
+articuno HP is now 0/275
+===============================================
+
+[After Turn 21]
+플레이어: spiritomb (HP: 12/234)
+상대: araquanid (HP: 254/254)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: HP: 12/234
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: 기절
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: spiritomb (HP: 12/234 = 5.1%)
+상대: araquanid (HP: 254/254 = 100.0%)
+
+--- 턴 21 ---
+시뮬레이션 시작 : 21
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: spiritomb (HP: 12/234) 
+스탯 정보: Atk 215.0, Def 243.0, SpA 215.0, SpD 243.0, Spe 113.0
+상대의 활성 포켓몬: araquanid (HP: 254/254) 
+상대의 기술 정보 : ['hydropump', 'bugbuzz', 'blizzard', 'poisonjab'] 
+스탯 정보: Atk 161.0, Def 176.0, SpA 138.0, SpD 236.0, Spe 129.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: araquanid, 기술: blizzard, 방어자: spiritomb
+기술 정보 - Power: 110, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: blizzard (BP: 110)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 138.0, Defender D: 243.0 (Ratio: 0.57)
+ - Pure Base Damage: 44.48
+ - Final Damage (After Modifiers): 39.71894201273259
+ - Multiplier Applied: 0.89x
+araquanid used blizzard dealing 39 damage to spiritomb!
+spiritomb HP is now 0/234
+===============================================
+
+[After Turn 22]
+플레이어: girafarig (HP: 269/269)
+상대: araquanid (HP: 254/254)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 269/269
+플레이어 팀 - spiritomb: 기절
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: 기절
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: girafarig (HP: 269/269 = 100.0%)
+상대: araquanid (HP: 254/254 = 100.0%)
+
+--- 턴 22 ---
+시뮬레이션 시작 : 22
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: girafarig (HP: 269/269) 
+스탯 정보: Atk 147.0, Def 166.0, SpA 211.0, SpD 166.0, Spe 202.0
+상대의 활성 포켓몬: araquanid (HP: 254/254) 
+상대의 기술 정보 : ['hydropump', 'bugbuzz', 'blizzard', 'poisonjab'] 
+스탯 정보: Atk 161.0, Def 176.0, SpA 138.0, SpD 236.0, Spe 129.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: girafarig, 기술: nastyplot, 방어자: araquanid
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+공격자: araquanid, 기술: blizzard, 방어자: girafarig
+기술 정보 - Power: 110, Accuracy: 1.0, Category: SPECIAL
+Critical hit by araquanid using blizzard!
+
+[DAMAGE DEBUG] Move: blizzard (BP: 110)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 276.0, Defender D: 166.0 (Ratio: 1.66)
+ - Pure Base Damage: 126.37
+ - Final Damage (After Modifiers): 174.93271591063672
+ - Multiplier Applied: 1.38x
+araquanid used blizzard dealing 174 damage to girafarig!
+girafarig HP is now 95/269
+===============================================
+
+[After Turn 23]
+플레이어: girafarig (HP: 95/269)
+상대: araquanid (HP: 254/254)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: HP: 95/269
+플레이어 팀 - spiritomb: 기절
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: 기절
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 254/254
+상대 팀 - pokestarmt2: 기절
+플레이어: girafarig (HP: 95/269 = 35.3%)
+상대: araquanid (HP: 254/254 = 100.0%)
+
+--- 턴 23 ---
+시뮬레이션 시작 : 23
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: girafarig (HP: 95/269) 
+스탯 정보: Atk 147.0, Def 166.0, SpA 211.0, SpD 166.0, Spe 202.0
+상대의 활성 포켓몬: araquanid (HP: 254/254) 
+상대의 기술 정보 : ['hydropump', 'bugbuzz', 'blizzard', 'poisonjab'] 
+스탯 정보: Atk 161.0, Def 176.0, SpA 276.0, SpD 236.0, Spe 129.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: girafarig, 기술: psyshock, 방어자: araquanid
+기술 정보 - Power: 80, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: psyshock (BP: 80)
+ - Level: 89 (Factor: 37.6)
+ - Attacker A: 211.0, Defender D: 236.0 (Ratio: 0.89)
+ - Pure Base Damage: 55.79
+ - Final Damage (After Modifiers): 71.1720393890571
+ - Multiplier Applied: 1.28x
+girafarig used psyshock dealing 71 damage to araquanid!
+araquanid HP is now 183/254
+공격자: araquanid, 기술: hydropump, 방어자: girafarig
+기술 정보 - Power: 110, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: hydropump (BP: 110)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 276.0, Defender D: 166.0 (Ratio: 1.66)
+ - Pure Base Damage: 126.37
+ - Final Damage (After Modifiers): 177.00864648470764
+ - Multiplier Applied: 1.40x
+araquanid used hydropump dealing 177 damage to girafarig!
+girafarig HP is now 0/269
+===============================================
+
+[After Turn 24]
+상대: araquanid (HP: 183/254)
+플레이어 팀 - ludicolo: 기절
+플레이어 팀 - sunflora: 기절
+플레이어 팀 - kommoo: 기절
+플레이어 팀 - tinkaton: 기절
+플레이어 팀 - girafarig: 기절
+플레이어 팀 - spiritomb: 기절
+상대 팀 - rotomwash: 기절
+상대 팀 - maractus: HP: 263/263
+상대 팀 - articuno: 기절
+상대 팀 - mimikyu: 기절
+상대 팀 - araquanid: HP: 183/254
+상대 팀 - pokestarmt2: 기절
+플레이어: 기절
+상대: araquanid (HP: 183/254 = 72.0%)
+
+=== 배틀 종료 ===
+총 턴 수: 23
+승자: 상대
+=== SimplifiedBattleEngine 시뮬레이션 완료 ===
+Challenges (1 battles) finished in 0.590340s

@@ -127,7 +127,7 @@ class SimulationReplay:
         pokemon.status_counter = pokemon_dict.get('status_counter', 0)
         pokemon.toxic_counter = pokemon_dict.get('toxic_counter', 0)
         
-        # 스탯
+        # 스탯 - 
         pokemon.base_stats = pokemon_dict.get('base_stats', {}).copy() if pokemon_dict.get('base_stats') else {}
         pokemon.stats = pokemon_dict.get('stats', {}).copy() if pokemon_dict.get('stats') else {}
         pokemon.boosts = pokemon_dict.get('boosts', {}).copy() if pokemon_dict.get('boosts') else {}
@@ -392,10 +392,6 @@ class SimulationReplay:
         # 배틀 상태를 복사해서 시뮬레이션 (원본 유지)
         import copy
         battle_copy = copy.deepcopy(current_battle_state)
-
-
-        snorlax = battle_copy.opponent_team.get('p2: Zekrom')
-        snorlax.species = "mismagius"
         
         # 행동에서 기술 인덱스 추출
         player_move_idx = None

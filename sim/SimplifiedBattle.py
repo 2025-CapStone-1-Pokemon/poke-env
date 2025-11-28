@@ -10,7 +10,7 @@ import random
 
 # 기본 기술 개수
 DEFAULT_MOVES = 4
-DEFAULT_LEVEL = 100
+DEFAULT_LEVEL = 80
 
 class SimplifiedBattle:
     def __init__(self, poke_env_battle: Battle, fill_unknown_data: bool = True, gen : int = 9, team_num: int = 6):
@@ -91,20 +91,38 @@ class SimplifiedBattle:
         
         data = GenData.from_gen(self.gen)
         
-        # 0. 공개된 포켓몬들의 HP를 레벨 100으로 재계산
+        # 0. 공개된 포켓몬들의 스탯 재계산 (HP + Atk/Def/...)
         for pokemon_id, pokemon in self.opponent_team.items():
-            # Pokedex에서 해당 포켓몬의 기본 스탯 가져오기
             pokedex_data = data.pokedex.get(pokemon.species.lower(), {})
             if pokedex_data:
                 base_stats = pokedex_data.get('baseStats', {})
-                base_hp = base_stats.get('hp', 100)
                 
-                # HP를 레벨 100으로 재계산 (기본값 EV=0, IV=31)
-                # 공식: ((base*2 + IV + EV/4) * level / 100) + level + 5
-                recalculated_hp = int(((base_hp * 2 + 31 + 0) * DEFAULT_LEVEL / 100) + DEFAULT_LEVEL + 10)
-                pokemon.max_hp = recalculated_hp
-                pokemon.current_hp = recalculated_hp
+                # --- A. HP 재계산 (비율 유지) ---
+                base_hp = base_stats.get('hp', 100)
+                # Random Battle 표준: IV 31, EV 84 (Gen 9 기준)
+                recalculated_max_hp = int(((base_hp * 2 + 31 + (84 // 4)) * DEFAULT_LEVEL / 100) + DEFAULT_LEVEL + 10)
+                
+                # [중요] 현재 체력 비율 유지 로직
+                if pokemon.max_hp > 0:
+                    hp_ratio = pokemon.current_hp / pokemon.max_hp
+                else:
+                    hp_ratio = 1.0
+                
+                pokemon.max_hp = recalculated_max_hp
+                pokemon.current_hp = int(recalculated_max_hp * hp_ratio) # 비율에 맞춰 재설정
                 pokemon.level = DEFAULT_LEVEL
+
+                # --- B. 나머지 스탯(Atk, Def...) 재계산 (누락된 부분 추가) ---
+                # Random Battle은 보통 성격 보정을 알 수 없으므로 Neutral(1.0) 가정, EV 84
+                new_stats = {}
+                for stat_name in ['atk', 'def', 'spa', 'spd', 'spe']:
+                    base_val = base_stats.get(stat_name, 100)
+                    # 공식: ((base * 2 + IV + EV/4) * level / 100) + 5
+                    # 소수점 버림(int) 처리 필수
+                    val = int(((base_val * 2 + 31 + (84 // 4)) * DEFAULT_LEVEL / 100) + 5)
+                    new_stats[stat_name] = val
+                
+                pokemon.stats = new_stats # 스탯 덮어쓰기
         
         # 1. 기존 공개된 포켓몬의 기술이 없으면 랜덤 기술 생성
         for pokemon_id, pokemon in self.opponent_team.items():
@@ -155,26 +173,45 @@ class SimplifiedBattle:
                 self.opponent_team[dummy_id] = dummy_pokemon
     
     def _create_dummy_pokemon_list(self, exisiting_species, num_to_add, gen):
-        """랜덤 포켓몬 생성 리스트"""
-
-        # Dict[str, Any] 의 형태임
+        """랜덤 포켓몬 생성 리스트 (필터링 적용)"""
         from poke_env.data import GenData
         data = GenData.from_gen(self.gen)
 
-        # TODO 베이즈 추론등을 활용하여, 공개된 포켓몬으로 추정 가능한 포켓몬 생성하기
+        # TODO 베이즈추론 등 적용
+        # 유효한 포켓몬 목록 필터링
+        valid_species = []
+        for name, entry in data.pokedex.items():
+            # 1. 이미 있는 포켓몬 제외
+            if name in exisiting_species:
+                continue
+                
+            # 2. 비표준 포켓몬 제외 (Pokestar, CAP 등)
+            # isNonstandard 속성이 있으면 거름 (Gigantamax 등 일부 예외는 허용 가능하지만 일단 엄격하게)
+            if entry.get('isNonstandard'):
+                continue
+                
+            # 3. 도감 번호가 0 이하인 더미 제외
+            if entry.get('num', 0) <= 0:
+                continue
+                
+            # 4. 진화체가 있는 미진화 포켓몬 제외 (Random Battle은 최종 진화체 위주)
+            # (evos 키가 있으면 진화 가능하므로 제외)
+            if 'evos' in entry:
+                continue
+            
+            valid_species.append(name)
 
-        # 개수 만큼 생성
+        # 개수만큼 생성
         pokemon_list = []
-
-        possible_species_name = [
-                species for species in data.pokedex.keys()
-                if species not in exisiting_species
-            ]
-
         for _ in range(num_to_add):
-            # 중복되지 않는 포켓몬 선택
-            random_species = random.choice(possible_species_name)
-            pokemon_list.append(self._create_dummy_pokemon(data.pokedex[random_species]))
+            if not valid_species:
+                break
+                
+            random_species = random.choice(valid_species)
+            # 중복 방지를 위해 선택 후 제거 (선택적)
+            # valid_species.remove(random_species) 
+            
+            pokemon_list.append(self._create_dummy_pokemon(random_species))
         
         return pokemon_list
     
@@ -194,6 +231,8 @@ class SimplifiedBattle:
         
         # SimplifiedPokemon 객체 생성
         dummy_pokemon = SimplifiedPokemon.__new__(SimplifiedPokemon)
+
+        dummy_pokemon.volatiles = {}
         
         # 기본 정보
         dummy_pokemon.species = pokedex_data.get('baseSpecies', species).lower()
@@ -462,51 +501,81 @@ class SimplifiedBattle:
         """pokedex 데이터에서 기술 객체 생성"""
         from poke_env.battle.pokemon_type import PokemonType
         from poke_env.battle.move_category import MoveCategory
+        from poke_env.battle.status import Status  # 상태이상 Enum 필요
         
-        # 기술 데이터 추출
+        # 1. 기술 데이터 추출
         base_power = move_data.get('basePower', 0)
         accuracy = move_data.get('accuracy', 100)
         category = move_data.get('category', 'Physical')
         move_type = move_data.get('type', 'Normal')
         priority = move_data.get('priority', 0)
         
-        # 타입 변환
+        # 추가 데이터 추출
+        recoil_data = move_data.get('recoil', None)      # 반동 [분자, 분모]
+        drain_data = move_data.get('drain', None)        # 흡수 [분자, 분모]
+        boosts_data = move_data.get('boosts', None)      # 상대 랭크 다운
+        self_boost_data = move_data.get('selfBoost', None) # 자신 랭크 업
+        status_str = move_data.get('status', None)       # 상태이상 (문자열)
+        crit_ratio = move_data.get('critRatio', 0)       # 급소율
+        flags_data = move_data.get('flags', {})          # 기술 플래그 (charge, recharge 등)
+        secondary_data = move_data.get('secondary', None) # 부가 효과
+
+        # 2. 타입 변환 (문자열 -> Enum)
         try:
             move_type_enum = PokemonType[move_type.upper()]
-        except KeyError:
+        except (KeyError, AttributeError):
             move_type_enum = PokemonType.NORMAL
         
-        # 카테고리 변환
+        # 3. 카테고리 변환 (문자열 -> Enum)
         try:
             category_enum = MoveCategory[category.upper()]
-        except KeyError:
+        except (KeyError, AttributeError):
             category_enum = MoveCategory.PHYSICAL
-        
+
+        # 4. 상태이상 변환 (문자열 -> Enum)
+        status_enum = None
+        if status_str:
+            try:
+                status_enum = Status[status_str.upper()]
+            except (KeyError, AttributeError):
+                status_enum = None
+
+        # 5. 더미 무브 클래스 정의
         class DummyMove:
             def __init__(self):
                 self.id = move_id
                 self.base_power = base_power if base_power else 0
                 self.type = move_type_enum
                 self.category = category_enum
-                # accuracy 정규화: 100 범위를 0-1.0으로 변환
-                if accuracy is None or accuracy >= 1.0:
+                
+                # Accuracy 정규화 (0~1.0)
+                if accuracy is None or accuracy is True:
                     self.accuracy = 1.0
-                elif accuracy > 1:
-                    self.accuracy = accuracy / 100.0  # 0-100 → 0-1.0
+                elif isinstance(accuracy, int) or isinstance(accuracy, float):
+                    if accuracy > 1: 
+                        self.accuracy = accuracy / 100.0 
+                    else: 
+                        self.accuracy = accuracy
                 else:
-                    self.accuracy = accuracy  # 이미 0-1.0
+                    self.accuracy = 1.0
+
                 self.priority = priority
                 self.current_pp = 16
                 self.max_pp = 16
-                self.boosts = None
-                self.self_boost = None
-                self.status = None
-                self.secondary = None
-                self.crit_ratio = 0
+                
+                # [수정] 데이터 할당
+                self.recoil = recoil_data
+                self.drain = drain_data
+                self.boosts = boosts_data
+                self.self_boost = self_boost_data
+                self.status = status_enum
+                self.secondary = secondary_data
+                self.crit_ratio = crit_ratio
                 self.expected_hits = 1
-                self.recoil = 0
-                self.drain = 0
-                self.flags = set()
+                
+                # [중요] Flags 처리 (dict_keys -> set)
+                self.flags = set(flags_data.keys())
+                
                 self.breaks_protect = False
                 self.is_protect_move = False
     

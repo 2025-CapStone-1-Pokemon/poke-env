@@ -1,0 +1,1611 @@
+Player initialisation finished
+SimplifiedBattleEngine 초기화 (프로세스당 한 번)
+Event logged in received in send challenge
+=== Turn 1: SimplifiedBattle 시뮬레이션 시작 ===
+SimplifiedBattleEngine.simulate_full_battle() 실행 중...
+
+=== 배틀 시뮬레이션 시작 (최대 100턴) ===
+
+[초기 상태]
+플레이어: venomoth (HP: 255/255)
+상대: toxicroak (HP: 249/249)
+플레이어 팀 - venomoth: HP: 255/255
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: HP: 280/280
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 264/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+
+--- 턴 1 ---
+시뮬레이션 시작 : 1
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: venomoth (HP: 255/255) 
+스탯 정보: Atk 114.0, Def 149.0, SpA 199.0, SpD 174.0, Spe 199.0
+상대의 활성 포켓몬: toxicroak (HP: 264/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 150.0, SpA 184.0, SpD 150.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: venomoth, 기술: bugbuzz, 방어자: toxicroak
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: bugbuzz (BP: 90)
+ - Level: 84 (Factor: 35.6)
+ - Attacker A: 199.0, Defender D: 150.0 (Ratio: 1.33)
+ - Pure Base Damage: 87.01
+ - Final Damage (After Modifiers): 28.91776787147801
+ - Multiplier Applied: 0.33x
+venomoth used bugbuzz dealing 28 damage to toxicroak!
+toxicroak HP is now 236/264
+기술명 : bugbuzz / 효과 : None, None, None, 0.0, 0.0
+공격자: toxicroak, 기술: bounce, 방어자: venomoth
+기술 정보 - Power: 85, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: bounce (BP: 85)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 216.0, Defender D: 149.0 (Ratio: 1.45)
+ - Pure Base Damage: 85.79
+ - Final Damage (After Modifiers): 147.34657359301133
+ - Multiplier Applied: 1.72x
+toxicroak used bounce dealing 147 damage to venomoth!
+venomoth HP is now 108/255
+기술명 : bounce / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 2]
+플레이어: venomoth (HP: 108/255)
+상대: toxicroak (HP: 236/264)
+플레이어 팀 - venomoth: HP: 108/255
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: HP: 280/280
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 236/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: venomoth (HP: 108/255 = 42.4%)
+상대: toxicroak (HP: 236/264 = 89.4%)
+
+--- 턴 2 ---
+시뮬레이션 시작 : 2
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: venomoth (HP: 108/255) 
+스탯 정보: Atk 114.0, Def 149.0, SpA 199.0, SpD 174.0, Spe 199.0
+상대의 활성 포켓몬: toxicroak (HP: 236/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 150.0, SpA 184.0, SpD 150.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: venomoth, 기술: sleeppowder, 방어자: toxicroak
+기술 정보 - Power: 0, Accuracy: 0.75, Category: STATUS
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.75
+기술명 : sleeppowder / 효과 : None, None, SLP (status) object, 0.0, 0.0
+  [Effect] toxicroak is now SLP!
+공격자: toxicroak, 기술: bounce, 방어자: venomoth
+기술 정보 - Power: 85, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: bounce (BP: 85)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 216.0, Defender D: 149.0 (Ratio: 1.45)
+ - Pure Base Damage: 85.79
+ - Final Damage (After Modifiers): 163.08874043709207
+ - Multiplier Applied: 1.90x
+toxicroak used bounce dealing 163 damage to venomoth!
+venomoth HP is now 0/255
+기술명 : bounce / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 3]
+플레이어: arceuspsychic (HP: 280/280)
+상대: toxicroak (HP: 236/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: HP: 280/280
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 236/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: arceuspsychic (HP: 280/280 = 100.0%)
+상대: toxicroak (HP: 236/264 = 89.4%)
+
+--- 턴 3 ---
+시뮬레이션 시작 : 3
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: arceuspsychic (HP: 280/280) 
+스탯 정보: Atk 170.0, Def 206.0, SpA 206.0, SpD 206.0, Spe 206.0
+상대의 활성 포켓몬: toxicroak (HP: 236/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 150.0, SpA 184.0, SpD 150.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: arceuspsychic, 기술: cosmicpower, 방어자: toxicroak
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+기술명 : cosmicpower / 효과 : {'def': 1, 'spd': 1}, None, None, 0.0, 0.0
+  [Effect] toxicroak's def changed by 1!
+  [Effect] toxicroak's spd changed by 1!
+공격자: toxicroak, 기술: bounce, 방어자: arceuspsychic
+기술 정보 - Power: 85, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: bounce (BP: 85)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 216.0, Defender D: 206.0 (Ratio: 1.05)
+ - Pure Base Damage: 62.61
+ - Final Damage (After Modifiers): 54.84203208862633
+ - Multiplier Applied: 0.88x
+toxicroak used bounce dealing 54 damage to arceuspsychic!
+arceuspsychic HP is now 226/280
+기술명 : bounce / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 4]
+플레이어: arceuspsychic (HP: 226/280)
+상대: toxicroak (HP: 236/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: HP: 226/280
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 236/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: arceuspsychic (HP: 226/280 = 80.7%)
+상대: toxicroak (HP: 236/264 = 89.4%)
+
+--- 턴 4 ---
+시뮬레이션 시작 : 4
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: arceuspsychic (HP: 226/280) 
+스탯 정보: Atk 170.0, Def 206.0, SpA 206.0, SpD 206.0, Spe 206.0
+상대의 활성 포켓몬: toxicroak (HP: 236/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 225.0, SpA 184.0, SpD 225.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: arceuspsychic, 기술: storedpower, 방어자: toxicroak
+기술 정보 - Power: 20, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: storedpower (BP: 20)
+ - Level: 69 (Factor: 29.6)
+ - Attacker A: 206.0, Defender D: 225.0 (Ratio: 0.92)
+ - Pure Base Damage: 12.84
+ - Final Damage (After Modifiers): 74.43962703375587
+ - Multiplier Applied: 5.80x
+arceuspsychic used storedpower dealing 74 damage to toxicroak!
+toxicroak HP is now 162/264
+기술명 : storedpower / 효과 : None, None, None, 0.0, 0.0
+공격자: toxicroak, 기술: belch, 방어자: arceuspsychic
+기술 정보 - Power: 120, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: belch (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 184.0, Defender D: 206.0 (Ratio: 0.89)
+ - Pure Base Damage: 74.89
+ - Final Damage (After Modifiers): 107.38750025555728
+ - Multiplier Applied: 1.43x
+toxicroak used belch dealing 107 damage to arceuspsychic!
+arceuspsychic HP is now 119/280
+기술명 : belch / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 5]
+플레이어: arceuspsychic (HP: 119/280)
+상대: toxicroak (HP: 162/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: HP: 119/280
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 162/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: arceuspsychic (HP: 119/280 = 42.5%)
+상대: toxicroak (HP: 162/264 = 61.4%)
+
+--- 턴 5 ---
+시뮬레이션 시작 : 5
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: arceuspsychic (HP: 119/280) 
+스탯 정보: Atk 170.0, Def 206.0, SpA 206.0, SpD 206.0, Spe 206.0
+상대의 활성 포켓몬: toxicroak (HP: 162/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 225.0, SpA 184.0, SpD 225.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: arceuspsychic, 기술: storedpower, 방어자: toxicroak
+기술 정보 - Power: 20, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: storedpower (BP: 20)
+ - Level: 69 (Factor: 29.6)
+ - Attacker A: 206.0, Defender D: 225.0 (Ratio: 0.92)
+ - Pure Base Damage: 12.84
+ - Final Damage (After Modifiers): 70.22554793158386
+ - Multiplier Applied: 5.47x
+arceuspsychic used storedpower dealing 70 damage to toxicroak!
+toxicroak HP is now 92/264
+기술명 : storedpower / 효과 : None, None, None, 0.0, 0.0
+공격자: toxicroak, 기술: focuspunch, 방어자: arceuspsychic
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: focuspunch (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 216.0, Defender D: 206.0 (Ratio: 1.05)
+ - Pure Base Damage: 108.95
+ - Final Damage (After Modifiers): 70.85027478354411
+ - Multiplier Applied: 0.65x
+toxicroak used focuspunch dealing 70 damage to arceuspsychic!
+arceuspsychic HP is now 49/280
+기술명 : focuspunch / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 6]
+플레이어: arceuspsychic (HP: 49/280)
+상대: toxicroak (HP: 92/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: HP: 49/280
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 92/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: arceuspsychic (HP: 49/280 = 17.5%)
+상대: toxicroak (HP: 92/264 = 34.8%)
+
+--- 턴 6 ---
+시뮬레이션 시작 : 6
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: arceuspsychic (HP: 49/280) 
+스탯 정보: Atk 170.0, Def 206.0, SpA 206.0, SpD 206.0, Spe 206.0
+상대의 활성 포켓몬: toxicroak (HP: 92/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 225.0, SpA 184.0, SpD 225.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: arceuspsychic, 기술: recover, 방어자: toxicroak
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+기술명 : recover / 효과 : None, None, None, 0.0, 0.0
+공격자: toxicroak, 기술: focuspunch, 방어자: arceuspsychic
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: focuspunch (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 216.0, Defender D: 206.0 (Ratio: 1.05)
+ - Pure Base Damage: 108.95
+ - Final Damage (After Modifiers): 78.66639985383054
+ - Multiplier Applied: 0.72x
+toxicroak used focuspunch dealing 78 damage to arceuspsychic!
+arceuspsychic HP is now 0/280
+기술명 : focuspunch / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 7]
+플레이어: rotom (HP: 231/231)
+상대: toxicroak (HP: 92/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 231/231
+상대 팀 - toxicroak: HP: 92/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 231/231 = 100.0%)
+상대: toxicroak (HP: 92/264 = 34.8%)
+
+--- 턴 7 ---
+시뮬레이션 시작 : 7
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 231/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: toxicroak (HP: 92/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 225.0, SpA 184.0, SpD 225.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: willowisp, 방어자: toxicroak
+기술 정보 - Power: 0, Accuracy: 0.85, Category: STATUS
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.85
+기술명 : willowisp / 효과 : None, None, BRN (status) object, 0.0, 0.0
+공격자: toxicroak, 기술: bounce, 방어자: rotom
+기술 정보 - Power: 85, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: bounce (BP: 85)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 216.0, Defender D: 186.0 (Ratio: 1.16)
+ - Pure Base Damage: 69.12
+ - Final Damage (After Modifiers): 32.4148798268166
+ - Multiplier Applied: 0.47x
+toxicroak used bounce dealing 32 damage to rotom!
+rotom HP is now 199/231
+기술명 : bounce / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 8]
+플레이어: rotom (HP: 199/231)
+상대: toxicroak (HP: 92/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 199/231
+상대 팀 - toxicroak: HP: 92/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 199/231 = 86.1%)
+상대: toxicroak (HP: 92/264 = 34.8%)
+
+--- 턴 8 ---
+시뮬레이션 시작 : 8
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 199/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: toxicroak (HP: 92/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 225.0, SpA 184.0, SpD 225.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: thunderbolt, 방어자: toxicroak
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: thunderbolt (BP: 90)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 225.0 (Ratio: 0.96)
+ - Pure Base Damage: 66.58
+ - Final Damage (After Modifiers): 88.65289088392038
+ - Multiplier Applied: 1.33x
+rotom used thunderbolt dealing 88 damage to toxicroak!
+toxicroak HP is now 4/264
+기술명 : thunderbolt / 효과 : None, None, None, 0.0, 0.0
+공격자: toxicroak, 기술: hyperbeam, 방어자: rotom
+기술 정보 - Power: 150, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: hyperbeam (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 184.0, Defender D: 186.0 (Ratio: 0.99)
+ - Pure Base Damage: 102.90
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+toxicroak used hyperbeam dealing 1 damage to rotom!
+rotom HP is now 198/231
+기술명 : hyperbeam / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 9]
+플레이어: rotom (HP: 198/231)
+상대: toxicroak (HP: 4/264)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 198/231
+상대 팀 - toxicroak: HP: 4/264
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 198/231 = 85.7%)
+상대: toxicroak (HP: 4/264 = 1.5%)
+
+--- 턴 9 ---
+시뮬레이션 시작 : 9
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 198/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: toxicroak (HP: 4/264) 
+상대의 기술 정보 : ['focuspunch', 'belch', 'bounce', 'hyperbeam'] 
+스탯 정보: Atk 216.0, Def 225.0, SpA 184.0, SpD 225.0, Spe 182.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: voltswitch, 방어자: toxicroak
+기술 정보 - Power: 70, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: voltswitch (BP: 70)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 225.0 (Ratio: 0.96)
+ - Pure Base Damage: 52.23
+ - Final Damage (After Modifiers): 70.01591482766499
+ - Multiplier Applied: 1.34x
+rotom used voltswitch dealing 70 damage to toxicroak!
+toxicroak HP is now 0/264
+기술명 : voltswitch / 효과 : None, None, None, 0.0, 0.0
+===============================================
+
+[After Turn 10]
+플레이어: rotom (HP: 198/231)
+상대: pansage (HP: 188/188)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 198/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 188/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 198/231 = 85.7%)
+상대: pansage (HP: 188/188 = 100.0%)
+
+--- 턴 10 ---
+시뮬레이션 시작 : 10
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 198/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: pansage (HP: 188/188) 
+상대의 기술 정보 : ['leafstorm', 'solarbeam', 'gunkshot', 'focuspunch'] 
+스탯 정보: Atk 145.0, Def 148.0, SpA 149.0, SpD 124.0, Spe 113.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: willowisp, 방어자: pansage
+기술 정보 - Power: 0, Accuracy: 0.85, Category: STATUS
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.85
+기술명 : willowisp / 효과 : None, None, BRN (status) object, 0.0, 0.0
+  [Effect] pansage is now BRN!
+공격자: pansage, 기술: gunkshot, 방어자: rotom
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: gunkshot (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 145.0, Defender D: 186.0 (Ratio: 0.78)
+ - Pure Base Damage: 65.61
+ - Final Damage (After Modifiers): 14.122779080999557
+ - Multiplier Applied: 0.22x
+pansage used gunkshot dealing 14 damage to rotom!
+rotom HP is now 184/231
+기술명 : gunkshot / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 11]
+플레이어: rotom (HP: 184/231)
+상대: pansage (HP: 177/188)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 184/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 177/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 184/231 = 79.7%)
+상대: pansage (HP: 177/188 = 94.1%)
+
+--- 턴 11 ---
+시뮬레이션 시작 : 11
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 184/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: pansage (HP: 177/188) 
+상대의 기술 정보 : ['leafstorm', 'solarbeam', 'gunkshot', 'focuspunch'] 
+스탯 정보: Atk 145.0, Def 148.0, SpA 149.0, SpD 124.0, Spe 113.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: voltswitch, 방어자: pansage
+기술 정보 - Power: 70, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: voltswitch (BP: 70)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 124.0 (Ratio: 1.75)
+ - Pure Base Damage: 93.14
+ - Final Damage (After Modifiers): 59.39719856728283
+ - Multiplier Applied: 0.64x
+rotom used voltswitch dealing 59 damage to pansage!
+pansage HP is now 118/188
+기술명 : voltswitch / 효과 : None, None, None, 0.0, 0.0
+공격자: pansage, 기술: focuspunch, 방어자: rotom
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: focuspunch (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 145.0, Defender D: 186.0 (Ratio: 0.78)
+ - Pure Base Damage: 81.52
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+pansage used focuspunch dealing 1 damage to rotom!
+rotom HP is now 183/231
+기술명 : focuspunch / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 12]
+플레이어: rotom (HP: 183/231)
+상대: pansage (HP: 107/188)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 183/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: HP: 107/188
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 183/231 = 79.2%)
+상대: pansage (HP: 107/188 = 56.9%)
+
+--- 턴 12 ---
+시뮬레이션 시작 : 12
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 183/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: pansage (HP: 107/188) 
+상대의 기술 정보 : ['leafstorm', 'solarbeam', 'gunkshot', 'focuspunch'] 
+스탯 정보: Atk 145.0, Def 148.0, SpA 149.0, SpD 124.0, Spe 113.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: shadowball, 방어자: pansage
+기술 정보 - Power: 80, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: shadowball (BP: 80)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 124.0 (Ratio: 1.75)
+ - Pure Base Damage: 106.16
+ - Final Damage (After Modifiers): 154.8947147930053
+ - Multiplier Applied: 1.46x
+rotom used shadowball dealing 154 damage to pansage!
+pansage HP is now 0/188
+기술명 : shadowball / 효과 : None, None, None, 0.0, 0.0
+===============================================
+
+[After Turn 13]
+플레이어: rotom (HP: 183/231)
+상대: buzzwole (HP: 319/319)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 183/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 319/319
+플레이어: rotom (HP: 183/231 = 79.2%)
+상대: buzzwole (HP: 319/319 = 100.0%)
+
+--- 턴 13 ---
+시뮬레이션 시작 : 13
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 183/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: buzzwole (HP: 319/319) 
+상대의 기술 정보 : ['focuspunch', 'closecombat', 'darkestlariat', 'outrage'] 
+스탯 정보: Atk 286.0, Def 275.0, SpA 133.0, SpD 152.0, Spe 156.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: voltswitch, 방어자: buzzwole
+기술 정보 - Power: 70, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: voltswitch (BP: 70)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 152.0 (Ratio: 1.43)
+ - Pure Base Damage: 76.35
+ - Final Damage (After Modifiers): 103.81529568024199
+ - Multiplier Applied: 1.36x
+rotom used voltswitch dealing 103 damage to buzzwole!
+buzzwole HP is now 216/319
+기술명 : voltswitch / 효과 : None, None, None, 0.0, 0.0
+공격자: buzzwole, 기술: outrage, 방어자: rotom
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: outrage (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 286.0, Defender D: 186.0 (Ratio: 1.54)
+ - Pure Base Damage: 127.47
+ - Final Damage (After Modifiers): 117.58870031344021
+ - Multiplier Applied: 0.92x
+buzzwole used outrage dealing 117 damage to rotom!
+rotom HP is now 66/231
+기술명 : outrage / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 14]
+플레이어: rotom (HP: 66/231)
+상대: buzzwole (HP: 216/319)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 66/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 216/319
+플레이어: rotom (HP: 66/231 = 28.6%)
+상대: buzzwole (HP: 216/319 = 67.7%)
+
+--- 턴 14 ---
+시뮬레이션 시작 : 14
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 66/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: buzzwole (HP: 216/319) 
+상대의 기술 정보 : ['focuspunch', 'closecombat', 'darkestlariat', 'outrage'] 
+스탯 정보: Atk 286.0, Def 275.0, SpA 133.0, SpD 152.0, Spe 156.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: voltswitch, 방어자: buzzwole
+기술 정보 - Power: 70, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: voltswitch (BP: 70)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 152.0 (Ratio: 1.43)
+ - Pure Base Damage: 76.35
+ - Final Damage (After Modifiers): 112.89840930980999
+ - Multiplier Applied: 1.48x
+rotom used voltswitch dealing 112 damage to buzzwole!
+buzzwole HP is now 104/319
+기술명 : voltswitch / 효과 : None, None, None, 0.0, 0.0
+공격자: buzzwole, 기술: focuspunch, 방어자: rotom
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: focuspunch (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 286.0, Defender D: 186.0 (Ratio: 1.54)
+ - Pure Base Damage: 158.84
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+buzzwole used focuspunch dealing 1 damage to rotom!
+rotom HP is now 65/231
+기술명 : focuspunch / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 15]
+플레이어: rotom (HP: 65/231)
+상대: buzzwole (HP: 104/319)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 65/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: HP: 104/319
+플레이어: rotom (HP: 65/231 = 28.1%)
+상대: buzzwole (HP: 104/319 = 32.6%)
+
+--- 턴 15 ---
+시뮬레이션 시작 : 15
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 65/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: buzzwole (HP: 104/319) 
+상대의 기술 정보 : ['focuspunch', 'closecombat', 'darkestlariat', 'outrage'] 
+스탯 정보: Atk 286.0, Def 275.0, SpA 133.0, SpD 152.0, Spe 156.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: thunderbolt, 방어자: buzzwole
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+Critical hit by rotom using thunderbolt!
+
+[DAMAGE DEBUG] Move: thunderbolt (BP: 90)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 152.0 (Ratio: 1.43)
+ - Pure Base Damage: 97.59
+ - Final Damage (After Modifiers): 189.96386980154085
+ - Multiplier Applied: 1.95x
+rotom used thunderbolt dealing 189 damage to buzzwole!
+buzzwole HP is now 0/319
+기술명 : thunderbolt / 효과 : None, None, None, 0.0, 0.0
+===============================================
+
+[After Turn 16]
+플레이어: rotom (HP: 65/231)
+상대: smeargle (HP: 229/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 65/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 229/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 65/231 = 28.1%)
+상대: smeargle (HP: 229/229 = 100.0%)
+
+--- 턴 16 ---
+시뮬레이션 시작 : 16
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 65/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 229/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: willowisp, 방어자: smeargle
+기술 정보 - Power: 0, Accuracy: 0.85, Category: STATUS
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.85
+기술명 : willowisp / 효과 : None, None, BRN (status) object, 0.0, 0.0
+  [Effect] smeargle is now BRN!
+공격자: smeargle, 기술: falseswipe, 방어자: rotom
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: falseswipe (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 86.0, Defender D: 186.0 (Ratio: 0.46)
+ - Pure Base Damage: 14.58
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+smeargle used falseswipe dealing 1 damage to rotom!
+rotom HP is now 64/231
+기술명 : falseswipe / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 17]
+플레이어: rotom (HP: 64/231)
+상대: smeargle (HP: 215/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 64/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 215/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 64/231 = 27.7%)
+상대: smeargle (HP: 215/229 = 93.9%)
+
+--- 턴 17 ---
+시뮬레이션 시작 : 17
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 64/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 215/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: shadowball, 방어자: smeargle
+기술 정보 - Power: 80, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: shadowball (BP: 80)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 125.0 (Ratio: 1.74)
+ - Pure Base Damage: 105.33
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+rotom used shadowball dealing 1 damage to smeargle!
+smeargle HP is now 214/229
+기술명 : shadowball / 효과 : None, None, None, 0.0, 0.0
+공격자: smeargle, 기술: flamethrower, 방어자: rotom
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: flamethrower (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 66.0, Defender D: 186.0 (Ratio: 0.35)
+ - Pure Base Damage: 23.72
+ - Final Damage (After Modifiers): 21.853852187807494
+ - Multiplier Applied: 0.92x
+smeargle used flamethrower dealing 21 damage to rotom!
+rotom HP is now 43/231
+기술명 : flamethrower / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 18]
+플레이어: rotom (HP: 43/231)
+상대: smeargle (HP: 200/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 43/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 200/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 43/231 = 18.6%)
+상대: smeargle (HP: 200/229 = 87.3%)
+
+--- 턴 18 ---
+시뮬레이션 시작 : 18
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 43/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 200/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: voltswitch, 방어자: smeargle
+기술 정보 - Power: 70, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: voltswitch (BP: 70)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 125.0 (Ratio: 1.74)
+ - Pure Base Damage: 92.41
+ - Final Damage (After Modifiers): 119.54140617038391
+ - Multiplier Applied: 1.29x
+rotom used voltswitch dealing 119 damage to smeargle!
+smeargle HP is now 81/229
+기술명 : voltswitch / 효과 : None, None, None, 0.0, 0.0
+공격자: smeargle, 기술: odorsleuth, 방어자: rotom
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+기술명 : odorsleuth / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 19]
+플레이어: rotom (HP: 43/231)
+상대: smeargle (HP: 67/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 43/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 67/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 43/231 = 18.6%)
+상대: smeargle (HP: 67/229 = 29.3%)
+
+--- 턴 19 ---
+시뮬레이션 시작 : 19
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 43/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 67/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: willowisp, 방어자: smeargle
+기술 정보 - Power: 0, Accuracy: 0.85, Category: STATUS
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.85
+기술명 : willowisp / 효과 : None, None, BRN (status) object, 0.0, 0.0
+공격자: smeargle, 기술: flamethrower, 방어자: rotom
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: flamethrower (BP: 90)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 66.0, Defender D: 186.0 (Ratio: 0.35)
+ - Pure Base Damage: 23.72
+ - Final Damage (After Modifiers): 22.5549606034483
+ - Multiplier Applied: 0.95x
+smeargle used flamethrower dealing 22 damage to rotom!
+rotom HP is now 21/231
+기술명 : flamethrower / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 20]
+플레이어: rotom (HP: 21/231)
+상대: smeargle (HP: 53/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 21/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 53/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 21/231 = 9.1%)
+상대: smeargle (HP: 53/229 = 23.1%)
+
+--- 턴 20 ---
+시뮬레이션 시작 : 20
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 21/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 53/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: shadowball, 방어자: smeargle
+기술 정보 - Power: 80, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: shadowball (BP: 80)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 125.0 (Ratio: 1.74)
+ - Pure Base Damage: 105.33
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+rotom used shadowball dealing 1 damage to smeargle!
+smeargle HP is now 52/229
+기술명 : shadowball / 효과 : None, None, None, 0.0, 0.0
+공격자: smeargle, 기술: odorsleuth, 방어자: rotom
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+기술명 : odorsleuth / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 21]
+플레이어: rotom (HP: 21/231)
+상대: smeargle (HP: 38/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 21/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 38/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 21/231 = 9.1%)
+상대: smeargle (HP: 38/229 = 16.6%)
+
+--- 턴 21 ---
+시뮬레이션 시작 : 21
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 21/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 38/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: shadowball, 방어자: smeargle
+기술 정보 - Power: 80, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: shadowball (BP: 80)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 125.0 (Ratio: 1.74)
+ - Pure Base Damage: 105.33
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+rotom used shadowball dealing 1 damage to smeargle!
+smeargle HP is now 37/229
+기술명 : shadowball / 효과 : None, None, None, 0.0, 0.0
+공격자: smeargle, 기술: captivate, 방어자: rotom
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+기술명 : captivate / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 22]
+플레이어: rotom (HP: 21/231)
+상대: smeargle (HP: 23/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 21/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 23/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 21/231 = 9.1%)
+상대: smeargle (HP: 23/229 = 10.0%)
+
+--- 턴 22 ---
+시뮬레이션 시작 : 22
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 21/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 23/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: willowisp, 방어자: smeargle
+기술 정보 - Power: 0, Accuracy: 0.85, Category: STATUS
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.85
+기술명 : willowisp / 효과 : None, None, BRN (status) object, 0.0, 0.0
+공격자: smeargle, 기술: falseswipe, 방어자: rotom
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: falseswipe (BP: 40)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 86.0, Defender D: 186.0 (Ratio: 0.46)
+ - Pure Base Damage: 14.58
+ - Final Damage (After Modifiers): 0.0
+ - Multiplier Applied: 0.00x
+smeargle used falseswipe dealing 1 damage to rotom!
+rotom HP is now 20/231
+기술명 : falseswipe / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 23]
+플레이어: rotom (HP: 20/231)
+상대: smeargle (HP: 9/229)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 20/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: HP: 9/229
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 20/231 = 8.7%)
+상대: smeargle (HP: 9/229 = 3.9%)
+
+--- 턴 23 ---
+시뮬레이션 시작 : 23
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 20/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: smeargle (HP: 9/229) 
+상대의 기술 정보 : ['falseswipe', 'flamethrower', 'odorsleuth', 'captivate'] 
+스탯 정보: Atk 86.0, Def 105.0, SpA 66.0, SpD 125.0, Spe 173.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: thunderbolt, 방어자: smeargle
+기술 정보 - Power: 90, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: thunderbolt (BP: 90)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 125.0 (Ratio: 1.74)
+ - Pure Base Damage: 118.24
+ - Final Damage (After Modifiers): 151.09708041661773
+ - Multiplier Applied: 1.28x
+rotom used thunderbolt dealing 151 damage to smeargle!
+smeargle HP is now 0/229
+기술명 : thunderbolt / 효과 : None, None, None, 0.0, 0.0
+===============================================
+
+[After Turn 24]
+플레이어: rotom (HP: 20/231)
+상대: pikachu (HP: 210/210)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: HP: 20/231
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: HP: 210/210
+상대 팀 - buzzwole: 기절
+플레이어: rotom (HP: 20/231 = 8.7%)
+상대: pikachu (HP: 210/210 = 100.0%)
+
+--- 턴 24 ---
+시뮬레이션 시작 : 24
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: rotom (HP: 20/231) 
+스탯 정보: Atk 93.0, Def 186.0, SpA 217.0, SpD 186.0, Spe 210.0
+상대의 활성 포켓몬: pikachu (HP: 210/210) 
+상대의 기술 정보 : ['volttackle', 'zapcannon', 'slam', 'bodyslam'] 
+스탯 정보: Atk 143.0, Def 111.0, SpA 142.0, SpD 137.0, Spe 197.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: rotom, 기술: voltswitch, 방어자: pikachu
+기술 정보 - Power: 70, Accuracy: 1.0, Category: SPECIAL
+
+[DAMAGE DEBUG] Move: voltswitch (BP: 70)
+ - Level: 88 (Factor: 37.2)
+ - Attacker A: 217.0, Defender D: 137.0 (Ratio: 1.58)
+ - Pure Base Damage: 84.49
+ - Final Damage (After Modifiers): 56.30134708223124
+ - Multiplier Applied: 0.67x
+rotom used voltswitch dealing 56 damage to pikachu!
+pikachu HP is now 154/210
+기술명 : voltswitch / 효과 : None, None, None, 0.0, 0.0
+공격자: pikachu, 기술: volttackle, 방어자: rotom
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: volttackle (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 143.0, Defender D: 186.0 (Ratio: 0.77)
+ - Pure Base Damage: 64.74
+ - Final Damage (After Modifiers): 48.05532926857929
+ - Multiplier Applied: 0.74x
+pikachu used volttackle dealing 48 damage to rotom!
+rotom HP is now 0/231
+기술명 : volttackle / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 25]
+플레이어: ursaring (HP: 288/288)
+상대: pikachu (HP: 154/210)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 288/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: 기절
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: HP: 154/210
+상대 팀 - buzzwole: 기절
+플레이어: ursaring (HP: 288/288 = 100.0%)
+상대: pikachu (HP: 154/210 = 73.3%)
+
+--- 턴 25 ---
+시뮬레이션 시작 : 25
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ursaring (HP: 288/288) 
+스탯 정보: Atk 267.0, Def 174.0, SpA 174.0, SpD 174.0, Spe 141.0
+상대의 활성 포켓몬: pikachu (HP: 154/210) 
+상대의 기술 정보 : ['volttackle', 'zapcannon', 'slam', 'bodyslam'] 
+스탯 정보: Atk 143.0, Def 111.0, SpA 142.0, SpD 137.0, Spe 197.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: pikachu, 기술: volttackle, 방어자: ursaring
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: volttackle (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 143.0, Defender D: 174.0 (Ratio: 0.82)
+ - Pure Base Damage: 69.06
+ - Final Damage (After Modifiers): 94.88899477828203
+ - Multiplier Applied: 1.37x
+pikachu used volttackle dealing 94 damage to ursaring!
+ursaring HP is now 194/288
+기술명 : volttackle / 효과 : None, None, None, 0, 0
+공격자: ursaring, 기술: bodyslam, 방어자: pikachu
+기술 정보 - Power: 85, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: bodyslam (BP: 85)
+ - Level: 84 (Factor: 35.6)
+ - Attacker A: 267.0, Defender D: 111.0 (Ratio: 2.41)
+ - Pure Base Damage: 147.58
+ - Final Damage (After Modifiers): 197.24109793353742
+ - Multiplier Applied: 1.34x
+ursaring used bodyslam dealing 197 damage to pikachu!
+pikachu HP is now 0/210
+기술명 : bodyslam / 효과 : None, None, None, 0.0, 0.0
+===============================================
+
+[After Turn 26]
+플레이어: ursaring (HP: 194/288)
+상대: darumaka (HP: 262/262)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: HP: 194/288
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: 기절
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: 기절
+상대 팀 - buzzwole: 기절
+플레이어: ursaring (HP: 194/288 = 67.4%)
+상대: darumaka (HP: 262/262 = 100.0%)
+
+--- 턴 26 ---
+시뮬레이션 시작 : 26
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: ursaring (HP: 194/288) 
+스탯 정보: Atk 267.0, Def 174.0, SpA 174.0, SpD 174.0, Spe 141.0
+상대의 활성 포켓몬: darumaka (HP: 262/262) 
+상대의 기술 정보 : ['overheat', 'flareblitz', 'thrash', 'focuspunch'] 
+스탯 정보: Atk 206.0, Def 117.0, SpA 58.0, SpD 133.0, Spe 107.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: ursaring, 기술: sleeptalk, 방어자: darumaka
+기술 정보 - Power: 0, Accuracy: 1.0, Category: STATUS
+기술명 : sleeptalk / 효과 : None, None, None, 0.0, 0.0
+공격자: darumaka, 기술: focuspunch, 방어자: ursaring
+기술 정보 - Power: 150, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: focuspunch (BP: 150)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 206.0, Defender D: 174.0 (Ratio: 1.18)
+ - Pure Base Damage: 122.76
+ - Final Damage (After Modifiers): 217.24712285460149
+ - Multiplier Applied: 1.77x
+darumaka used focuspunch dealing 217 damage to ursaring!
+ursaring HP is now 0/288
+기술명 : focuspunch / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 27]
+플레이어: crawdaunt (HP: 243/243)
+상대: darumaka (HP: 262/262)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: 기절
+플레이어 팀 - crawdaunt: HP: 243/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: 기절
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: 기절
+상대 팀 - buzzwole: 기절
+플레이어: crawdaunt (HP: 243/243 = 100.0%)
+상대: darumaka (HP: 262/262 = 100.0%)
+
+--- 턴 27 ---
+시뮬레이션 시작 : 27
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: crawdaunt (HP: 243/243) 
+스탯 정보: Atk 250.0, Def 191.0, SpA 199.0, SpD 141.0, Spe 141.0
+상대의 활성 포켓몬: darumaka (HP: 262/262) 
+상대의 기술 정보 : ['overheat', 'flareblitz', 'thrash', 'focuspunch'] 
+스탯 정보: Atk 206.0, Def 117.0, SpA 58.0, SpD 133.0, Spe 107.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: crawdaunt, 기술: crabhammer, 방어자: darumaka
+기술 정보 - Power: 100, Accuracy: 0.9, Category: PHYSICAL
+acc_boost: 0, eva_boost: 0
+Base accuracy: 0.9
+crawdaunt's crabhammer missed!
+공격자: darumaka, 기술: thrash, 방어자: crawdaunt
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: thrash (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 206.0, Defender D: 191.0 (Ratio: 1.08)
+ - Pure Base Damage: 90.01
+ - Final Damage (After Modifiers): 82.05119253595593
+ - Multiplier Applied: 0.91x
+darumaka used thrash dealing 82 damage to crawdaunt!
+crawdaunt HP is now 161/243
+기술명 : thrash / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 28]
+플레이어: crawdaunt (HP: 161/243)
+상대: darumaka (HP: 262/262)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: 기절
+플레이어 팀 - crawdaunt: HP: 161/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: 기절
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 262/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: 기절
+상대 팀 - buzzwole: 기절
+플레이어: crawdaunt (HP: 161/243 = 66.3%)
+상대: darumaka (HP: 262/262 = 100.0%)
+
+--- 턴 28 ---
+시뮬레이션 시작 : 28
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: crawdaunt (HP: 161/243) 
+스탯 정보: Atk 250.0, Def 191.0, SpA 199.0, SpD 141.0, Spe 141.0
+상대의 활성 포켓몬: darumaka (HP: 262/262) 
+상대의 기술 정보 : ['overheat', 'flareblitz', 'thrash', 'focuspunch'] 
+스탯 정보: Atk 206.0, Def 117.0, SpA 58.0, SpD 133.0, Spe 107.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: crawdaunt, 기술: aquajet, 방어자: darumaka
+기술 정보 - Power: 40, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: aquajet (BP: 40)
+ - Level: 84 (Factor: 35.6)
+ - Attacker A: 250.0, Defender D: 117.0 (Ratio: 2.14)
+ - Pure Base Damage: 62.85
+ - Final Damage (After Modifiers): 166.7164092446076
+ - Multiplier Applied: 2.65x
+crawdaunt used aquajet dealing 166 damage to darumaka!
+darumaka HP is now 96/262
+기술명 : aquajet / 효과 : None, None, None, 0.0, 0.0
+공격자: darumaka, 기술: thrash, 방어자: crawdaunt
+기술 정보 - Power: 120, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: thrash (BP: 120)
+ - Level: 80 (Factor: 34.0)
+ - Attacker A: 206.0, Defender D: 191.0 (Ratio: 1.08)
+ - Pure Base Damage: 90.01
+ - Final Damage (After Modifiers): 80.10549263519107
+ - Multiplier Applied: 0.89x
+darumaka used thrash dealing 80 damage to crawdaunt!
+crawdaunt HP is now 81/243
+기술명 : thrash / 효과 : None, None, None, 0, 0
+===============================================
+
+[After Turn 29]
+플레이어: crawdaunt (HP: 81/243)
+상대: darumaka (HP: 96/262)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: 기절
+플레이어 팀 - crawdaunt: HP: 81/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: 기절
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: HP: 96/262
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: 기절
+상대 팀 - buzzwole: 기절
+플레이어: crawdaunt (HP: 81/243 = 33.3%)
+상대: darumaka (HP: 96/262 = 36.6%)
+
+--- 턴 29 ---
+시뮬레이션 시작 : 29
+=========== [Active Pokemon] ==============
+플레이어의 활성 포켓몬: crawdaunt (HP: 81/243) 
+스탯 정보: Atk 250.0, Def 191.0, SpA 199.0, SpD 141.0, Spe 141.0
+상대의 활성 포켓몬: darumaka (HP: 96/262) 
+상대의 기술 정보 : ['overheat', 'flareblitz', 'thrash', 'focuspunch'] 
+스탯 정보: Atk 206.0, Def 117.0, SpA 58.0, SpD 133.0, Spe 107.0
+===============================================
+
+
+=========== [Move Selection] =================
+=============================================== 
+
+
+=========== [Turn Execution] =================
+공격자: crawdaunt, 기술: knockoff, 방어자: darumaka
+기술 정보 - Power: 65, Accuracy: 1.0, Category: PHYSICAL
+
+[DAMAGE DEBUG] Move: knockoff (BP: 65)
+ - Level: 84 (Factor: 35.6)
+ - Attacker A: 250.0, Defender D: 117.0 (Ratio: 2.14)
+ - Pure Base Damage: 100.89
+ - Final Damage (After Modifiers): 132.833288773488
+ - Multiplier Applied: 1.32x
+crawdaunt used knockoff dealing 132 damage to darumaka!
+darumaka HP is now 0/262
+기술명 : knockoff / 효과 : None, None, None, 0.0, 0.0
+===============================================
+
+[After Turn 30]
+플레이어: crawdaunt (HP: 81/243)
+플레이어 팀 - venomoth: 기절
+플레이어 팀 - ursaring: 기절
+플레이어 팀 - crawdaunt: HP: 81/243
+플레이어 팀 - blastoise: HP: 258/258
+플레이어 팀 - arceuspsychic: 기절
+플레이어 팀 - rotom: 기절
+상대 팀 - toxicroak: 기절
+상대 팀 - darumaka: 기절
+상대 팀 - pansage: 기절
+상대 팀 - smeargle: 기절
+상대 팀 - pikachu: 기절
+상대 팀 - buzzwole: 기절
+플레이어: crawdaunt (HP: 81/243 = 33.3%)
+상대: 기절
+
+=== 배틀 종료 ===
+총 턴 수: 29
+승자: 플레이어
+=== SimplifiedBattleEngine 시뮬레이션 완료 ===
+Challenges (1 battles) finished in 0.713462s

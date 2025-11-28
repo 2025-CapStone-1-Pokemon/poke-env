@@ -3,7 +3,8 @@ SimplifiedBattle 시뮬레이션 엔진
 """
 import copy
 import random
-from typing import Optional, Tuple
+import logging
+from typing import List, Optional, Tuple
 import sys
 import os
 
@@ -33,6 +34,7 @@ from poke_env.data import GenData
 
 class SimplifiedBattleEngine:
     """SimplifiedBattle 시뮬레이션 엔진"""
+    logger = logging.getLogger("SimplifiedBattleEngine")
     
     def __init__(self, gen: int = 9):
         """
@@ -78,30 +80,45 @@ class SimplifiedBattleEngine:
         # 1. 배틀 턴수 증가 TODO new battle 수정하기
 
         if verbose:
-            print(f"Simulating turn {new_battle.turn}")
+            self.logger.info(f"시뮬레이션 시작 : {new_battle.turn}")
+
+        self._sync_references(new_battle)
             
         new_battle.turn += 1
         
         # 2. 활성 포켓몬 확인
         if not new_battle.active_pokemon or not new_battle.opponent_active_pokemon:
             if verbose:
-                print("One of the active Pokemon is missing. Ending simulation.")
+                self.logger.info("활성 포켓몬 중 하나가 없습니다. 시뮬레이션 종료.")
             return new_battle
         else:
             if verbose:
-                print(f"Player's active Pokemon: {new_battle.active_pokemon.species} "
-                      f"(HP: {new_battle.active_pokemon.current_hp}/{new_battle.active_pokemon.max_hp})")
-                print(f"Opponent's active Pokemon: {new_battle.opponent_active_pokemon.species} "
-                      f"(HP: {new_battle.opponent_active_pokemon.current_hp}/{new_battle.opponent_active_pokemon.max_hp})")
+                self.logger.info("=========== [Active Pokemon] ==============")
+                self.logger.info(f"플레이어의 활성 포켓몬: {new_battle.active_pokemon.species} "
+                      f"(HP: {new_battle.active_pokemon.current_hp}/{new_battle.active_pokemon.max_hp}) \n"
+                      f"스탯 정보: Atk {new_battle.active_pokemon.get_effective_stat('atk')}, "
+                      f"Def {new_battle.active_pokemon.get_effective_stat('def')}, "
+                      f"SpA {new_battle.active_pokemon.get_effective_stat('spa')}, "
+                      f"SpD {new_battle.active_pokemon.get_effective_stat('spd')}, "
+                      f"Spe {new_battle.active_pokemon.get_effective_stat('spe')}")
+                self.logger.info(f"상대의 활성 포켓몬: {new_battle.opponent_active_pokemon.species} "
+                      f"(HP: {new_battle.opponent_active_pokemon.current_hp}/{new_battle.opponent_active_pokemon.max_hp}) \n"
+                      f"상대의 기술 정보 : {[move.id for move in new_battle.opponent_active_pokemon.moves]} \n"
+                        f"스탯 정보: Atk {new_battle.opponent_active_pokemon.get_effective_stat('atk')}, "
+                        f"Def {new_battle.opponent_active_pokemon.get_effective_stat('def')}, "
+                        f"SpA {new_battle.opponent_active_pokemon.get_effective_stat('spa')}, "
+                        f"SpD {new_battle.opponent_active_pokemon.get_effective_stat('spd')}, "
+                        f"Spe {new_battle.opponent_active_pokemon.get_effective_stat('spe')}")
+                self.logger.info("===============================================\n\n")
             
         if new_battle.active_pokemon.current_hp <= 0 or new_battle.opponent_active_pokemon.current_hp <= 0:
             if verbose:
-                print("One of the active Pokemon has fainted. Ending simulation.")
+                self.logger.info("활성 포켓몬 중 하나가 기절했습니다. 시뮬레이션 종료.")
             return new_battle
         
         # 3. 기술 혹은 교체 선택
         if verbose:
-                print("=========== [Move Selection] =================")
+                self.logger.info("=========== [Move Selection] =================")
 
         # 플레이어가 교체 한 경우
         if player_switch_to:
@@ -110,15 +127,19 @@ class SimplifiedBattleEngine:
                     if pokemon.species.lower() == player_switch_to.lower() and pokemon.current_hp > 0:
                         new_battle.active_pokemon = pokemon
                         if verbose:
-                            print(f"Player switches to {pokemon.species}")
+                            self.logger.info(f"플레이어가 {pokemon.species}로 교체합니다.")
                         break
             else:
                 if verbose:
-                    print(f"Player attempted to switch to {player_switch_to}, but it's not available.")
+                    self.logger.info(f"플레이어가 {player_switch_to}로 교체를 시도했으나, 사용할 수 없습니다.")
             # 교체했으면 기술 선택 스킵
             player_move = "switch"
         else:
-            player_move = self._select_random_move(new_battle.active_pokemon, player_move_idx, verbose=verbose)
+            if new_battle.active_pokemon.volatiles.get('must_recharge'):
+                player_move = "recharge" # 특수 행동 키워드
+                if verbose: self.logger.info("플레이어는 반동으로 움직일 수 없습니다!")
+            else:
+                player_move = self.select_move(new_battle.active_pokemon, new_battle.opponent_active_pokemon, new_battle, move_idx=player_move_idx, verbose=verbose)
         
         if opponent_switch_to:
             # 반복문 돌려서 이름 같은거 확인
@@ -127,25 +148,26 @@ class SimplifiedBattleEngine:
                     if pokemon.species.lower() == opponent_switch_to.lower() and pokemon.current_hp > 0:
                         new_battle.opponent_active_pokemon = pokemon
                         if verbose:
-                            print(f"Opponent switches to {pokemon.species}")
+                            self.logger.info(f"상대가 {pokemon.species}로 교체합니다.")
                         break
             else:
                 if verbose:
-                    print(f"Opponent attempted to switch to {opponent_switch_to}, but it's not available.")
+                    self.logger.info(f"상대가 {opponent_switch_to}로 교체를 시도했으나, 사용할 수 없습니다.")
             # 교체했으면 기술 선택 스킵
             opponent_move = "switch"
         else:
-            if opponent_move_name:
-                opponent_move = self._select_move_by_name(new_battle.opponent_active_pokemon, opponent_move_name, verbose=verbose)
+            if new_battle.opponent_active_pokemon.volatiles.get('must_recharge'):
+                opponent_move = "recharge" # 특수 행동 키워드
+                if verbose: self.logger.info("상대는 반동으로 움직일 수 없습니다!")
             else:
-                opponent_move = self._select_random_move(new_battle.opponent_active_pokemon, opponent_move_idx, verbose=verbose)
+                opponent_move = self.select_move(new_battle.opponent_active_pokemon, new_battle.active_pokemon, new_battle, move_name=opponent_move_name, verbose=verbose)
 
         if verbose:
-            print("===============================================")
+            self.logger.info("=============================================== \n\n")
         
         if not player_move or not opponent_move:
             if verbose:
-                print("One of the selected moves is invalid. Ending simulation.")
+                self.logger.info("선택된 기술 중 하나가 유효하지 않습니다. 시뮬레이션 종료.")
             return new_battle
         
         # 4. 행동 순서 결정
@@ -156,7 +178,7 @@ class SimplifiedBattleEngine:
         
         # 5. 선공 실행
         if verbose:
-            print("=========== [Turn Execution] =================")
+            self.logger.info("=========== [Turn Execution] =================")
 
         if first_attacker == new_battle.active_pokemon:
             self._execute_move(new_battle, new_battle.active_pokemon, new_battle.opponent_active_pokemon, first_move, switch_to=player_switch_to, verbose=verbose)
@@ -171,7 +193,7 @@ class SimplifiedBattleEngine:
                 self._execute_move(new_battle, new_battle.opponent_active_pokemon, new_battle.active_pokemon, second_move, switch_to=opponent_switch_to, verbose=verbose)
 
         if verbose:
-            print("===============================================")
+            self.logger.info("===============================================")
         
         # 7. 턴 종료 처리
         self._end_of_turn(new_battle)
@@ -191,99 +213,121 @@ class SimplifiedBattleEngine:
         
         return new_battle
     
-    def _select_random_move(self, pokemon: SimplifiedPokemon, move_idx: Optional[int] = None, verbose: bool = False) -> Optional[SimplifiedMove]:
-        """랜덤 기술 선택"""
+    def _sync_references(self, battle: SimplifiedBattle):
+        """
+        활성 포켓몬과 팀 딕셔너리의 포켓몬 객체를 동기화(참조 연결)합니다.
+        deepcopy 등으로 인해 객체가 분리되는 현상을 방지
+        """
+        # 1. 플레이어 측 동기화
+        if battle.active_pokemon:
+            for key, pokemon in battle.team.items():
+                # 종(Species)이 같은 포켓몬을 찾아 연결
+                # (Zoroark 같은 일루전 특성이 있다면 주의 필요하지만, 일반적인 경우 작동)
+                if pokemon.species == battle.active_pokemon.species:
+                    battle.active_pokemon = pokemon 
+                    break
 
-        # 기술이 없으면 기본 기술 생성
-        if not pokemon or not pokemon.moves or len(pokemon.moves) == 0:
-            default_move = self._create_default_move(pokemon)
-            if default_move:
-                if verbose:
-                    print(f"Pokemon has no moves. Using default move for Pokemon {pokemon.species}")
-                return default_move
-            return None
-        
-        # 특정 기술 인덱스 선택
-        if move_idx is not None and 0 <= move_idx < len(pokemon.moves):
-            if verbose:
-                print(f"move_idx is not None. Selecting {pokemon.moves[move_idx].id} for Pokemon {pokemon.species}")
-            return pokemon.moves[move_idx]
-            
-        # PP가 남은 기술 중 랜덤 선택
-        available_moves = [move for move in pokemon.moves if move.current_pp > 0]
-
-        if not available_moves:
-            if verbose:
-                print(f"No available moves with PP left. Using default move for Pokemon {pokemon.species}")
-            # PP가 모두 없으면 기본 기술
-            default_move = self._create_default_move(pokemon)
-            if default_move:
-                if verbose:
-                    print(f"Using default move for Pokemon {pokemon.species}")
-                return default_move
-            return None
-        
-        random_move = random.choice(available_moves)
-        if verbose:
-            print(f"Randomly selected move {random_move.id} for Pokemon {pokemon.species}")
-            print(f" power: {random_move.base_power}, accuracy: {random_move.accuracy}, category: {random_move.category}")
-            
-        return random_move
+        # 2. 상대방 측 동기화 (여기가 문제였음)
+        if battle.opponent_active_pokemon:
+            for key, pokemon in battle.opponent_team.items():
+                if pokemon.species == battle.opponent_active_pokemon.species:
+                    battle.opponent_active_pokemon = pokemon  # 참조 덮어쓰기!
+                    break
     
-    def _select_move_by_name(self, pokemon: SimplifiedPokemon, move_name: str, verbose: bool = False) -> Optional[SimplifiedMove]:
+    def select_move(
+        self, 
+        pokemon: SimplifiedPokemon, 
+        opponent : SimplifiedPokemon,
+        battle : SimplifiedBattle,
+        move_idx: Optional[int] = None, 
+        move_name: Optional[str] = None, 
+        verbose: bool = False
+    ) -> Optional[SimplifiedMove]:
         """
-        기술 이름으로 기술 선택
+        기술 선택 통합 메서드
+        우선순위: 1. move_name -> 2. move_idx -> 3. Random -> 4. Default(발버둥/몸통박치기)
+        """
         
-        Args:
-            pokemon: 포켓몬 객체
-            move_name: 기술 이름 (예: "Earthquake", "Sunny Day")
-            verbose: 상세 출력 여부
-            
-        Returns:
-            선택된 기술 객체 (찾지 못하면 랜덤 선택)
-        """
-        # 기술이 없으면 기본 기술 생성
-        if not pokemon or not pokemon.moves or len(pokemon.moves) == 0:
-            default_move = self._create_default_move(pokemon)
-            if default_move:
+        # 1. 포켓몬 및 기술 목록 1차 유효성 검사
+        if not pokemon or not pokemon.moves:
+            if verbose:
+                self.logger.info(f"Pokemon {pokemon.species if pokemon else 'Unknown'} has no moves.")
+            return self._create_default_move(pokemon)
+
+        selected_move = None
+
+        # 2. 기술 이름으로 선택 시도 (move_name이 있을 경우)
+        if move_name:
+            selected_move = self._find_move_by_name(pokemon, move_name)
+            if selected_move:
                 if verbose:
-                    print(f"Pokemon has no moves. Using default move for Pokemon {pokemon.species}")
-                return default_move
-            return None
+                    self.logger.info(f"Selected move by name: {selected_move.id}")
+                # 이름 매칭 성공 통계 등은 여기서 처리
+            elif verbose:
+                self.logger.info(f"Move '{move_name}' not found. Falling back to other methods.")
+
+        # 3. 기술 인덱스로 선택 시도 (move_name 실패 혹은 미입력 시)
+        if not selected_move and move_idx is not None:
+            if 0 <= move_idx < len(pokemon.moves):
+                selected_move = pokemon.moves[move_idx]
+                if verbose:
+                    self.logger.info(f"Selected move by index {move_idx}: {selected_move.id}")
+            elif verbose:
+                self.logger.info(f"Invalid move_idx {move_idx}.")
+
+        available_moves = self._get_available_moves(pokemon)
         
-        # move_name과 일치하는 기술 찾기
-        # 공백, 하이픈 제거하고 소문자로 정규화하여 비교
-        normalized_name = move_name.lower().replace(' ', '').replace('-', '')
-        
-        # 🔍 디버깅: 가용한 기술 목록 확인
-        available_moves = [move.id for move in pokemon.moves]
+        # 4. 랜덤 선택 (스마트 필터링 적용)
+        if not selected_move:
+            available_moves = self._get_available_moves(pokemon)
+            
+            # [수정] 데미지가 0인 기술(무효 상성) 필터링
+            valid_moves = []
+            for move in available_moves:
+                # 변화기(Status)는 데미지 0이어도 OK
+                if move.category == MoveCategory.STATUS:
+                    valid_moves.append(move)
+                    continue
+                
+                # 데미지 미리 계산 (0이면 제외)
+                dmg = self._calculate_damage(battle, pokemon, opponent, move, crit=False, verbose=False)
+                if dmg > 0:
+                    valid_moves.append(move)
+            
+            # 유효한 기술이 하나도 없으면(전부 무효면) 어쩔 수 없이 전체 목록 사용 (발버둥 등)
+            if not valid_moves:
+                valid_moves = available_moves
+
+            if valid_moves:
+                selected_move = random.choice(valid_moves)
+            else:
+                return self._create_default_move(pokemon) # PP 없음
+
+        return selected_move
+
+    def _find_move_by_name(self, pokemon: SimplifiedPokemon, move_name: str) -> Optional[SimplifiedMove]:
+        """이름으로 기술 찾기 (내부 로직 분리)"""
+        normalized_target = move_name.lower().replace(' ', '').replace('-', '')
         
         for move in pokemon.moves:
             normalized_id = move.id.lower().replace(' ', '').replace('-', '')
-            if normalized_id == normalized_name:
-                if verbose:
-                    print(f"✅ Found move by name '{move_name}' -> {move.id} for Pokemon {pokemon.species}")
-                # 성공 통계 기록
-                self._move_name_match_success = getattr(self, '_move_name_match_success', 0) + 1
+            if normalized_id == normalized_target:
                 return move
-        
-        # 찾지 못하면 랜덤 선택
-        if verbose:
-            print(f"❌ Move '{move_name}' not found for Pokemon {pokemon.species}.")
-            print(f"   Available moves: {available_moves}")
-            print(f"   Selecting random move instead.")
-        # 실패 통계 기록
-        self._move_name_match_failure = getattr(self, '_move_name_match_failure', 0) + 1
-        return self._select_random_move(pokemon, move_idx=None, verbose=verbose)
-    
+        return None
+
+    def _get_available_moves(self, pokemon: SimplifiedPokemon) -> List[SimplifiedMove]:
+        """PP가 남아있는 기술 목록 반환"""
+        return [move for move in pokemon.moves if move.current_pp > 0]
+
     def _create_default_move(self, pokemon: SimplifiedPokemon) -> Optional[SimplifiedMove]:
-        """포켓몬의 기본 기술 생성"""
+        """기본 기술 생성 (발버둥 등)"""
         if not pokemon:
             return None
         
+        # 내부 클래스 정의 (기존 로직 유지)
         class DefaultMove:
             def __init__(self, pokemon):
-                self.id = 'tackle'
+                self.id = 'tackle'  # 혹은 'struggle'
                 self.base_power = 40
                 self.accuracy = 100
                 self.priority = 0
@@ -291,21 +335,19 @@ class SimplifiedBattleEngine:
                 self.category = MoveCategory.PHYSICAL
                 self.current_pp = 35
                 self.max_pp = 35
-                # 추가 효과 속성
-                self.boosts = None
-                self.self_boost = None
-                self.status = None
-                self.secondary = None
-                # 데미지 관련 속성
                 self.crit_ratio = 0
                 self.expected_hits = 1
                 self.recoil = 0
                 self.drain = 0
-                # 플래그 속성
                 self.flags = set()
                 self.breaks_protect = False
                 self.is_protect_move = False
-        
+                # 필요한 속성들 None으로 초기화
+                self.boosts = None
+                self.self_boost = None
+                self.status = None
+                self.secondary = None
+
         return SimplifiedMove(DefaultMove(pokemon))
     
     def _determine_order(
@@ -367,11 +409,14 @@ class SimplifiedBattleEngine:
         if move == "switch":
             self.swtich_active_pokemon(battle, pokemon_name=switch_to, is_player=(attacker == battle.active_pokemon))
             if verbose:
-                print(f"{attacker.species} switches out!")
+                self.logger.info(f"{attacker.species} 교체!")
             return
         
         if(verbose):
-            print(f"Attacker: {attacker.species}, Move: {move.id}, Defender: {defender.species}")
+            self.logger.info(f"공격자: {attacker.species}, 기술: {move.id}, 방어자: {defender.species}")
+
+        if(verbose): 
+            self.logger.info(f"기술 정보 - Power: {move.base_power}, Accuracy: {move.accuracy}, Category: {move.category.name}")
 
         # 0. PP 소모
         move.current_pp = max(0, move.current_pp - 1)
@@ -380,7 +425,7 @@ class SimplifiedBattleEngine:
         # STATUS 기술도 정확도가 있을 수 있으므로 체크
         if not self._check_accuracy(attacker, defender, move, verbose=verbose):
             if(verbose):
-                print(f"{attacker.species}'s {move.id} missed!")
+                self.logger.info(f"{attacker.species}'s {move.id} missed!")
             return
         
         # 2. 급소 판정 (데미지 기술만)
@@ -389,19 +434,24 @@ class SimplifiedBattleEngine:
             crit = self._check_critical_hit(attacker, move)
 
         if(verbose and crit):
-            print(f"Critical hit by {attacker.species} using {move.id}!")
+            self.logger.info(f"Critical hit by {attacker.species} using {move.id}!")
         
         # 3. 데미지 계산 및 적용
         damage = 0
         if move.category != MoveCategory.STATUS:
-            damage = self._calculate_damage(battle, attacker, defender, move, crit)
+            damage = self._calculate_damage(battle, attacker, defender, move, crit, verbose=verbose)
             defender.damage(damage)
 
             if(verbose):
-                print(f"{attacker.species} used {move.id} dealing {damage} damage to {defender.species}!")
-                print(f"{defender.species} HP is now {defender.current_hp}/{defender.max_hp}")
+                self.logger.info(f"{attacker.species} used {move.id} dealing {damage} damage to {defender.species}!")
+                self.logger.info(f"{defender.species} HP is now {defender.current_hp}/{defender.max_hp}")
         
-        # 4. 추가 효과 적용 ✅
+        if 'recharge' in move.flags:
+            attacker.volatiles['must_recharge'] = True
+            if verbose:
+                self.logger.info(f"  [Effect] {attacker.species} must recharge next turn!")
+        
+        # 4. 추가 효과 적용 
         self._apply_move_effects(attacker, defender, move, damage, verbose=verbose)
         
     
@@ -423,8 +473,8 @@ class SimplifiedBattleEngine:
         eva_boost = defender.boosts.get('evasion', 0)
 
         if verbose:
-            print(f"acc_boost: {acc_boost}, eva_boost: {eva_boost}")
-            print(f"Base accuracy: {move.accuracy}")
+            self.logger.info(f"acc_boost: {acc_boost}, eva_boost: {eva_boost}")
+            self.logger.info(f"Base accuracy: {move.accuracy}")
         
         # 능력치 부스트 배율 계산
         # 공격 부스트: (3 + boost) / 3
@@ -478,7 +528,8 @@ class SimplifiedBattleEngine:
         attacker: SimplifiedPokemon,
         defender: SimplifiedPokemon,
         move: SimplifiedMove,
-        crit: bool = False
+        crit: bool = False,
+        verbose: bool = False
     ) -> int:
         """데미지 계산"""
         # 변화 기술은 데미지 없음
@@ -502,19 +553,33 @@ class SimplifiedBattleEngine:
             D = defender.get_effective_stat('spd')
         
         # 4. 기본 데미지
-        base_damage = ((2 * level / 5 + 2) * power * A / D) / 50 + 2
-        
-        # 5. 보정 적용 (책임 연쇄 패턴)
+        level_factor = (2 * level / 5 + 2)
+        base_damage = (level_factor * power * A / D) / 50 + 2
+
+        if verbose:
+            self.logger.info(f"\n[DAMAGE DEBUG] Move: {move.id} (BP: {power})")
+            self.logger.info(f" - Level: {level} (Factor: {level_factor})")
+            self.logger.info(f" - Attacker A: {A}, Defender D: {D} (Ratio: {A/D:.2f})")
+            self.logger.info(f" - Pure Base Damage: {base_damage:.2f}")
+
+        # 5. 보정 적용
         battle_context = {
             'weather': battle.weather,
             'fields': battle.fields,
             'type_chart': self.type_chart
         }
         
-        final_damage = self.damage_modifiers.apply_all(
-            base_damage, attacker, defender, move, crit, battle_context
-        )
+        # Modifier 적용 전후 비교
+        final_damage = base_damage
+        if hasattr(self, 'damage_modifiers'):
+             final_damage = self.damage_modifiers.apply_all(
+                base_damage, attacker, defender, move, crit, battle_context
+            )
         
+        if verbose:
+             self.logger.info(f" - Final Damage (After Modifiers): {final_damage}")
+             self.logger.info(f" - Multiplier Applied: {final_damage / base_damage:.2f}x") # 몇 배가 뻥튀기 됐는지 확인
+
         return max(1, int(final_damage))
     
     def _end_of_turn(self, battle: SimplifiedBattle):
@@ -528,6 +593,12 @@ class SimplifiedBattleEngine:
         # 3. 상태이상 데미지
         self._apply_status_damage(battle.active_pokemon)
         self._apply_status_damage(battle.opponent_active_pokemon)
+
+        for p in [battle.active_pokemon, battle.opponent_active_pokemon]:
+            if p and p.volatiles.get('must_recharge'):
+                # TODO 이번 턴에 행동이 'recharge'였는지 확인하는 로직이 필요하지만,
+                # 일단 턴이 지나면 무조건 해제 (약식)
+                p.volatiles['must_recharge'] = False
     
     def _apply_move_effects(
         self,
@@ -537,47 +608,44 @@ class SimplifiedBattleEngine:
         damage: int,
         verbose: bool = False
     ):
-        """기술의 추가 효과 적용
+        """기술의 추가 효과 적용 (랭크업, 상태이상, 반동, 흡수)"""
+
+        if(verbose):
+            self.logger.info(f"기술명 : {move.id} / 효과 : {move.boosts}, {move.self_boost}, {move.status}, {move.recoil}, {move.drain}")
         
-        - 상태이상 (Status)
-        - 능력치 변화 (Boosts)
-        - 자신 능력치 변화 (Self Boost)
-        - 반동/흡혈 (Recoil/Drain)
-        """
-        
-        # 1️⃣ 상태이상 적용 (상대방)
-        if move.status:
-            defender.status = move.status
-            # 강독은 카운터 초기화
-            if move.status == Status.TOX:
-                defender.status_counter = 0
-        
-        # 2️⃣ 자신 능력치 강화 (self_boost)
-        # 예: Swords Dance (+2 Atk), Dragon Dance (+1 Atk +1 Spe)
+        # 1. 랭크업 (Self Boost)
         if move.self_boost:
             for stat, amount in move.self_boost.items():
-                # 대부분의 능력치 강화는 배틀 종료까지 유지 (turns=None)
-                attacker.set_boost_with_timer(stat, amount, turns=None)
-        
-        # 3️⃣ 상대 능력치 변화 (boosts)
-        # 예: Close Combat (-1 Def -1 SpDef), Toxic Thread (-1 Spe)
+                attacker.boost(stat, amount)
+                if verbose: self.logger.info(f"  [Effect] {attacker.species}'s {stat} rose by {amount}!")
+
+        # 2. 상대 랭크 다운 (Boosts)
         if move.boosts:
             for stat, amount in move.boosts.items():
-                # 대부분은 영구지만, 일부 기술은 1턴만 지속
-                turns = self._get_boost_duration(move.id, stat)
-                defender.set_boost_with_timer(stat, amount, turns=turns)
-        
-        # 4️⃣ 반동 (Recoil)
-        # 예: Brave Bird (1/3 반동), Double-Edge (1/3 반동)
-        if move.recoil and isinstance(move.recoil, (list, tuple)) and len(move.recoil) >= 2:
-            recoil_damage = damage * move.recoil[0] // move.recoil[1]
-            attacker.damage(recoil_damage)
-        
-        # 5️⃣ 흡수 (Drain)
-        # 예: Drain Punch (1/2 흡수), Draining Kiss (1/2 흡수)
-        if move.drain and isinstance(move.drain, (list, tuple)) and len(move.drain) >= 2:
-            heal_amount = damage * move.drain[0] // move.drain[1]
-            attacker.heal(heal_amount)
+                defender.boost(stat, amount)
+                if verbose: self.logger.info(f"  [Effect] {defender.species}'s {stat} changed by {amount}!")
+
+        # 3. 상태이상 (Status)
+        if move.status:
+            if defender.status is None:
+                defender.status = move.status
+                if verbose: self.logger.info(f"  [Effect] {defender.species} is now {move.status.name}!")
+
+        # 4. 반동 (Recoil) 구현
+        if move.recoil and isinstance(move.recoil, list) and len(move.recoil) == 2:
+            numerator, denominator = move.recoil
+            if denominator != 0 and damage > 0:
+                recoil_damage = max(1, int(damage * numerator / denominator))
+                attacker.damage(recoil_damage)
+                if verbose: self.logger.info(f"  [Effect] Recoil! {attacker.species} took {recoil_damage} damage.")
+
+        # 5. 흡수 (Drain) 구현
+        if move.drain and isinstance(move.drain, list) and len(move.drain) == 2:
+            numerator, denominator = move.drain
+            if denominator != 0 and damage > 0:
+                heal_amount = max(1, int(damage * numerator / denominator))
+                attacker.heal(heal_amount)
+                if verbose: self.logger.info(f"  [Effect] Drain! {attacker.species} recovered {heal_amount} HP.")
     
     def _get_boost_duration(self, move_id: str, stat: str) -> Optional[int]:
         """기술별 능력치 변화 지속 턴 수
@@ -686,14 +754,14 @@ class SimplifiedBattleEngine:
         turn_count = 0
         
         if verbose:
-            print(f"\n=== 배틀 시뮬레이션 시작 (최대 {max_turns}턴) ===")
+            self.logger.info(f"\n=== 배틀 시뮬레이션 시작 (최대 {max_turns}턴) ===")
             self._print_battle_status(current_battle, "초기 상태")
         
         while not current_battle.finished and turn_count < max_turns:
             turn_count += 1
             
             if verbose:
-                print(f"\n--- 턴 {turn_count} ---")
+                self.logger.info(f"\n--- 턴 {turn_count} ---")
             
             # 1턴 시뮬레이션
             self.simulate_turn(current_battle, verbose=verbose)
@@ -709,13 +777,13 @@ class SimplifiedBattleEngine:
                 self._auto_switch(current_battle, is_player=False)
         
         if verbose:
-            print(f"\n=== 배틀 종료 ===")
-            print(f"총 턴 수: {turn_count}")
+            self.logger.info(f"\n=== 배틀 종료 ===")
+            self.logger.info(f"총 턴 수: {turn_count}")
             if current_battle.finished:
                 winner = "플레이어" if current_battle.won else "상대"
-                print(f"승자: {winner}")
+                self.logger.info(f"승자: {winner}")
             else:
-                print(f"최대 턴 수 도달 (무승부)")
+                self.logger.info(f"최대 턴 수 도달 (무승부)")
         
         return current_battle
     
@@ -792,14 +860,14 @@ class SimplifiedBattleEngine:
     
     def _print_battle_status(self, battle: SimplifiedBattle, label: str):
         """배틀 상태 출력"""
-        print(f"\n[{label}]")
+        self.logger.info(f"\n[{label}]")
         
         if battle.active_pokemon:
-            print(f"플레이어: {battle.active_pokemon.species} "
+            self.logger.info(f"플레이어: {battle.active_pokemon.species} "
                   f"(HP: {battle.active_pokemon.current_hp}/{battle.active_pokemon.max_hp})")
         
         if battle.opponent_active_pokemon:
-            print(f"상대: {battle.opponent_active_pokemon.species} "
+            self.logger.info(f"상대: {battle.opponent_active_pokemon.species} "
                   f"(HP: {battle.opponent_active_pokemon.current_hp}/{battle.opponent_active_pokemon.max_hp})")
         
         # 팀 상태
@@ -808,24 +876,25 @@ class SimplifiedBattleEngine:
 
         for pokemon in battle.team.values():
             status = "기절" if pokemon.current_hp <= 0 else f"HP: {pokemon.current_hp}/{pokemon.max_hp}"
-            print(f"플레이어 팀 - {pokemon.species}: {status}")
+            self.logger.info(f"플레이어 팀 - {pokemon.species}: {status}")
         
         for pokemon in battle.opponent_team.values():
             status = "기절" if pokemon.current_hp <= 0 else f"HP: {pokemon.current_hp}/{pokemon.max_hp}"
-            print(f"상대 팀 - {pokemon.species}: {status}")
+            self.logger.info(f"상대 팀 - {pokemon.species}: {status}")
     
     def _print_turn_result(self, battle: SimplifiedBattle, turn: int):
         """턴 결과 출력"""
         if battle.active_pokemon:
             hp_percent = (battle.active_pokemon.current_hp / battle.active_pokemon.max_hp) * 100
-            print(f"플레이어: {battle.active_pokemon.species} "
+            self.logger.info(f"플레이어: {battle.active_pokemon.species} "
                   f"(HP: {battle.active_pokemon.current_hp}/{battle.active_pokemon.max_hp} = {hp_percent:.1f}%)")
         else:
-            print(f"플레이어: 기절")
+            self.logger.info(f"플레이어: 기절")
         
         if battle.opponent_active_pokemon:
             hp_percent = (battle.opponent_active_pokemon.current_hp / battle.opponent_active_pokemon.max_hp) * 100
-            print(f"상대: {battle.opponent_active_pokemon.species} "
+            self.logger.info(f"상대: {battle.opponent_active_pokemon.species} "
                   f"(HP: {battle.opponent_active_pokemon.current_hp}/{battle.opponent_active_pokemon.max_hp} = {hp_percent:.1f}%)")
         else:
-            print(f"상대: 기절")
+            self.logger.info(f"상대: 기절")
+
