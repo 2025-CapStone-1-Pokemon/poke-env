@@ -66,3 +66,13 @@ class SimplifiedMove:
     def use(self):
         """PP 소모"""
         self.current_pp = max(0, self.current_pp - 1)
+
+    def clone(self):
+
+        new_move = SimplifiedMove.__new__(SimplifiedMove)
+        new_move.__dict__ = self.__dict__.copy()
+        
+        if hasattr(self, 'flags') and isinstance(self.flags, dict):
+            new_move.flags = self.flags.copy()
+        
+        return new_move

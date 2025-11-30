@@ -61,7 +61,7 @@ class MCTSNode:
         self.untried_actions.remove(action)
 
         # 2. 상태 복제 (병목 지점 - 최적화 필요 시 clone() 구현 권장)
-        new_state = copy.deepcopy(self.state)
+        new_state = self.state.clone()
         engine = SimplifiedBattleEngine()
 
         # 3. Action 적용을 위한 인덱스/ID 찾기
@@ -109,7 +109,7 @@ class MCTSNode:
         # 롤아웃은 현재 노드 상태를 망가뜨리면 안 되므로 복사 필수
         # 하지만 expand 직후의 리프 노드라면 복사 없이 바로 써도 됨 (메모리 절약)
         # 여기서는 안전하게 복사
-        rollout_state = copy.deepcopy(self.state)
+        rollout_state = self.state.clone()
         
         # verbose=False 강제
         result = engine.simulate_full_battle(rollout_state, max_turns=50, verbose=False)
@@ -146,6 +146,27 @@ def mcts_search(root_battle, iterations=50, verbose=False, n_workers=1):
         root_state = root_battle
     else:
         root_state = SimplifiedBattle(root_battle, fill_unknown_data=True)
+
+    # 가능한 모든 행동(기술 + 교체)을 수집
+    all_actions = []
+    if hasattr(root_state, 'available_moves'): 
+        all_actions.extend(root_state.available_moves)
+    if hasattr(root_state, 'available_switches'): 
+        all_actions.extend(root_state.available_switches)
+    
+    # 1-1. 선택지가 0개? (발버둥 상황 or 버그) -> None 반환하면 랜덤 플레이어가 알아서 처리
+    if not all_actions:
+        return None
+
+    # 1-2. 선택지가 딱 1개? -> 고민하지 말고 바로 선택
+    if len(all_actions) == 1:
+        forced_action = all_actions[0]
+        action_name = forced_action.id if hasattr(forced_action, 'id') else forced_action.species
+        
+        if verbose:
+            print(f"⚡ [Fast-Skip] 강제된 행동이므로 MCTS 생략: {action_name}")
+            
+        return forced_action
     
     # 엔진 객체 재사용
     engine = SimplifiedBattleEngine()

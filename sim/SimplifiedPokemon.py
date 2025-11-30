@@ -206,6 +206,69 @@ class SimplifiedPokemon:
 
         return base * multiplier
     
+    def clone(self):
+        """
+        [성능 최적화] 포켓몬 객체 고속 복제 (Deepcopy 대체)
+        MCTS 시뮬레이션을 위해 변경 가능한 상태만 복사하고, 고정된 정보는 참조합니다.
+        """
+        # 1. 빈 객체 생성 (__init__ 건너뜀 -> 속도 향상)
+        new_poke = SimplifiedPokemon.__new__(SimplifiedPokemon)
+
+        # === A. 단순 값 복사 (Immutable) ===
+        # 숫자, 문자열, 불리언, 튜플 등은 값 자체가 복사됨
+        new_poke.species = self.species
+        new_poke.level = self.level
+        new_poke.gender = self.gender
+        
+        new_poke.type_1 = self.type_1
+        new_poke.type_2 = self.type_2
+        
+        new_poke.max_hp = self.max_hp
+        new_poke.current_hp = self.current_hp
+        
+        new_poke.status = self.status
+        new_poke.status_counter = self.status_counter
+        new_poke.toxic_counter = getattr(self, 'toxic_counter', 0)
+        
+        new_poke.ability = self.ability
+        new_poke.item = self.item  # 문자열 or None (소모 시 None이 되므로 값 복사 필요)
+        
+        new_poke.active = self.active
+        new_poke.first_turn = self.first_turn
+        new_poke.must_recharge = self.must_recharge
+        new_poke.protect_counter = self.protect_counter
+
+        # === B. 컬렉션 얕은 복사 (Mutable) ===
+        # 리스트/딕셔너리는 껍데기를 새로 만들어줘야 서로 영향을 안 줌
+        
+        # 1. 타입 (Soak 등으로 변할 수 있음)
+        new_poke.types = list(self.types) 
+        
+        # 2. 스탯 및 랭크
+        new_poke.base_stats = self.base_stats # 종족값은 절대 안 변하므로 원본 참조 (메모리 절약)
+        new_poke.stats = self.stats.copy()    # 실제 스탯
+        new_poke.boosts = self.boosts.copy()  # 랭크 변화
+        
+        # 3. 상태 관리
+        new_poke.volatiles = self.volatiles.copy()
+        new_poke.effects = self.effects.copy()
+        
+        # boost_timers가 없는 구버전 객체 호환성 체크
+        if hasattr(self, 'boost_timers'):
+            new_poke.boost_timers = self.boost_timers.copy()
+        else:
+            new_poke.boost_timers = {}
+
+        # 4. 캐시 초기화 (복사하지 않음)
+        new_poke._stat_cache = {}
+
+        # === C. 객체 재귀 복사 (Recursive) ===
+        # 기술(Move)은 내부의 PP가 변하므로 반드시 clone()을 호출해야 함
+        # SimplifiedMove에도 clone() 메서드가 구현되어 있어야 함
+        new_poke.moves = [m.clone() for m in self.moves]
+
+        return new_poke
+    
     def print_summary(self):
         """포켓몬 정보 출력"""
         
