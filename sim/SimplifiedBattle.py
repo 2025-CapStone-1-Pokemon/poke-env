@@ -634,6 +634,41 @@ class SimplifiedBattle:
         print(f"Available Moves: {[move.id for move in self.available_moves]}")
         print(f"Available Switches: {[poke.species for poke in self.available_switches]}")
     
+    def str_summary(self):
+        summary = f"=== SimplifiedBattle Summary ===\n"
+        summary += f"Turn: {self.turn}, Gen: {self.gen}, Finished: {self.finished}, Won: {self.won}\n"
+        summary += f"\n--- Team ---\n"
+        for id, p in self.team.items():
+            status = f"(기절)" if p.current_hp <= 0 else f"(HP: {p.current_hp}/{p.max_hp})"
+            summary += f"{id}: {p.species} {status}\n"
+        summary += f"\n--- Opponent Team ---\n"
+        for id, p in self.opponent_team.items():
+            status = f"(기절)" if p.current_hp <= 0 else f"(HP: {p.current_hp}/{p.max_hp})"
+            summary += f"{id}: {p.species} {status}\n"
+        if self.active_pokemon:
+            summary += f"\nActive Pokemon: {self.active_pokemon.species} (HP: {self.active_pokemon.current_hp}/{self.active_pokemon.max_hp})\n"
+            for move in self.active_pokemon.moves:
+                summary += f" - Move: {move.id} (Power: {move.base_power}, Type: {move.type.name})\n"
+        if self.opponent_active_pokemon:
+            summary += f"Opponent Active Pokemon: {self.opponent_active_pokemon.species} (HP: {self.opponent_active_pokemon.current_hp}/{self.opponent_active_pokemon.max_hp})\n"
+            for move in self.opponent_active_pokemon.moves:
+                summary += f" - Move: {move.id} (Power: {move.base_power}, Type: {move.type.name})\n"
+        summary += f"\n--- Field Effects ---\n"
+        summary += f"Weather: {self.weather}\n"
+        summary += f"Fields: {self.fields}\n"
+        summary += f"Side Conditions: {self.side_conditions}\n"
+        summary += f"Opponent Side Conditions: {self.opponent_side_conditions}\n"
+        summary += f"\n--- Available Actions ---\n"
+        summary += f"Available Moves: {[move.id for move in self.available_moves]}\n"
+        summary += f"Available Switches: {[poke.species for poke in self.available_switches]}\n"
+        return summary
+
+    def list_moves_and_switches(self):
+        """사용 가능한 기술 및 교체 포켓몬 목록 반환"""
+        moves = [move.id for move in self.available_moves]
+        switches = [poke.species for poke in self.available_switches]
+        return moves, switches
+    
     def get_alive_team(self):
         """살아있는 팀 포켓몬 반환 (Dict)"""
         return {id: p for id, p in self.team.items() if p.current_hp > 0}

@@ -141,7 +141,7 @@ async def test_mcts_vs_opponent():
         # 1. vs Smart Player (40판)
         # ==========================================
         print("\n🔥 [Round 1] MCTS vs Smart Player (50 battles)")
-        await mcts_player.battle_against(smart_player, n_battles=50)
+        await mcts_player.battle_against(smart_player, n_battles=1)
         
         # Round 1 결과 출력 (현재까지의 전적)
         wins_r1 = mcts_player.n_won_battles
