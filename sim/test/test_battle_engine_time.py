@@ -15,7 +15,7 @@ from pathlib import Path
 # 상위 디렉토리들을 path에 추가
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from poke_env.player import Player
+from poke_env.player import Player, SimpleHeuristicsPlayer
 from sim.SimplifiedBattle import SimplifiedBattle
 from sim.battle.SimplifiedBattleEngine import SimplifiedBattleEngine
 
@@ -40,33 +40,40 @@ class TestPlayer(Player):
         return self.choose_random_move(battle)
 
 
-class RandomPlayer(Player):
+class GreedyPlayer(Player):
     """간단한 랜덤 플레이어"""
     
     def choose_move(self, battle):
+        """가용한 기술 중 가장 높은 위력을 가진 기술 선택"""
+        if battle.available_moves:
+            best_move = max(battle.available_moves, key=lambda move: move.base_power or 0)
+            return self.create_order(best_move)
         return self.choose_random_move(battle)
 
 
 async def test_mcts_vs_random():
     """MCTS vs Random 테스트"""
     # 플레이어 생성
-    mcts_player = TestPlayer(
+    heuristic_player = SimpleHeuristicsPlayer(
         battle_format="gen9randombattle",
         max_concurrent_battles=1
     )
     
-    random_player = RandomPlayer(
+    greedy_player = GreedyPlayer(
         battle_format="gen9randombattle",
         max_concurrent_battles=1
     )
 
     try:
-        await mcts_player.battle_against(random_player, n_battles=1)
+        await heuristic_player.battle_against(greedy_player, n_battles=50)
     except Exception as e:
         print(f"배틀 중 오류: {e}")
         import traceback
         traceback.print_exc()
 
+    print("테스트 완료.")
+    print("결과 : player 1 승리 수 =", heuristic_player.n_won_battles
+          , ", player 2 승리 수 =", greedy_player.n_won_battles)
 
 if __name__ == "__main__":
     asyncio.run(test_mcts_vs_random())

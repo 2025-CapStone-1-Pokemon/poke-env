@@ -9,20 +9,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'player',
 from player.mcts.MCTS_temp_parallel import mcts_search
 from poke_env.player import Player, SimpleHeuristicsPlayer
 from poke_env.battle import Battle
+from player.minimax.minimax import MinimaxPlayer
 import time
-
-# 고정 팀
-TEAM_MCTS_PACKED = (
-    "|Garchomp|Rocky Helmet|Rough Skin|Dragon Claw,Earthquake,Stone Edge,Swords Dance|Jolly|0,252,0,0,4,252||||100|]"
-    "|Gengar|Black Sludge|Cursed Body|Shadow Ball,Sludge Bomb,Focus Blast,Trick|Timid|0,0,0,252,4,252||||100|]"
-    "|Scizor|Choice Band|Technician|Bullet Punch,U-turn,Close Combat,Knock Off|Adamant|248,252,0,0,8,0||||100|"
-)
-
-TEAM_RANDOM_PACKED = (
-    "|Tyranitar|Leftovers|Sand Stream|Stone Edge,Crunch,Earthquake,Dragon Dance|Adamant|252,252,0,0,4,0||||100|]"
-    "|Corviknight|Leftovers|Pressure|Brave Bird,Iron Head,Roost,Defog|Impish|252,0,252,0,4,0||||100|]"
-    "|Rotom-Wash|Leftovers|Levitate|Hydro Pump,Volt Switch,Will-O-Wisp,Pain Split|Bold|252,0,0,0,212,44||||100|"
-)
 
 class GreedyPlayer(Player):
     """ 위력이 가장 높은 기술을 선택하는 플레이어 """
@@ -132,6 +120,11 @@ async def test_mcts_vs_opponent():
         battle_format="gen9randombattle",
         max_concurrent_battles=5,  # ✅ 5로 변경
     )
+
+    minimax_player = MinimaxPlayer(
+        battle_format="gen9randombattle",
+        max_concurrent_battles=5,  # ✅ 5로 변경
+    )
     
     # 1판만 대결 (빠른 테스트)
     print("배틀 시작...\n")
@@ -140,13 +133,13 @@ async def test_mcts_vs_opponent():
         # ==========================================
         # 1. vs Smart Player (40판)
         # ==========================================
-        print("\n🔥 [Round 1] MCTS vs Smart Player (50 battles)")
-        await mcts_player.battle_against(smart_player, n_battles=50)
+        print("\n🔥 [Round 1] Minimax vs Smart Player (100 battles)")
+        await minimax_player.battle_against(smart_player, n_battles=100)
         
         # Round 1 결과 출력 (현재까지의 전적)
-        wins_r1 = mcts_player.n_won_battles
-        lost_r1 = mcts_player.n_lost_battles
-        print(f"👉 Round 1 결과: {wins_r1}승 {lost_r1}패 (승률: {wins_r1/50*100:.1f}%)")
+        wins_r1 = minimax_player.n_won_battles
+        lost_r1 = minimax_player.n_lost_battles
+        print(f"👉 Round 1 결과: {wins_r1}승 {lost_r1}패 (승률: {wins_r1/100*100:.1f}%)")
 
 
         # ==========================================

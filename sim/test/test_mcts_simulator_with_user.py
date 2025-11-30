@@ -69,7 +69,7 @@ class MCTSPlayer(Player):
                 None, 
                 mcts_search, 
                 battle, 
-                500,    # iterations
+                100,    # iterations
                 True,  # verbose (로그 켬)
                 1       # n_workers
             )
@@ -90,10 +90,6 @@ class MCTSPlayer(Player):
             
             if original_action is None:
                 return self.choose_random_move(battle)
-            
-            # 봇이 무엇을 선택했는지 출력
-            action_name = original_action.id if hasattr(original_action, 'id') else original_action.species
-            print(f"👉 [MCTS] 선택: {action_name}")
             
             return self.create_order(original_action)
         except Exception:

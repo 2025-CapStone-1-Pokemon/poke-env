@@ -201,6 +201,8 @@ class MCTSSearcher:
             
         self.engine._sync_references(self.root_state)
         self.root = MCTSNode(self.root_state)
+
+        # root state의 가능한 액션들 가지치기
         
         # [전략] SmartRolloutPolicy (1턴) 사용
         self.policy = SmartRolloutPolicy(max_turns=1)
