@@ -201,6 +201,8 @@ class MCTSNode:
                 actions.extend(list(self.state.available_moves))
             if hasattr(self.state, 'available_switches'):
                 actions.extend(list(self.state.available_switches))
+            
+            # 김도엽
 
             #dumb_actions_filter = DumbActionsFilter(battle=self.state, actions=actions)
             #actions = dumb_actions_filter.filter(actions)
