@@ -335,27 +335,55 @@ class SimplifiedBattle:
         
         # 일단 fallback 메서드로 기술 생성
         return self._generate_random_moves_fallback(pokemon, num_to_add)
-    
+
     def _generate_random_moves_fallback(self, pokemon, num_to_add=4):
-        """포켓몬에 맞는 랜덤 기술 생성 (learnset 데이터 사용)"""
+        """포켓몬에 맞는 랜덤 기술 생성 (learnset 데이터 사용 + Base Species 추적)"""
         from poke_env.data import GenData
-        from poke_env.battle.pokemon_type import PokemonType
+        import re
         
         data = GenData.from_gen(self.gen)
-        moves = []
         
-        # 포켓몬이 배울 수 있는 기술들 가져오기
-        pokedex_species = pokemon.species.lower()
-        learnable_moves = []
+        # 검색할 이름 후보군 리스트
+        # 1순위: 내 원래 이름 (예: arceussteel)
+        search_candidates = [pokemon.species.lower()]
+        
+        # 2순위: 도감상의 Base Species (예: Arceus)
+        # 1순위 이름으로 기술이 없거나 eventOnly인 경우를 대비
+        pokedex_entry = data.pokedex.get(pokemon.species.lower(), {})
+        if 'baseSpecies' in pokedex_entry:
+            # 이름 정규화 (공백, 하이픈 제거 및 소문자)
+            base_species = pokedex_entry['baseSpecies'].lower()
+            base_species_key = re.sub(r'[^a-z0-9]', '', base_species) # arceus-steel -> arceussteel
+            
+            if base_species_key not in search_candidates:
+                search_candidates.append(base_species_key)
+                
+        # 3순위: 하이픈(-) 앞부분 (예: landorus-therian -> landorus)
+        if '-' in pokemon.species:
+            base_name = pokemon.species.split('-')[0].lower()
+            if base_name not in search_candidates:
+                search_candidates.append(base_name)
 
-        if pokedex_species in data.learnset and 'learnset' in data.learnset[pokedex_species]:
-            learnable_moves = list(data.learnset[pokedex_species]['learnset'].keys())
+        # === Learnset 찾기 (후보군 순서대로 검색) ===
+        learnable_moves = []
+        for name in search_candidates:
+            # 데이터에 키가 있고, 그 안에 'learnset'이라는 실제 기술 목록이 있어야 함
+            if name in data.learnset and 'learnset' in data.learnset[name]:
+                learnable_moves = list(data.learnset[name]['learnset'].keys())
+                # 기술을 찾았으면 루프 종료
+                break
         
+        # === 4순위: 그래도 없으면? (Pokestar 등 특수 폼) ===
         if not learnable_moves:
-            # Learnset 데이터가 없으면 tackle 하나라도 반환
-            print(f"[경고] {pokemon.species}의 learnset 데이터 없음")
-            fallback_move = self._create_move_from_pokedex('tackle', data.moves.get('tackle', {'basePower': 40, 'type': 'Normal', 'category': 'Physical'}))
+            # print(f"[경고] {pokemon.species}의 learnset 데이터 없음 (후보: {search_candidates})")
+            
+            # 최후의 수단: 몸통박치기(tackle)라도 쥐어줌 (에러 방지)
+            fallback_move = self._create_move_from_pokedex('tackle', data.moves.get('tackle', {}))
             return [fallback_move] if fallback_move else []
+        
+        # ==========================================================
+        # 아래부터는 기존 로직(타입 매칭, 위력순 정렬 등)과 동일
+        # ==========================================================
         
         # 포켓몬 타입과 일치하는 기술들 필터링
         type_moves = []      # 포켓몬 타입 기술 (위력 있음)
@@ -369,6 +397,7 @@ class SimplifiedBattle:
             move_type = move_data.get('type', 'Normal').upper()
             base_power = move_data.get('basePower', 0)
             
+            # 내 포켓몬 타입
             pokemon_types = [t.name.upper() for t in pokemon.types]
             
             if base_power > 0:
@@ -377,68 +406,64 @@ class SimplifiedBattle:
                     # 1. 포켓몬 타입과 일치하는 기술 (STAB)
                     type_moves.append((move_id, move_data))
                 elif base_power >= 80:
-                    # 2-1. 위력 80 이상 상성 극복 (우선)
+                    # 2-1. 위력 80 이상
                     strong_coverage.append((move_id, move_data))
                 elif base_power >= 60:
-                    # 2-2. 위력 60-79 상성 극복
+                    # 2-2. 위력 60-79
                     medium_coverage.append((move_id, move_data))
                 elif base_power >= 50:
-                    # 2-3. 위력 50-59 상성 극복
+                    # 2-3. 위력 50-59
                     weak_coverage.append((move_id, move_data))
             else:
-                # 위력 0 기술은 마지막 수단
+                # 위력 0 기술
                 status_moves.append((move_id, move_data))
         
-        # 기술 선택 전략
+        # 기술 선택 전략 (랜덤성 부여)
         selected_moves = []
 
-        # 1. STAB 기술 우선 (최소 2개, 가능하면 위력 높은것)
+        # 1. STAB 기술 우선 (최소 2개)
         if type_moves:
+            # 위력 70 이상인 것 우선
             strong_stab = sorted([m for m in type_moves if m[1].get('basePower', 0) >= 70], 
                                 key=lambda x: x[1].get('basePower', 0), reverse=True)
             if strong_stab:
-                # 최소 1개, 최대 2개의 강한 STAB 기술 (BP 70 이상)
                 stab_count = min(2, len(strong_stab), num_to_add)
                 selected_moves.extend(strong_stab[:stab_count])
             else:
-                # BP 70 미만인 STAB 기술도 1개 추가
                 stab_count = min(1, len(type_moves), num_to_add)
                 selected_moves.extend(random.sample(type_moves, stab_count))
         
-        # 2. 강한 상성 극복 기술 (순위 80+ > 60-79)
+        # 2. 강한 상성 극복 기술
         if len(selected_moves) < num_to_add:
             remaining = num_to_add - len(selected_moves)
             
-            # 먼저 강한 상성 극복 기술 추가
             if strong_coverage:
                 strong_count = min(remaining, len(strong_coverage))
                 selected_moves.extend(random.sample(strong_coverage, strong_count))
                 remaining -= strong_count
             
-            # 그 다음 중간 강도 상성 극복 기술
             if remaining > 0 and medium_coverage:
                 medium_count = min(remaining, len(medium_coverage))
                 selected_moves.extend(random.sample(medium_coverage, medium_count))
                 remaining -= medium_count
-            
-            # 약한 상성 극복 기술
+                
             if remaining > 0 and weak_coverage:
                 weak_count = min(remaining, len(weak_coverage))
                 selected_moves.extend(random.sample(weak_coverage, weak_count))
                 remaining -= weak_count
             
-            # 여전히 부족하면 상태 기술이라도 추가 (마지막 수단)
             if remaining > 0 and status_moves:
                 status_count = min(remaining, len(status_moves))
                 selected_moves.extend(random.sample(status_moves, status_count))
         
         # SimplifiedMove로 변환
+        moves = []
         for move_id, move_data in selected_moves[:num_to_add]:
             move = self._create_move_from_pokedex(move_id, move_data)
             if move:
                 moves.append(move)
         
-        # 최종 확인: 기술이 4개보다 적으면 tackle 추가
+        # 최종 확인: 기술이 부족하면 tackle 추가
         while len(moves) < num_to_add:
             tackle_data = data.moves.get('tackle', {'basePower': 40, 'type': 'Normal', 'category': 'Physical'})
             tackle_move = self._create_move_from_pokedex('tackle', tackle_data)

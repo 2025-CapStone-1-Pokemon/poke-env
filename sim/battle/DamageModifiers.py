@@ -113,12 +113,12 @@ class TypeEffectivenessModifier(DamageModifier):
 
 
 class RandomModifier(DamageModifier):
-    """랜덤 보정 (0.85 ~ 1.0)"""
+    """가장 최악의 수를 가정"""
     
     def apply(self, damage: float, attacker: SimplifiedPokemon, defender: SimplifiedPokemon, 
               move: SimplifiedMove, crit: bool, battle_context: dict) -> float:
-        import random
-        return damage * random.uniform(0.85, 1.0)
+        # random.uniform(0.85, 1.0) 삭제
+        return damage * 1.0
 
 
 class DamageModifierChain:

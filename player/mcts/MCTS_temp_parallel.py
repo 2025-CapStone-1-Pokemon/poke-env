@@ -9,6 +9,8 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from sim.SimplifiedBattle import SimplifiedBattle
 from sim.battle.SimplifiedBattleEngine import SimplifiedBattleEngine
+from sim.SimplifiedPokemon import SimplifiedPokemon
+from typing import Dict
 
 
 class MCTSNode:
@@ -61,7 +63,7 @@ class MCTSNode:
         self.untried_actions.remove(action)
 
         # 2. 상태 복제 (병목 지점 - 최적화 필요 시 clone() 구현 권장)
-        new_state = self.state.clone()
+        new_state : SimplifiedBattle = self.state.clone()
         engine = SimplifiedBattleEngine()
 
         # 3. Action 적용을 위한 인덱스/ID 찾기
@@ -80,11 +82,17 @@ class MCTSNode:
             # (SimplifiedBattleEngine이 species 문자열을 처리할 수 있어야 함)
             player_switch_to = action.species
 
-        # 4. 1턴 시뮬레이션 (Expand 단계)
-        # 상대방 행동: 랜덤 (추후 Heuristic으로 개선 가능)
+        # 4. 1턴 시뮬레이션
+        # [수정] 상대방 행동: Random -> Greedy (가장 아픈 기술)
         opp_move_idx = None
         if new_state.opponent_active_pokemon and new_state.opponent_active_pokemon.moves:
-            opp_move_idx = random.randint(0, len(new_state.opponent_active_pokemon.moves) - 1)
+            # 50% 확률로 Greedy, 50% 확률로 Random (완전 Greedy로 하면 너무 쫄보가 될 수 있음)
+            # 하지만 승률을 높이려면 일단 100% Greedy로 테스트해보는 게 좋아.
+            opp_move_idx = self._select_greedy_opponent_action(new_state)
+            
+            # 만약 적절한 기술을 못 찾았으면(변화기뿐이거나 등) 랜덤
+            if opp_move_idx is None:
+                 opp_move_idx = random.randint(0, len(new_state.opponent_active_pokemon.moves) - 1)
 
         engine.simulate_turn(
             new_state,
@@ -99,30 +107,166 @@ class MCTSNode:
         
         return child_node
 
-    def rollout(self, engine):
-        """시뮬레이션 (끝까지 실행)"""
-        # 이미 종료된 상태 체크
+    def rollout(self, engine: SimplifiedBattleEngine):
+        """
+        [개선된 롤아웃]
+        1. 30턴 -> 10턴으로 단축 (먼 미래의 랜덤성은 노이즈임)
+        2. 약한 휴리스틱 적용 (공격 기술 선호)
+        """
         if self.state.finished:
-            return 1.0 if self.state.won else 0.0
+            return self._evaluate_final_score(self.state)
 
-        # 시뮬레이션용 상태 복제 (여기서도 deepcopy 발생 - 성능의 주범 2)
-        # 롤아웃은 현재 노드 상태를 망가뜨리면 안 되므로 복사 필수
-        # 하지만 expand 직후의 리프 노드라면 복사 없이 바로 써도 됨 (메모리 절약)
-        # 여기서는 안전하게 복사
-        rollout_state = self.state.clone()
+        rollout_state : SimplifiedBattle = self.state.clone()
         
-        # verbose=False 강제
-        result = engine.simulate_full_battle(rollout_state, max_turns=50, verbose=False)
+        # [핵심 변경] 30턴은 너무 깁니다. 10턴만 봅니다.
+        # 그 이후는 _evaluate_final_score(체력 차이)가 판단하게 맡깁니다.
+        for _ in range(5):
+            if rollout_state.finished: break
+            
+            # --- 내 행동 (공격 지향 랜덤) ---
+            my_move_idx = None
+            if rollout_state.active_pokemon and rollout_state.active_pokemon.moves:
+                # 가능한 기술 중 '공격기(Physical/Special)'만 추림
+                attacks = [i for i, m in enumerate(rollout_state.active_pokemon.moves) 
+                           if m.category.name != 'STATUS' and m.current_pp > 0]
+                
+                # 80% 확률로 공격기 중 랜덤 선택, 20%는 그냥 아무거나(변화기 포함)
+                if attacks and random.random() < 0.8:
+                    my_move_idx = random.choice(attacks)
+                else:
+                    my_move_idx = random.randint(0, len(rollout_state.active_pokemon.moves) - 1)
+
+            # --- 상대 행동 (완전 랜덤 유지 - 네 요청대로) ---
+            opp_move_idx = None
+            if rollout_state.opponent_active_pokemon and rollout_state.opponent_active_pokemon.moves:
+                opp_move_idx = random.randint(0, len(rollout_state.opponent_active_pokemon.moves) - 1)
+            
+            engine.simulate_turn(
+                rollout_state,
+                player_move_idx=my_move_idx,
+                opponent_move_idx=opp_move_idx
+            )
+
+        return self._evaluate_final_score(rollout_state)
+
+    def _evaluate_final_score(self, battle_state):
+        """
+        [보상 함수 v2] HP뿐만 아니라 상태이상, 랭크업까지 종합 평가
+        """
+        # 1. 승패가 났으면 절대적 점수 부여
+        if battle_state.won: return 1.0
+        if battle_state.lost: 
+            # 졌어도 상대를 많이 잡았으면 약간의 점수 (최대 0.2)
+            opp_hp = self._calculate_team_health(battle_state.opponent_team)
+            return (1.0 - opp_hp) * 0.2
+
+        # 2. 내 점수 계산
+        my_score = 0
+        for p in battle_state.team.values():
+            if p.current_hp > 0 and p.max_hp > 0:
+                # 기본 HP 점수 (마리당 1점 + 체력 비율)
+                p_score = 1.0 + (p.current_hp / p.max_hp)
+                
+                # [추가] 상태이상 페널티 (마비/화상/수면 등은 0.5마리 잃은 셈 침)
+                if p.status is not None:
+                    p_score -= 0.5
+                
+                # [추가] 랭크업 보너스 (공격/특공/스피드가 오르면 유리함)
+                # 너무 과하면 랭크업만 하다가 죽으니 0.1 정도로 소소하게
+                offensive_boosts = p.boosts.get('atk', 0) + p.boosts.get('spa', 0) + p.boosts.get('spe', 0)
+                if offensive_boosts > 0:
+                    p_score += (offensive_boosts * 0.1)
+                
+                my_score += max(0.1, p_score) # 음수 방지
+
+        # 3. 상대 점수 계산
+        opp_score = 0
+        for p in battle_state.opponent_team.values():
+            if p.current_hp > 0 and p.max_hp > 0:
+                p_score = 1.0 + (p.current_hp / p.max_hp)
+                
+                # 상대가 상태이상이면 내 이득
+                if p.status is not None:
+                    p_score -= 0.5
+                
+                # 상대가 랭크업 했으면 내 손해
+                offensive_boosts = p.boosts.get('atk', 0) + p.boosts.get('spa', 0) + p.boosts.get('spe', 0)
+                if offensive_boosts > 0:
+                    p_score += (offensive_boosts * 0.1)
+                    
+                opp_score += max(0.1, p_score)
+
+        # 4. 비율 계산 (0.0 ~ 1.0)
+        if my_score + opp_score == 0: return 0.5
+        return my_score / (my_score + opp_score)
+
+    def _calculate_team_health(self, team_dict: Dict[str, SimplifiedPokemon]) -> float:
+        """
+        팀의 남은 체력 총합 비율 계산 (0.0 ~ 1.0)
+        Args:
+            team_dict: { 'p1: Pikachu': SimplifiedPokemon 객체, ... }
+        """
+        total_hp_ratio = 0.0
+        count = 0
         
-        if result.won: return 1.0
-        if result.lost: return 0.0
-        return 0.5  # 무승부
+        # team_dict.values()의 요소가 SimplifiedPokemon임을 명시
+        for p in team_dict.values():
+            # [수정] 'if not p'는 p가 객체일 때 False가 되므로 삭제했습니다.
+            # 대신 기절하지 않았는지(current_hp > 0) 확인합니다.
+            if p.current_hp > 0 and p.max_hp > 0:
+                total_hp_ratio += (p.current_hp / p.max_hp)
+                count += 1
+        
+        # 살아있는 포켓몬들의 평균 체력 비율 (0으로 나누기 방지)
+        return total_hp_ratio / max(1, count) if count > 0 else 0.0
 
     def backpropagate(self, reward):
         self.visits += 1
         self.wins += reward
         if self.parent:
             self.parent.backpropagate(reward)
+
+        # 헬퍼 클래스
+    def _select_greedy_opponent_action(self, battle : SimplifiedBattle):
+        """
+        [상대방 모델링] Greedy 전략 시뮬레이션
+        상대가 쓸 수 있는 기술 중 가장 강력한(위력 * 상성) 기술의 인덱스를 반환
+        """
+        opponent = battle.opponent_active_pokemon
+        me = battle.active_pokemon
+        
+        if not opponent or not me or not opponent.moves:
+            return None
+
+        best_move_idx = 0
+        max_threat = -1.0
+        
+        # 상대의 모든 기술을 훑어봄
+        for i, move in enumerate(opponent.moves):
+            if move.current_pp <= 0: continue # PP 없으면 패스
+            
+            # 변화기는 위협도 0으로 취급 (단순화)
+            if move.category.name == 'STATUS':
+                threat = 0.0
+            else:
+                # 1. 위력
+                threat = move.base_power
+                
+                # 2. 자속 보정 (STAB) - 1.5배
+                if move.type in opponent.types:
+                    threat *= 1.5
+                
+                # 3. 타입 상성 (약점 찌르기)
+                # SimplifiedPokemon에 있는 damage_multiplier 메서드 활용
+                # 주의: 내(me)가 방어자 입장이므로 내 타입에 대한 상성을 계산해야 함
+                multiplier = me.damage_multiplier(move.type)
+                threat *= multiplier
+            
+            if threat > max_threat:
+                max_threat = threat
+                best_move_idx = i
+                
+        return best_move_idx
 
 
 def mcts_search(root_battle, iterations=50, verbose=False, n_workers=1):

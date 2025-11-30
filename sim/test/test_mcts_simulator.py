@@ -19,8 +19,13 @@ from poke_env.player import Player
 from poke_env.battle import Battle
 
 
-class RandomPlayer(Player):
+class GreedyPlayer(Player):
     def choose_move(self, battle: Battle):
+        """가용한 기술 중 가장 높은 위력을 가진 기술 선택"""
+        if battle.available_moves:
+            best_move = max(battle.available_moves, key=lambda move: move.base_power or 0)
+            return self.create_order(best_move)
+        
         return self.choose_random_move(battle)
 
 
@@ -53,6 +58,10 @@ class MCTSPlayer(Player):
         # 기술이 없으면 랜덤
         if len(battle.available_moves) == 0:
             return self.choose_random_move(battle)
+        
+        if battle.turn == 1:
+            print(f"\n[MCTSPlayer] 턴: {battle.turn} (초기화)")
+
         
         # MCTS 연산을 별도 스레드풀에서 실행하여 이벤트 루프 차단 방지
         loop = asyncio.get_running_loop()
@@ -89,7 +98,7 @@ async def test_mcts_vs_random():
     """MCTS vs Random Bot 다중 배틀 테스트"""
     
     # === 설정값 ===
-    N_BATTLES = 10           # 총 배틀 수
+    N_BATTLES = 100           # 총 배틀 수
     CONCURRENT_BATTLES = 5   # 동시에 진행할 배틀 수 (너무 높으면 타임아웃 위험)
     
     print(f"=== MCTS vs Random Bot 테스트 ===")
@@ -104,7 +113,7 @@ async def test_mcts_vs_random():
         max_concurrent_battles=CONCURRENT_BATTLES,
     )
     
-    random_player = RandomPlayer(
+    random_player = GreedyPlayer(
         battle_format="gen9randombattle",
         max_concurrent_battles=CONCURRENT_BATTLES,
     )

@@ -33,6 +33,11 @@ class GreedyPlayer(Player):
         # 가장 높은 위력의 기술 선택
         best_move = max(battle.available_moves, key=lambda move: move.base_power)
         return self.create_order(best_move)
+    
+class RandomPlayer(Player):
+    """Tyranitar, Corviknight, Rotom-Wash 팀"""
+    def choose_move(self, battle : Battle):
+        return self.choose_random_move(battle)
 
 class RandomPlayer(Player):
     """Tyranitar, Corviknight, Rotom-Wash 팀"""
@@ -80,10 +85,10 @@ class MCTSPlayer(Player):
         if len(battle.available_moves) == 0:
             return self.choose_random_move(battle)
         
-        print(f"\n[MCTSPlayer] 턴: {battle.turn}")
+        # print(f"\n[MCTSPlayer] 턴: {battle.turn}")
         
         # MCTS 검색 - SimplifiedAction 반환
-        simplified_action = mcts_search(battle, iterations=200, verbose=True, n_workers=5)
+        simplified_action = mcts_search(battle, iterations=100, verbose=False, n_workers=5)
 
         if simplified_action is None:
             return self.choose_random_move(battle)
@@ -107,30 +112,35 @@ class MCTSPlayer(Player):
 async def test_mcts_vs_opponent():
     """MCTS vs Random 테스트"""
     print("=== MCTS vs Random Bot 테스트 ===\n")
+
+    random_player = RandomPlayer(
+        battle_format="gen9randombattle",
+        max_concurrent_battles=5,  # ✅ 5로 변경
+    )
     
     mcts_player = MCTSPlayer(
         battle_format="gen9randombattle",
-        max_concurrent_battles=1,  # ✅ 1로 변경 (동시 배틀 1개)
+        max_concurrent_battles=5,  # ✅ 5로 변경 (동시 배틀 5개)
     )
     
-    opponent_player = GreedyPlayer(
+    greedy_player = GreedyPlayer(
         battle_format="gen9randombattle",
-        max_concurrent_battles=1,  # ✅ 1로 변경
+        max_concurrent_battles=5,  # ✅ 5로 변경
     )
     
     # 1판만 대결 (빠른 테스트)
     print("배틀 시작...\n")
     
     try:
-        await mcts_player.battle_against(opponent_player, n_battles=1)
+        await mcts_player.battle_against(greedy_player, n_battles=100)
     except Exception as e:
         print(f"배틀 중 에러: {e}")
         import traceback
         traceback.print_exc()
     
     print("\n=== 결과 ===")
-    print(f"MCTS 전적: {mcts_player.n_won_battles}승 {mcts_player.n_lost_battles}패")
-    print(f"상대 전적: {opponent_player.n_won_battles}승 {opponent_player.n_lost_battles}패")
+    print(f"MCTSPlayer 전적: {mcts_player.n_won_battles}승 {mcts_player.n_lost_battles}패")
+    print(f"상대 전적: {greedy_player.n_won_battles}승 {greedy_player.n_lost_battles}패")
 
 if __name__ == "__main__":
 
