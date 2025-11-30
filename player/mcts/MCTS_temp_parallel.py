@@ -3,364 +3,211 @@ import random
 import copy
 import sys
 import os
-from concurrent.futures import ThreadPoolExecutor
+import time
 
 # SimplifiedBattle 시뮬레이터 import
-# player/mcts/MCTS_temp_parallel.py에서 실행되므로 poke-env 루트까지 올라가야 함
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from sim.SimplifiedBattle import SimplifiedBattle
 from sim.battle.SimplifiedBattleEngine import SimplifiedBattleEngine
-from dumb_actions_filter import DumbActionsFilter
+
 
 class MCTSNode:
-    def __init__(self, state, parent=None, action=None, is_simplified=False):
-        """
-        Args:
-            state: Battle 객체 또는 SimplifiedBattle 객체
-            parent: 부모 노드
-            action: 이 노드에 도달하게 한 액션 (추적용)
-            is_simplified: state가 이미 SimplifiedBattle인지 여부
-        """
-        # state가 이미 SimplifiedBattle이면 그대로 사용, 아니면 변환
-        if isinstance(state, SimplifiedBattle):
-            self.state = state
-        else:
-            # Battle 객체면 SimplifiedBattle로 변환
-            self.state = SimplifiedBattle(state, fill_unknown_data=True)
-            
-        self.parent = parent                  # 부모 노드
-        self.children = []                    # 자식 노드 목록
-        self.visits = 0                       # 방문 횟수
-        self.wins = 0                         # 승리 횟수
-        self.action = action                  # 이 노드에 도달한 액션
-        self.available_actions = self.get_actions()  # 가능한 이동
-        self.untried_actions = self.available_actions.copy()  # 아직 시도하지 않은 액션들
+    def __init__(self, state, parent=None, action=None):
+        self.state = state  # SimplifiedBattle 객체 (이미 변환되었다고 가정)
+        self.parent = parent
+        self.children = []
+        self.visits = 0
+        self.wins = 0
+        self.action = action  # 이 노드에 도달하게 한 액션 (객체)
+        
+        # Action을 객체가 아닌 ID(문자열)로 관리하여 성능/안정성 확보
+        self.available_actions = self._get_actions()
+        # 아직 시도하지 않은 액션 (랜덤 선택을 위해 리스트 유지)
+        self.untried_actions = list(self.available_actions)
+
+    def _get_actions(self):
+        """가능한 행동 목록 반환"""
+        actions = []
+        if hasattr(self.state, 'available_moves'):
+            actions.extend(list(self.state.available_moves))
+        if hasattr(self.state, 'available_switches'):
+            actions.extend(list(self.state.available_switches))
+        return actions if actions else []
 
     def best_child(self, exploration_weight=1.4):
-        # UCT(Upper Confidence Bound for Trees) 공식을 사용하여 최적의 자식 노드를 선택합니다.
+        """UCT 기준 최적 자식 선택"""
         if not self.children:
             return None
         
-        # 방문 횟수가 0인 자식들을 필터링
-        valid_children = [child for child in self.children if child.visits > 0]
+        # 방문한 적 있는 자식만 계산 대상
+        candidates = [c for c in self.children if c.visits > 0]
+        if not candidates:
+            return None
 
-        if not valid_children:
-            return self.children[0] if self.children else None
-            
-        return max(valid_children, key=lambda child:
-                   (child.wins / child.visits) +
-                   exploration_weight * math.sqrt(math.log(max(1, self.visits)) / child.visits))
+        # UCT 공식: WinRate + Exploration
+        # log 계산을 한 번만 수행
+        log_n = math.log(self.visits)
+        
+        return max(candidates, key=lambda c: (c.wins / c.visits) + 
+                   exploration_weight * math.sqrt(log_n / c.visits))
 
-    def is_fully_expanded(self):
-        # 모든 가능한 액션이 시도되었는지 확인
-        return len(self.untried_actions) == 0
-
-    def expand(self, verbose=False):
-        """새로운 자식 노드를 생성하고 추가"""
+    def expand(self):
+        """자식 노드 확장 (Deepcopy 수행)"""
         if not self.untried_actions:
             return None
-            
-        # random.choice()를 사용하여 순서 편향 제거
-        # TODO : LLM을 활용하여 멍청한 actions 제거
 
+        # 1. 시도하지 않은 액션 중 하나 선택
         action = random.choice(self.untried_actions)
         self.untried_actions.remove(action)
-        
-        if verbose:
-            print(f"[Expand] Action 선택: {action}, 남은 액션: {len(self.untried_actions)}")
-        
-        try:
-            # 현재 상태를 복사 (simulate_turn이 in-place 수정하므로)
-            new_state = copy.deepcopy(self.state)
-            
-            # 현재 상태에서 action을 적용한 1턴 시뮬레이션
-            engine = SimplifiedBattleEngine()
-            
-            # action을 move_idx 또는 switch_idx로 변환
-            player_move_idx = None
-            player_switch_idx = None
-            
-            if hasattr(action, 'id'):  # Move 객체인 경우
-                # active_pokemon의 moves에서 action의 인덱스 찾기
-                if new_state.active_pokemon and new_state.active_pokemon.moves:
-                    for idx, move in enumerate(new_state.active_pokemon.moves):
-                        if move.id == action.id:
-                            player_move_idx = idx
-                            break
 
-            else:  # Pokemon 객체인 경우 (Switch)
-                # team에서 action pokemon의 인덱스 찾기
-                team_list = list(new_state.team.values())
-                for idx, pokemon in enumerate(team_list):
-                    if pokemon.species == action.species:
-                        player_switch_idx = idx
+        # 2. 상태 복제 (병목 지점 - 최적화 필요 시 clone() 구현 권장)
+        new_state = copy.deepcopy(self.state)
+        engine = SimplifiedBattleEngine()
+
+        # 3. Action 적용을 위한 인덱스/ID 찾기
+        player_move_idx = None
+        player_switch_to = None
+
+        if hasattr(action, 'id'):  # Move
+            if new_state.active_pokemon:
+                # for 루프 대신 next() 사용으로 속도 미세 최적화
+                for i, m in enumerate(new_state.active_pokemon.moves):
+                    if m.id == action.id:
+                        player_move_idx = i
                         break
-            
-            if verbose:
-                print(f"[Expand] player_move_idx: {player_move_idx}, player_switch_idx: {player_switch_idx}")
-            
-            # 1턴 시뮬레이션 (상대는 랜덤) - new_state를 직접 수정
-            # Switch 처리: switch_idx가 있으면 먼저 교체
-            if player_switch_idx is not None:
-                team_list = list(new_state.team.keys())
-                if player_switch_idx < len(team_list):
-                    new_state.active_pokemon = new_state.team[team_list[player_switch_idx]]
-            
-            engine.simulate_turn(
-                new_state,
-                player_move_idx=player_move_idx,
-                opponent_move_idx=None  # 상대는 랜덤
-            )
-            
-            if verbose:
-                print(f"[Expand] 시뮬레이션 완료 - HP: {new_state.active_pokemon.current_hp if new_state.active_pokemon else 'None'}, 턴: {new_state.turn}")
-            
-            # 새로운 노드 생성 (state + action 저장)
-            child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
-            self.children.append(child_node)
-            return child_node
-            
-        except Exception as e:
-            # 시뮬레이션 실패 시 현재 상태 복사 (fallback)
-            if verbose:
-                print(f"[Expand] 실패: {e}, fallback 사용")
-            print(f"[MCTS] Expand 실패: {e}, deepcopy fallback")
-            new_state = copy.deepcopy(self.state)
-            child_node = MCTSNode(new_state, parent=self, action=action, is_simplified=True)
-            self.children.append(child_node)
-            return child_node
+        else:  # Switch (Pokemon)
+            # Species 대신 Identifier나 Species를 직접 사용
+            # (SimplifiedBattleEngine이 species 문자열을 처리할 수 있어야 함)
+            player_switch_to = action.species
 
-    def update(self, reward):
-        # 노드의 방문 횟수와 가치를 업데이트하는 로직을 구현합니다.
+        # 4. 1턴 시뮬레이션 (Expand 단계)
+        # 상대방 행동: 랜덤 (추후 Heuristic으로 개선 가능)
+        opp_move_idx = None
+        if new_state.opponent_active_pokemon and new_state.opponent_active_pokemon.moves:
+            opp_move_idx = random.randint(0, len(new_state.opponent_active_pokemon.moves) - 1)
+
+        engine.simulate_turn(
+            new_state,
+            player_move_idx=player_move_idx,
+            player_switch_to=player_switch_to,
+            opponent_move_idx=opp_move_idx
+        )
+
+        # 5. 자식 노드 생성 및 연결
+        child_node = MCTSNode(new_state, parent=self, action=action)
+        self.children.append(child_node)
+        
+        return child_node
+
+    def rollout(self, engine):
+        """시뮬레이션 (끝까지 실행)"""
+        # 이미 종료된 상태 체크
+        if self.state.finished:
+            return 1.0 if self.state.won else 0.0
+
+        # 시뮬레이션용 상태 복제 (여기서도 deepcopy 발생 - 성능의 주범 2)
+        # 롤아웃은 현재 노드 상태를 망가뜨리면 안 되므로 복사 필수
+        # 하지만 expand 직후의 리프 노드라면 복사 없이 바로 써도 됨 (메모리 절약)
+        # 여기서는 안전하게 복사
+        rollout_state = copy.deepcopy(self.state)
+        
+        # verbose=False 강제
+        result = engine.simulate_full_battle(rollout_state, max_turns=50, verbose=False)
+        
+        if result.won: return 1.0
+        if result.lost: return 0.0
+        return 0.5  # 무승부
+
+    def backpropagate(self, reward):
         self.visits += 1
         self.wins += reward
-
-    def is_terminal(self):
-        # 현재 상태가 종료 상태인지 확인하는 로직
-        # 게임이 종료되었는지 확인
-        return self.state.finished
-
-    def rollout(self, engine=None, verbose=False):
-        """배틀 시뮬레이터를 사용한 rollout"""
-        
-        # 이미 종료된 상태면 즉시 반환
-        if self.is_terminal():
-            if self.state.won:
-                if verbose:
-                    print(f"[Rollout] 이미 종료: 승리")
-                return 1.0
-            elif self.state.lost:
-                if verbose:
-                    print(f"[Rollout] 이미 종료: 패배")
-                return 0.0
-            else:
-                if verbose:
-                    print(f"[Rollout] 이미 종료: 무승부")
-                return 0.5
-        
-        # 엔진이 없으면 생성
-        if engine is None:
-            engine = SimplifiedBattleEngine()
-        
-        if verbose:
-            # 상대 팀 상태 확인
-            opponent_alive = sum(1 for p in self.state.opponent_team.values() if p.current_hp > 0)
-            print(f"[Rollout] 시뮬레이션 시작 - 상대 팀: {opponent_alive}/{len(self.state.opponent_team)} 생존")
-        
-        # 배틀 시뮬레이션 실행 (최대 100턴)
-        result = engine.simulate_full_battle(self.state, max_turns=100, verbose=False)
-        
-        if verbose:
-            opponent_alive_after = sum(1 for p in result.opponent_team.values() if p.current_hp > 0)
-            print(f"[Rollout] 시뮬레이션 완료: finished={result.finished}, won={result.won}, turn={result.turn}, 상대 생존={opponent_alive_after}")
-        
-        # 결과 평가
-        if result.finished:
-            if result.won:
-                return 1.0  # 승리
-            else:
-                return 0.0  # 패배
-        else:
-            # 무승부인 경우
-            return 0.5
-    
-    def backpropagate(self, result):
-        # 결과를 바탕으로 노드와 그 부모 노드들의 값을 업데이트하는 로직을 구현합니다.
-        # *** 중요: 반전하지 않음! 같은 플레이어의 선택지 비교 ***
-        self.visits += 1
-        self.wins += result
         if self.parent:
-            # 부모도 같은 결과로 업데이트 (플레이어 1의 성공 = 플레이어 1이 승리 진행)
-            self.parent.backpropagate(result)
+            self.parent.backpropagate(reward)
 
-    def get_actions(self):
-        # 현재 상태에서 가능한 모든 이동을 반환하는 로직을 구현합니다.
-        try:
-            actions = []
-            if hasattr(self.state, 'available_moves'):
-                actions.extend(list(self.state.available_moves))
-            if hasattr(self.state, 'available_switches'):
-                actions.extend(list(self.state.available_switches))
 
-            #dumb_actions_filter = DumbActionsFilter(battle=self.state, actions=actions)
-            #actions = dumb_actions_filter.filter(actions)
+def mcts_search(root_battle, iterations=50, verbose=False, n_workers=1):
+    """
+    최적화된 MCTS (Single Threaded) + 프로파일링
+    """
+    # === [프로파일링] 타이머 시작 ===
+    t_start_total = time.time()
+    perf_stats = {
+        "init": 0.0,
+        "selection": 0.0,
+        "expansion": 0.0,
+        "rollout": 0.0,
+        "backprop": 0.0,
+        "count_rollouts": 0
+    }
 
-            return actions if actions else [None]  # 빈 리스트 방지
-        except:
-            return [None]
-
-# 여기서 root_state는 최초의 battle 객체를 의미한다.
-def mcts_search(root_state, iterations=30, verbose=False, n_workers=4):
-    """개선된 MCTS 검색 알고리즘 - 병렬 롤아웃"""
+    # 1. 초기 상태 변환
+    t0 = time.time()
+    if isinstance(root_battle, SimplifiedBattle):
+        root_state = root_battle
+    else:
+        root_state = SimplifiedBattle(root_battle, fill_unknown_data=True)
+    
+    # 엔진 객체 재사용
+    engine = SimplifiedBattleEngine()
+    engine._sync_references(root_state)
+    
     root = MCTSNode(root_state)
-    
-    # 최소한의 exploration을 보장
-    min_visits_per_child = max(1, iterations // 50)
-    
-    # 주의: 엔진은 병렬 작업 중에 각 스레드마다 생성됨 (thread-safe)
-    
-    if verbose:
-        # 현재 턴 정보만 표시
-        current_turn = root_state.turn if hasattr(root_state, 'turn') else 0
-        active_poke = root_state.active_pokemon.species if hasattr(root_state, 'active_pokemon') and root_state.active_pokemon else "Unknown"
-        print(f"\n[MCTS] 턴 {current_turn} - {active_poke}")
-        print(f"       가능한 액션: {len(root.available_actions)}개, 반복: {iterations}회, 워커: {n_workers}개")
+    perf_stats["init"] = time.time() - t0
 
-    # Selection/Expansion/Rollout을 순차적으로 수행
-    # (병렬화는 engine 생성 부분에서 thread-safe하게)
-    rollout_tasks = []
-    
-    # 1단계: 루트의 모든 액션을 공평하게 여러 번 탐색
-    # untried_actions에서 remove 대신 다른 list 사용
-    all_actions = root.untried_actions.copy()
-    expanded_actions = set()  # 이미 expand된 액션 추적
-    
-    # 모든 액션을 최소 N회씩 공평하게 expand
-    min_rounds = max(3, iterations // max(1, len(all_actions)))
-    
-    for round_num in range(min_rounds):
-        for action in all_actions:
-            if len(rollout_tasks) >= iterations:
-                break
-            
-            try:
-                new_state = copy.deepcopy(root.state)
-                engine = SimplifiedBattleEngine()
-                
-                # action을 move_idx 또는 switch_idx로 변환
-                player_move_idx = None
-                player_switch_idx = None
-                
-                if hasattr(action, 'id'):  # Move 객체
-                    if new_state.active_pokemon and new_state.active_pokemon.moves:
-                        for idx, move in enumerate(new_state.active_pokemon.moves):
-                            if move.id == action.id:
-                                player_move_idx = idx
-                                break
-                else:  # Pokemon 객체 (Switch)
-                    team_list = list(new_state.team.values())
-                    for idx, pokemon in enumerate(team_list):
-                        if pokemon.identifier == action.identifier:
-                            player_switch_idx = idx
-                            break
-                
-                # Switch 처리
-                if player_switch_idx is not None:
-                    team_list = list(new_state.team.keys())
-                    if player_switch_idx < len(team_list):
-                        new_state.active_pokemon = new_state.team[team_list[player_switch_idx]]
-                
-                # 상대방은 랜덤 선택
-                opponent_available_moves = list(new_state.opponent_active_pokemon.moves) if new_state.opponent_active_pokemon else []
-                opponent_move_idx = None
-                if opponent_available_moves:
-                    opponent_move_idx = random.randint(0, len(opponent_available_moves) - 1)
-                
-                engine.simulate_turn(
-                    new_state,
-                    player_move_idx=player_move_idx,
-                    opponent_move_idx=opponent_move_idx
-                )
-                
-                child_node = MCTSNode(new_state, parent=root, action=action, is_simplified=True)
-                # 같은 액션의 중복 자식이 아니면 추가 (한 번만)
-                if action not in expanded_actions:
-                    root.children.append(child_node)
-                    expanded_actions.add(action)
-                    if action in root.untried_actions:
-                        root.untried_actions.remove(action)
-                
-                rollout_tasks.append(child_node)
-            except Exception as e:
-                pass
-        
-        if len(rollout_tasks) >= iterations:
-            break
-    
-    # 2단계: 남은 iteration으로 추가 탐색 (이미 expand된 자식들 중심으로)
-    for i in range(iterations - len(rollout_tasks)):
+    # 2. MCTS 루프
+    for i in range(iterations):
         node = root
 
-        # Selection - UCB1을 사용한 최적 노드 선택
-        while not node.is_terminal() and node.is_fully_expanded():
-            exploration_weight = 0.7 * (1 - i / iterations)
-            next_node = node.best_child(exploration_weight)
-            if next_node is None:
-                break
-            node = next_node
+        # --- Selection ---
+        t0 = time.time()
+        while not node.state.finished and not node.untried_actions and node.children:
+            node = node.best_child()
+            if node is None: break 
+        perf_stats["selection"] += time.time() - t0
 
-        # Expansion - 아직 expand 안 된 자식 생성
-        if not node.is_terminal() and not node.is_fully_expanded():
-            node = node.expand(verbose=False)
-            if node is None:
-                continue
+        # --- Expansion ---
+        t0 = time.time()
+        if not node.state.finished and node.untried_actions:
+            # expand 내부에서 deepcopy가 일어남
+            node = node.expand()
+        perf_stats["expansion"] += time.time() - t0
 
-        # Rollout 작업을 큐에 추가
-        rollout_tasks.append(node)
-
-    # 병렬 롤아웃 실행 - 각 스레드마다 독립적인 engine 생성
-    def _rollout_worker(node):
-        """스레드마다 독립적인 engine 생성해서 rollout 수행"""
-        thread_engine = SimplifiedBattleEngine()
-        result = node.rollout(engine=thread_engine, verbose=False)
-        return node, result
-    
-    with ThreadPoolExecutor(max_workers=n_workers) as executor:
-        rollout_results = list(executor.map(_rollout_worker, rollout_tasks))
-    
-    # Backpropagation - 모든 롤아웃 결과 적용
-    for node, result in rollout_results:
+        # --- Simulation (Rollout) ---
+        t0 = time.time()
         if node:
-            node.backpropagate(result)
-
-    # 최적의 액션 선택 - 가장 많이 방문된 노드 선택
-    if root.children:
-        best_child = max(root.children, key=lambda child: child.visits)
-        
-        if verbose:
-            best_rate = (best_child.wins / best_child.visits * 100) if best_child.visits > 0 else 0
-            print(f"       ➜ 선택: {best_child.action} | visits={best_child.visits}, wins={best_child.wins}, rate={best_rate:.1f}%")
-        
-        # 충분히 탐색된 경우
-        if best_child.visits >= min_visits_per_child:
-            return best_child.action
+            # rollout 내부에서 deepcopy + simulate_full_battle 일어남
+            reward = node.rollout(engine)
+            perf_stats["count_rollouts"] += 1
         else:
-            # 충분히 탐색되지 않았다면 승률 기준으로 선택
-            viable_children = [child for child in root.children if child.visits > 0]
-            if viable_children:
-                best_child = max(viable_children, key=lambda child: child.wins / child.visits)
-                if verbose:
-                    best_rate = (best_child.wins / best_child.visits * 100) if best_child.visits > 0 else 0
-                    print(f"       ➜ 재선택: {best_child.action} | rate={best_rate:.1f}%")
-                return best_child.action
+            reward = 0
+        perf_stats["rollout"] += time.time() - t0
+
+        # --- Backpropagation ---
+        t0 = time.time()
+        if node:
+            node.backpropagate(reward)
+        perf_stats["backprop"] += time.time() - t0
+
+    # 3. 최적 행동 선택
+    if not root.children:
+        return random.choice(root.available_actions) if root.available_actions else None
+
+    best_child = max(root.children, key=lambda c: c.visits)
     
-    # 대안: 사용 가능한 행동 중 랜덤 선택
-    if root.available_actions:
-        action = random.choice(root.available_actions)
-        if verbose:
-            print(f"       ➜ 랜덤: {action}")
-        return action
-    
+    # === [프로파일링] 결과 출력 ===
+    t_total = time.time() - t_start_total
     if verbose:
-        print(f"       ➜ None (선택지 없음)")
-    return None
+        win_rate = (best_child.wins / best_child.visits) * 100
+        action_name = best_child.action.id if hasattr(best_child.action, 'id') else best_child.action.species
+        
+        print(f"\n[MCTS 프로파일링 리포트] (Total: {t_total:.4f}s / Iterations: {iterations})")
+        print(f" - Init       : {perf_stats['init']:.4f}s")
+        print(f" - Selection  : {perf_stats['selection']:.4f}s")
+        print(f" - Expansion  : {perf_stats['expansion']:.4f}s (1회 Deepcopy + 1턴 실행)")
+        
+        avg_rollout = (perf_stats['rollout'] / perf_stats['count_rollouts'] * 1000) if perf_stats['count_rollouts'] > 0 else 0
+        print(f" - Rollout    : {perf_stats['rollout']:.4f}s (총 {perf_stats['count_rollouts']}회, 평균 {avg_rollout:.2f}ms/회)")
+        print(f" - Backprop   : {perf_stats['backprop']:.4f}s")
+        print(f"➜ 선택된 행동: {action_name} (승률: {win_rate:.1f}%, 방문: {best_child.visits})")
+
+    return best_child.action
