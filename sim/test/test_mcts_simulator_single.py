@@ -137,15 +137,41 @@ async def test_mcts_vs_opponent():
     print("배틀 시작...\n")
     
     try:
+        # ==========================================
+        # 1. vs Smart Player (40판)
+        # ==========================================
+        print("\n🔥 [Round 1] MCTS vs Smart Player (40 battles)")
+        await mcts_player.battle_against(smart_player, n_battles=40)
+        
+        # Round 1 결과 출력 (현재까지의 전적)
+        wins_r1 = mcts_player.n_won_battles
+        lost_r1 = mcts_player.n_lost_battles
+        print(f"👉 Round 1 결과: {wins_r1}승 {lost_r1}패 (승률: {wins_r1/40*100:.1f}%)")
+
+
+        # ==========================================
+        # 2. vs Greedy Player (100판)
+        # ==========================================
+        print("\n🔥 [Round 2] MCTS vs Greedy Player (100 battles)")
+        # 여기서 전적이 누적되므로, 시작 전 승수를 저장해둠
+        start_wins = mcts_player.n_won_battles
+        start_lost = mcts_player.n_lost_battles
+        
         await mcts_player.battle_against(greedy_player, n_battles=100)
+        
+        # Round 2 결과 계산 (현재 전적 - 시작 전 전적)
+        wins_r2 = mcts_player.n_won_battles - start_wins
+        lost_r2 = mcts_player.n_lost_battles - start_lost
+        print(f"👉 Round 2 결과: {wins_r2}승 {lost_r2}패 (승률: {wins_r2/100*100:.1f}%)")
+
     except Exception as e:
         print(f"배틀 중 에러: {e}")
         import traceback
         traceback.print_exc()
     
-    print("\n=== 결과 ===")
-    print(f"MCTSPlayer 전적: {mcts_player.n_won_battles}승 {mcts_player.n_lost_battles}패")
-    print(f"상대 전적: {greedy_player.n_won_battles}승 {greedy_player.n_lost_battles}패")
+    # 최종 합계 (선택 사항)
+    print("\n=== 종합 결과 ===")
+    print(f"MCTSPlayer 총 전적: {mcts_player.n_won_battles}승 {mcts_player.n_lost_battles}패")
 
 if __name__ == "__main__":
 
