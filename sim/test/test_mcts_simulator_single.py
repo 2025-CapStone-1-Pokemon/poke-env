@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'player', 'mcts'))
 
 from player.mcts.MCTS_temp_parallel import mcts_search
-from poke_env.player import Player
+from poke_env.player import Player, SimpleHeuristicsPlayer
 from poke_env.battle import Battle
 import time
 
@@ -88,7 +88,7 @@ class MCTSPlayer(Player):
         # print(f"\n[MCTSPlayer] 턴: {battle.turn}")
         
         # MCTS 검색 - SimplifiedAction 반환
-        simplified_action = mcts_search(battle, iterations=100, verbose=False, n_workers=5)
+        simplified_action = mcts_search(battle, iterations=100, verbose=True, n_workers=5)
 
         if simplified_action is None:
             return self.choose_random_move(battle)
@@ -124,6 +124,11 @@ async def test_mcts_vs_opponent():
     )
     
     greedy_player = GreedyPlayer(
+        battle_format="gen9randombattle",
+        max_concurrent_battles=5,  # ✅ 5로 변경
+    )
+
+    smart_player = SimpleHeuristicsPlayer(
         battle_format="gen9randombattle",
         max_concurrent_battles=5,  # ✅ 5로 변경
     )
