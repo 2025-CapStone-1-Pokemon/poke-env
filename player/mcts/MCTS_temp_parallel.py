@@ -4,9 +4,6 @@ import sys
 import os
 import time
 from typing import List, Optional, Tuple, Dict
-from openai import OpenAI
-from dotenv import load_dotenv
-load_dotenv()
 
 # 경로 설정
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -204,40 +201,6 @@ class MCTSSearcher:
             
         self.engine._sync_references(self.root_state)
         self.root = MCTSNode(self.root_state)
-
-        # root state의 가능한 액션들 가지치기
-        self.root.untried_actions = self.root._get_available_actions()
-
-        self.openai_client = OpenAI()
-        
-        # 배틀 상태를 문자열로 변환해서 변수에 저장
-        battle_state_str = self.root_state.str_summary()
-        moves, switches = self.root_state.list_moves_and_switches()
-
-        from api_prompt import system_prompt, json_schema
-        import json
-        response = self.openai_client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt + "\n\n배틀 상태:\n" + battle_state_str},
-                {"role": "user", "content": "moves = " + str(moves) + " switches = " + str(switches)}
-            ],
-            response_format={"type": "json_schema", "json_schema": {
-                "name": "pruning_response",
-                "schema": json_schema
-            }}
-        )
-
-        # OpenAI의 응답에 나온 moves, switches를 제거
-        response_content = response.choices[0].message.content
-        if isinstance(response_content, str):
-            response_data = json.loads(response_content)
-        else:
-            response_data = response_content
-        suggested_actions = response_data.get("pruned_actions", [])
-        filtered_actions = [action for action in self.root.untried_actions if action.id not in suggested_actions and action.species not in suggested_actions]
-
-        self.root.untried_actions = filtered_actions
         
         # [전략] SmartRolloutPolicy (1턴) 사용
         self.policy = SmartRolloutPolicy(max_turns=1)
