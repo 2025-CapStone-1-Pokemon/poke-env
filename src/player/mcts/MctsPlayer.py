@@ -3,13 +3,14 @@ import random
 import sys
 import os
 import time
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Tuple, Dict, Set
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from sim.BattleClass.SimplifiedBattle import SimplifiedBattle
 from sim.BattleEngine.SimplifiedBattleEngine import SimplifiedBattleEngine
 from sim.BattleClass.SimplifiedPokemon import SimplifiedPokemon
 from sim.BattleClass.SimplifiedMove import SimplifiedMove
+from player.mcts.llm_pruner import LLMPruner
 
 
 class BattleHeuristics:
@@ -204,6 +205,9 @@ class MCTSSearcher:
         self.root = MCTSNode(self.root_state)
         
         self.policy = SmartRolloutPolicy(max_turns=1)
+        self.llm_pruner = LLMPruner()
+
+        self._apply_root_pruning()
 
     def search(self, iterations):
         # Fast Fail - 가능한 행동이 없으면 None 혹은 가능한 행동 하나 반환
@@ -277,6 +281,21 @@ class MCTSSearcher:
         else:  # 교체의 경우
             switch_name = action.species
         return move_idx, switch_name
+    
+    def _apply_root_pruning(self):
+        """루트 노드에서만 LLM 기반 프루닝 수행"""
+        if not self.llm_pruner or not self.llm_pruner.is_available:
+            return
+
+        pruned_ids: Set[str] = self.llm_pruner.prune_actions(self.root_state, self.root.untried_actions)
+        if not pruned_ids:
+            return
+
+        self.root.untried_actions = [
+            action
+            for action in self.root.untried_actions
+            if self.llm_pruner.action_identifier(action) not in pruned_ids
+        ]
     
 def mcts_search(root_battle: SimplifiedBattle, iterations: int = 100, verbose: bool = False):
     
