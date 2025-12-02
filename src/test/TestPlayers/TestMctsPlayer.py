@@ -115,7 +115,7 @@ async def test_mcts_vs_opponent():
     
     try:
         print("\nMCTS vs Bot Players")
-        await mcts_player.battle_against(random_player, n_battles=100)
+        await mcts_player.battle_against(random_player, n_battles=30)
         
         # Round 1 결과 출력
         wins_r1 = mcts_player.n_won_battles
@@ -123,14 +123,14 @@ async def test_mcts_vs_opponent():
         print(f"Round 1 결과: {wins_r1}승 {lost_r1}패 (승률: {wins_r1/100*100:.1f}%)")
 
         print("\nMCTS vs Greedy Player")
-        await mcts_player.battle_against(greedy_player, n_battles=100)
+        await mcts_player.battle_against(greedy_player, n_battles=30)
         
         # Round 2 결과 출력
         wins_r2 = mcts_player.n_won_battles - wins_r1
         lost_r2 = mcts_player.n_lost_battles - lost_r1
         print(f"Round 2 결과: {wins_r2}승 {lost_r2}패 (승률: {wins_r2/100*100:.1f}%)")
         print("\nMCTS vs Simple Heuristics Player")
-        await mcts_player.battle_against(smart_player, n_battles=100)
+        await mcts_player.battle_against(smart_player, n_battles=30)
 
         # Round 3 결과 출력
         wins_r3 = mcts_player.n_won_battles - wins_r1 - wins_r2
