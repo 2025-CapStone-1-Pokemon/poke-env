@@ -276,6 +276,9 @@ class LLMPruner:
             return set()
 
         content = response.choices[0].message.content if response.choices else None
+
+        # if content:
+        #     print(f"[LLMPruner] OpenAI response: {content}")
         if not content:
             return set()
 
