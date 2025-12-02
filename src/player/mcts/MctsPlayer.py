@@ -297,12 +297,7 @@ class MCTSSearcher:
             if self.llm_pruner.action_identifier(action) not in pruned_ids
         ]
     
-def mcts_search(
-    root_battle: SimplifiedBattle,
-    iterations: int = 100,
-    verbose: bool = False,
-    n_workers: Optional[int] = None,
-):
+def mcts_search(root_battle: SimplifiedBattle, iterations: int = 100, verbose: bool = False):
     
     searcher = MCTSSearcher(root_battle)
     best_action = searcher.search(iterations)
