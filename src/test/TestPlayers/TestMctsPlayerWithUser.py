@@ -47,7 +47,6 @@ class MCTSPlayer(Player):
                 battle, 
                 100,    # iterations
                 True,  # verbose
-                1       # n_workers
             )
         except Exception as e:
             print(f"\n❌ [MCTS Error] {e}")
