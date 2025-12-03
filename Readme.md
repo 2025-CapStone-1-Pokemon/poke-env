@@ -2,6 +2,43 @@
 
 본 프로젝트는 여러 알고리즘을 기반으로, 포켓몬 전투 환경 아래에서 최적의 전략을 도출하는 모델 개발 프로젝트입니다.
 
+## How to Try
+
+1. 로컬호스트에서 pokemon-showdown 서버 실행
+
+```console
+foo@bar:~$ git clone https://github.com/smogon/pokemon-showdown.git
+foo@bar:~$ cd pokemon-showdown
+foo@bar:~/pokemon-showdown$ npm install
+foo@bar:~/pokemon-showdown$ cp config/config-example.js config/config.js
+foo@bar:~/pokemon-showdown$ node pokemon-showdown start --no-security
+```
+
+2. OpenAI의 API Key 발급 및 결제 후 .env에 저장
+
+```shell
+foo@bar:~$ git clone https://github.com/2025-CapStone-1-Pokemon/poke-env.git
+foo@bar:~$ cd poke-env
+foo@bar:~/poke-env$ echo "OPENAI_API_KEY=sk-proj-..." > .env
+```
+
+3. 서버에 봇 참가
+```shell
+foo@bar:~$ python3 src/test/TestPlayers/TestMctsPlayerWithUser.py
+
+==================================================
+🚀 MCTS_Bot 가 로컬 서버에 접속했습니다!
+==================================================
+
+```
+
+4. 봇에게 배틀 신청 및 시작
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d239600e-21a5-475b-abea-e5b76c9adb59" />
+<img width="506" height="206" alt="image" src="https://github.com/user-attachments/assets/32b4770e-9d5f-4d44-b9e6-f9f2d980c4ef" />
+<img width="398" height="477" alt="image" src="https://github.com/user-attachments/assets/e47b2ae0-599e-4855-97d7-9047f5343b68" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5bcc1d36-5557-448d-926b-e7146325e67d" />
+
+
 ## 프로젝트 구조
 
 ### data/
