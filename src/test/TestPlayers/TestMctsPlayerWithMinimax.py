@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from player.mcts.MctsPlayer import mcts_search
+from player.minimax.MinimaxPlayer import MinimaxPlayer
 from poke_env.player import Player, SimpleHeuristicsPlayer
 from poke_env.battle import Battle
 import time
@@ -110,32 +111,23 @@ async def test_mcts_vs_opponent():
         battle_format="gen9randombattle",
         max_concurrent_battles=5,
     )
+
+    minimax_player = MinimaxPlayer(
+        battle_format="gen9randombattle", 
+        max_concurrent_battles=5,
+    )
     
     print("배틀 시작...\n")
     
     try:
         print("\nMCTS vs Bot Players")
-        # await mcts_player.battle_against(random_player, n_battles=33)
-        
-        # # Round 1 결과 출력
-        # wins_r1 = mcts_player.n_won_battles
-        # lost_r1 = mcts_player.n_lost_battles
-        # print(f"Round 1 결과: {wins_r1}승 {lost_r1}패 (승률: {wins_r1/33*100:.1f}%)")
 
-        # print("\nMCTS vs Greedy Player")
-        # await mcts_player.battle_against(greedy_player, n_battles=33)
-        
-        # # Round 2 결과 출력
-        # wins_r2 = mcts_player.n_won_battles - wins_r1
-        # lost_r2 = mcts_player.n_lost_battles - lost_r1
-        # print(f"Round 2 결과: {wins_r2}승 {lost_r2}패 (승률: {wins_r2/33*100:.1f}%)")
-        print("\nMCTS vs Simple Heuristics Player")
-        await mcts_player.battle_against(smart_player, n_battles=33)
+        await mcts_player.battle_against(minimax_player, n_battles=33)
 
-        # Round 3 결과 출력
-        wins_r3 = mcts_player.n_won_battles 
-        lost_r3 = mcts_player.n_lost_battles 
-        print(f"Round 3 결과: {wins_r3}승 {lost_r3}패 (승률: {wins_r3/33*100:.1f}%)")
+        wins_r = mcts_player.n_won_battles 
+        lost_r = mcts_player.n_lost_battles 
+
+        print(f"Round 3 결과: {wins_r}승 {lost_r}패 (승률: {wins_r/33*100:.1f}%)")
 
     except Exception as e:
         print(f"배틀 중 에러: {e}")
