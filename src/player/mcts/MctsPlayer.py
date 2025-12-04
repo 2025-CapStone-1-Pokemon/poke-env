@@ -313,10 +313,10 @@ def mcts_search(root_battle: SimplifiedBattle, iterations: int = 100, verbose: b
             # 액션 이름 추출
             action = child.action
             if hasattr(action, 'id'):  # 기술
-                action_type = "👊 Move"
+                action_type = "Move"
                 name = action.id
             else:  # 교체
-                action_type = "🔄 Switch"
+                action_type = "Switch"
                 name = action.species
 
             # 승률 계산
